@@ -3,7 +3,6 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import ReactPlayer from "react-player";
 import ContainerBtn from "../../components/general/containerBtn";
-import Title from "../../components/general/title";
 import Dialog from "../../components/general/dialog";
 import { LanguageContext } from "../../routes/authRoute";
 import { SET_FANWALL } from "../../redux/types";

@@ -6,6 +6,8 @@ import ContainerBtn from "../../components/general/containerBtn"
 import { AddIcon, BackIcon } from "../../assets/svg"
 import "../../assets/styles/bite/CreateBiteStyle.scss"
 
+const currencies = ['USD', 'INR', 'TWD', 'HKD', 'MYR']
+
 const CreateBite = () => {
     const navigate = useNavigate()
     const [title, setTitle] = useState('')
@@ -14,6 +16,7 @@ const CreateBite = () => {
     const [publishEnable, setPublishEnable] = useState(false)
 
     const gotoHome = () => { navigate('/') }
+    const gotoUploadBite = () => { navigate('/bite/create/upload') }
     const publish = () => {
         if (publishEnable) {
 
@@ -37,12 +40,12 @@ const CreateBite = () => {
             <div className="page-header">
                 <div onClick={gotoHome}><BackIcon color="black" /></div>
                 <div className="page-title"><span>Posting on Bite</span></div>
-                <div></div>
+                <div style={{ width: '24px' }}></div>
             </div>
             <div className="create-bite">
                 <div className="uploaded-vidoes">
                     <div className="uploaded-video">
-                        <div className="upload-video-btn">
+                        <div className="upload-video-btn" onClick={gotoUploadBite}>
                             <AddIcon color="white" />
                         </div>
                     </div>
@@ -91,7 +94,7 @@ const CreateBite = () => {
                         width={306}
                         option={currency}
                         setOption={setCurrency}
-                        options={['USD', 'INR', 'TWD', 'HKD', 'MYR']}
+                        options={currencies}
                     />
                 </div>
 

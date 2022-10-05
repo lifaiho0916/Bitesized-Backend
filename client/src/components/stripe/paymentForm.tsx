@@ -182,7 +182,12 @@ const CheckoutForm = (props: any) => {
             <span>{context.PAYMENT.SELECT_CURRENCY}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px' }}>
-            <CurrencySelect label={context.PAYMENT.YOU_WILL_PAY_IN} options={context.PAYMENT_CURRENCIES} setOption={setCurrency} option={currency} />
+            <CurrencySelect 
+              label={context.PAYMENT.YOU_WILL_PAY_IN}
+              options={context.PAYMENT_CURRENCIES}
+              setOption={setCurrency}
+              option={currency}
+            />
           </div>
           <div className="pay-button">
             <div style={{ width: '240px' }} onClick={() => { formRef.current.click(); }}>

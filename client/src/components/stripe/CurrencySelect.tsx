@@ -13,12 +13,12 @@ const CurrencySelect = (props: any) => {
                 <span className="label">{label}</span>
                 <div className="input-field">
                     <select
-                        onChange={(e) => { setOption(e.target.value); }}
+                        onChange={(e) => { setOption(Number(e.target.value)) }}
                         value={option}
                         style={{ width: width ? `${width}px` : '190px' }}
                     >
-                        {options.map((option: any, index: any) => (
-                            <option key={index} value={index}>{option}</option>
+                        {options.map((op: any, index: any) => (
+                            <option key={index} value={index}>{op}</option>
                         ))}
                     </select>
                 </div>
