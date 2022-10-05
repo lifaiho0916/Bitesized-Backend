@@ -15,11 +15,11 @@ const BiteSchema = new monogoose.Schema({
     currency: {
         type: String
     },
-    bites: [{
-        cover: {
+    videos: [{
+        coverUrl: {
             type: String
         },
-        video: {
+        videoUrl: {
             type: String
         }
     }],
