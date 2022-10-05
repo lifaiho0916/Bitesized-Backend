@@ -1,0 +1,85 @@
+.create-bite-wrapper {
+    .page-header {
+        box-sizing: border-box;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 880px;
+        height: 52px;
+        margin: 25px auto;
+        padding: 0px 10px;
+
+        .page-title {
+            font-family: 'Lato';
+            font-style: normal;
+            font-weight: 600;
+            font-size: 20px;
+            line-height: 24px;
+            text-align: center;
+            color: #EFA058;
+        }
+    }
+
+    .create-bite {
+        margin: 0px auto;
+        max-width: 340px;
+
+        .uploaded-vidoes {
+            display: flex;
+            justify-content: space-evenly;
+
+            .uploaded-video {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 90px;
+                height: 160px;
+
+                .upload-video-btn {
+                    cursor: pointer;
+                    width: 40px;
+                    height: 40px;
+                    background: #EFA058;
+                    border-radius: 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    &:hover {
+                        background: #F2B176;
+                    }
+                }
+            }
+        }
+
+        .session-title {
+            font-family: 'Lato';
+            font-style: normal;
+            font-weight: 800;
+            font-size: 20px;
+            line-height: 20px;
+            letter-spacing: 0.05em;
+            color: #EFA058;
+            margin-bottom: 15px;
+        }
+
+        .currency-description {
+            display: flex;
+            justify-content: center;
+            font-family: 'Lato';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 18px;
+            letter-spacing: 0.005em;
+        }
+    }
+}
+
+@media screen and (max-width: 680px) {
+    .create-bite-wrapper {
+        .page-header {
+            margin: 15px auto;
+        }
+    }
+}

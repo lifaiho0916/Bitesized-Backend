@@ -64,6 +64,7 @@ const Auth = (props: any) => {
 
   const responseGoogleSuccess = async (response: any) => {
     const result: any = response?.profileObj;
+    console.log(result)
     let browser = "";
     if (navigator.userAgent.indexOf("Chrome") !== -1) browser = 'Chrome';
     else if (navigator.userAgent.indexOf("Safari") !== -1) browser = "Safari";
@@ -121,9 +122,7 @@ const Auth = (props: any) => {
     }
   };
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location])
+  useEffect(() => { window.scrollTo(0, 0) }, [location])
 
   useEffect(() => {
     if (dlgState.state) {
@@ -148,7 +147,7 @@ const Auth = (props: any) => {
         buttons={[
           {
             text: 'Sign In Now',
-            handleClick: () => { 
+            handleClick: () => {
               SetOpenSignupMethodErrorDlg(false)
               navigate('/auth/signin')
             }

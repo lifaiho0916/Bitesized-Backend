@@ -38,7 +38,7 @@ const Header = () => {
   const [openSideMenu, setOpenSideMenu] = useState<boolean>(false);
   const [openLangSelect, setOpenLangSelect] = useState(false);
   const sideMenuRightPosition = openSideMenu === true ? "0px" : "-300px";
-  const {user, lang} = userState
+  const { user, lang } = userState
 
   const handleSubmit = () => {
     dispatch({ type: SET_PREVIOUS_ROUTE, payload: location.pathname })
@@ -69,21 +69,8 @@ const Header = () => {
     }
   }
 
-  const gotoAdminHome = () => {
-    if (location.pathname === '/dareme/create' && isDaremeData()) dispatch({ type: SET_DIALOG_STATE, payload: { type: "createDareMe", state: true } });
-    else {
-      dispatch({ type: SET_DAREMES, payload: [] });
-      navigate('/admin');
-    }
-  }
-
-  const gotoCreate = () => {
-    if (location.pathname === '/dareme/create' && isDaremeData()) dispatch({ type: SET_DIALOG_STATE, payload: { type: "createDareMe", state: true } });
-    else {
-      dispatch({ type: SET_PREVIOUS_ROUTE, payload: location.pathname });
-      navigate("/create");
-    }
-  }
+  const gotoAdminHome = () => { navigate('/admin') }
+  const gotoCreate = () => { navigate("/bite/create") }
 
   const setLang = () => {
     setOpenLangSelect(true);

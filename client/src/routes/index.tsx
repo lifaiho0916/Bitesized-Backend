@@ -5,6 +5,8 @@ import Auth from "../pages/auth"
 import Home from "../pages/home"
 import Create from '../pages/create'
 
+import CreateBite from '../pages/bite/CreateBite'
+
 import CreateDareme from "../pages/dareme/create/createDareme"
 import UploadVideo from "../pages/dareme/create/uploadVideo"
 import DaremeTitile from "../pages/dareme/create/daremeTitle"
@@ -94,6 +96,8 @@ const AppRoutes = () => {
       <Route path="/" element={<AuthRoute child={<Home />} />} />
       <Route path="auth/signin" element={<AuthRoute child={<Auth isSignin={true} />} />} />
       <Route path="auth/signup" element={<AuthRoute child={<Auth isSignin={false} />} />} />
+
+      <Route path="bite/create" element={<AuthRoute child={<CreateBite />} />} />
       <Route path="create" element={<AuthRoute child={<Create />} routeType="private" />} />
       <Route path="dareme/create" element={<AuthRoute child={<CreateDareme />} routeType="private" />} />
       <Route path="/:creatorLink/tip" element={<AuthRoute child={<TipDonut />} />} />
