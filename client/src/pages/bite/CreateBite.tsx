@@ -1,17 +1,36 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Input from "../../components/general/input"
 import CurrencySelect from "../../components/stripe/CurrencySelect"
+import ContainerBtn from "../../components/general/containerBtn"
 import { AddIcon, BackIcon } from "../../assets/svg"
 import "../../assets/styles/bite/CreateBiteStyle.scss"
 
-const CreateBite = (props: any) => {
+const CreateBite = () => {
     const navigate = useNavigate()
     const [title, setTitle] = useState('')
     const [price, setPrice] = useState('')
     const [currency, setCurrency] = useState(0)
+    const [publishEnable, setPublishEnable] = useState(false)
 
     const gotoHome = () => { navigate('/') }
+    const publish = () => {
+        if (publishEnable) {
+
+        }
+    }
+
+    useEffect(() => {
+        if (title === "") {
+            setPublishEnable(false)
+            return
+        }
+        if (price === "" || Number(price) === 0) {
+            setPublishEnable(false)
+            return
+        }
+        setPublishEnable(true)
+    }, [title, price])
 
     return (
         <div className="create-bite-wrapper">
@@ -51,6 +70,9 @@ const CreateBite = (props: any) => {
                 <div className="session-input">
                     <Input
                         type="input"
+                        isNumber={true}
+                        minnum={0}
+                        maxnum={100000000000000}
                         width={340}
                         placeholder="$1 USD is ideal for bite-size!"
                         title={price}
@@ -70,6 +92,16 @@ const CreateBite = (props: any) => {
                         option={currency}
                         setOption={setCurrency}
                         options={['USD', 'INR', 'TWD', 'HKD', 'MYR']}
+                    />
+                </div>
+
+                <div style={{ marginTop: '25px' }}></div>
+                <div className="publish-btn" onClick={publish}>
+                    <ContainerBtn
+                        styleType="fill"
+                        color="primary"
+                        text="Publish"
+                        disabled={!publishEnable}
                     />
                 </div>
 
