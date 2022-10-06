@@ -1,138 +1,138 @@
 .create-bite-wrapper {
-    .page-header {
-        box-sizing: border-box;
+  .page-header {
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 880px;
+    height: 52px;
+    margin: 25px auto;
+    padding: 0px 10px;
+
+    .page-title {
+      font-family: "Lato";
+      font-style: normal;
+      font-weight: 600;
+      font-size: 20px;
+      line-height: 24px;
+      text-align: center;
+      color: #efa058;
+    }
+  }
+
+  .create-bite {
+    margin: 0px auto;
+    max-width: 880px;
+    padding: 0px 30px;
+
+    .uploaded-vidoes {
+      display: flex;
+      justify-content: space-evenly;
+
+      .uploaded-video {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        max-width: 880px;
-        height: 52px;
-        margin: 25px auto;
-        padding: 0px 10px;
+        justify-content: center;
+        width: 280px;
+        height: 480px;
 
-        .page-title {
-            font-family: 'Lato';
-            font-style: normal;
-            font-weight: 600;
-            font-size: 20px;
-            line-height: 24px;
-            text-align: center;
-            color: #EFA058;
+        .upload-video-btn {
+          cursor: pointer;
+          width: 40px;
+          height: 40px;
+          background: #efa058;
+          border-radius: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &:hover {
+            background: #f2b176;
+          }
         }
+      }
     }
 
-    .create-bite {
-        margin: 0px auto;
-        max-width: 880px;
-        padding: 0px 30px;
-
-        .uploaded-vidoes {
-            display: flex;
-            justify-content: space-evenly;
-
-            .uploaded-video {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 280px;
-                height: 480px;
-
-                .upload-video-btn {
-                    cursor: pointer;
-                    width: 40px;
-                    height: 40px;
-                    background: #EFA058;
-                    border-radius: 40px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-
-                    &:hover {
-                        background: #F2B176;
-                    }
-                }
-            }
-        }
-
-        .session-title {
-            font-family: 'Lato';
-            font-style: normal;
-            font-weight: 800;
-            font-size: 20px;
-            line-height: 20px;
-            letter-spacing: 0.05em;
-            color: #EFA058;
-            margin-bottom: 15px;
-        }
-
-        .currency-description {
-            font-family: 'Lato';
-            font-style: normal;
-            font-weight: 400;
-            font-size: 14px;
-            line-height: 18px;
-            letter-spacing: 0.005em;
-        }
-
-        .publish-btn {
-            margin: 0px auto;
-            width: 340px;
-        }
-
-        .first-divider {
-            margin-top: 20px;
-        }
-
-        .second-divider {
-            margin-top: 40px;
-        }
-
-        .third-divider {
-            margin-top: 40px;
-        }
-
-        .firth-divider {
-            margin-top: 15px;
-        }
-
-        .fifth-divider {
-            margin-top: 50px;
-        }
+    .session-title {
+      font-family: "Lato";
+      font-style: normal;
+      font-weight: 800;
+      font-size: 20px;
+      line-height: 20px;
+      letter-spacing: 0.05em;
+      color: #efa058;
+      margin-bottom: 15px;
     }
+
+    .currency-description {
+      font-family: "Lato";
+      font-style: normal;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 18px;
+      letter-spacing: 0.005em;
+    }
+
+    .publish-btn {
+      margin: 0px auto;
+      width: 340px;
+    }
+
+    .first-divider {
+      margin-top: 20px;
+    }
+
+    .second-divider {
+      margin-top: 40px;
+    }
+
+    .third-divider {
+      margin-top: 40px;
+    }
+
+    .firth-divider {
+      margin-top: 15px;
+    }
+
+    .fifth-divider {
+      margin-top: 50px;
+    }
+  }
 }
 
 @media screen and (max-width: 680px) {
-    .create-bite-wrapper {
-        .page-header {
-            margin: 15px auto;
-        }
-
-        .create-bite {
-            .uploaded-vidoes {
-                .uploaded-video {
-                    width: 90px;
-                    height: 160px;
-                }
-            }
-
-            .first-divider {
-                margin-top: 20px;
-            }
-    
-            .second-divider {
-                margin-top: 35px;
-            }
-    
-            .third-divider {
-                margin-top: 15px;
-            }
-    
-            .firth-divider {
-                margin-top: 15px;
-            }
-    
-            .fifth-divider {
-                margin-top: 25px;
-            }
-        }
+  .create-bite-wrapper {
+    .page-header {
+      margin: 15px auto;
     }
+
+    .create-bite {
+      .uploaded-vidoes {
+        .uploaded-video {
+          width: 90px;
+          height: 160px;
+        }
+      }
+
+      .first-divider {
+        margin-top: 20px;
+      }
+
+      .second-divider {
+        margin-top: 35px;
+      }
+
+      .third-divider {
+        margin-top: 15px;
+      }
+
+      .firth-divider {
+        margin-top: 15px;
+      }
+
+      .fifth-divider {
+        margin-top: 25px;
+      }
+    }
+  }
 }
