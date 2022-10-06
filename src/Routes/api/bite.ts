@@ -4,13 +4,14 @@ const router = express.Router()
 
 //import Controller
 import { 
-    AddBite,
+    getAllBites,
+    CreateBite,
     uploadVideo,
     uploadCover,
 } from '../../controllers/biteController'
 
-
-router.post('/', auth, AddBite)
+router.get('/', getAllBites)
+router.post('/create', auth, CreateBite)
 router.post('/upload/video', auth, uploadVideo)
 router.post('/upload/cover', auth, uploadCover)
 

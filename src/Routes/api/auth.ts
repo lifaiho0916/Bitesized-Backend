@@ -20,8 +20,11 @@ import {
     getUserFromUrl,
     getTipState,
     inviteFriend,
-    getCreatorsByCategory
+    getCreatorsByCategory,
+    getOwnersOfBites
 } from '../../controllers/authController';
+
+router.get('/owners', getOwnersOfBites)
 
 router.post("/googleSignin", googleSignin);
 router.post("/googleSignup", googleSignup);

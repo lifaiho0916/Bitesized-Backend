@@ -1,18 +1,23 @@
 import axios from "axios"
 
-const API = axios.create({ baseURL: process.env.REACT_APP_SERVER_URL });
+const API = axios.create({ baseURL: process.env.REACT_APP_SERVER_URL })
 
 API.interceptors.request.use((req: any) => {
-    const token = JSON.parse(localStorage.getItem(`${process.env.REACT_APP_CREATO_TOKEN}`) || '{}');
+    const token = JSON.parse(localStorage.getItem(`${process.env.REACT_APP_CREATO_TOKEN}`) || '{}')
     if (localStorage.getItem(`${process.env.REACT_APP_CREATO_TOKEN}`)) {
-        req.headers.Authorization = `Bearer ${token}`;
-        req.headers.Range = 'bytes=0~';
+        req.headers.Authorization = `Bearer ${token}`
+        req.headers.Range = 'bytes=0~'
     }
-    return req;
-});
+    return req
+})
 
 export const uploadVideo = (data: any, config: any) => API.post('/api/bite/upload/video', data, config)
 export const uploadCover = (data: any, config: any) => API.post('/api/bite/upload/cover', data, config)
+export const CreateBite = (data: any) => API.post('/api/bite/create', data)
+
+export const getAllBites = () => API.get('/api/bite')
+
+export const getOwnersOfBites = () => API.get('/api/auth/owners')
 
 export const googleSignin = (data: any) => API.post('/api/auth/googleSignin', data);
 export const googleSignup = (data: any) => API.post('/api/auth/googleSignup', data);

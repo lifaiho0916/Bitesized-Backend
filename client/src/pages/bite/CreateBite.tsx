@@ -6,6 +6,7 @@ import TeaserCard from "../../components/general/TeaserCard"
 import TeaserCardPopUp from "../../components/general/TeaserCardPopUp"
 import CurrencySelect from "../../components/stripe/CurrencySelect"
 import ContainerBtn from "../../components/general/containerBtn"
+import Dialog from "../../components/general/dialog"
 import { AddIcon, BackIcon, PlayIcon } from "../../assets/svg"
 import { biteAction } from "../../redux/actions/biteActions"
 import "../../assets/styles/bite/CreateBiteStyle.scss"
@@ -36,13 +37,22 @@ const CreateBite = () => {
     const width = useWindowSize()
 
     const [openVideoPopup, setOpenVideoPopUp] = useState(false)
+    const [openQuit, setOpenQuit] = useState(false)
+    const [openPublish, setOpenPublish] = useState(false)
 
-    const gotoHome = () => { navigate('/') }
     const gotoUploadBite = () => { navigate('/bite/create/upload') }
     const publish = () => {
         if (!publishEnable) return
-        const newBite = { ...bite, title: title, price: price, currency: (currencies[currency]).toLowerCase() }
-        dispatch(biteAction.saveBite(newBite))
+        setOpenPublish(true)
+    }
+    const publishBite = () => {
+        const newBite = {
+            ...bite,
+            title: title,
+            price: price,
+            currency: (currencies[currency]).toLowerCase()
+        }
+        dispatch(biteAction.saveBite(newBite, navigate))
     }
     const displayDuration = (duration: any) => {
         return Math.floor(duration / 60) + ":" + (Math.round(duration % 60) < 10 ? '0' : '') + Math.round(duration % 60)
@@ -53,17 +63,17 @@ const CreateBite = () => {
     }
 
     useEffect(() => {
-        if (title === "" || price === "" || Number(price) === 0 || bite.videos.length === 0) {
+        if (price === "" || Number(price) === 0 || bite.videos.length === 0) {
             setPublishEnable(false)
             return
         }
         setPublishEnable(true)
-    }, [title, price, bite])
+    }, [price, bite])
 
     return (
         <div className="create-bite-wrapper">
             <div className="page-header">
-                <div onClick={gotoHome}><BackIcon color="black" /></div>
+                <div onClick={() => setOpenQuit(true)}><BackIcon color="black" /></div>
                 <div className="page-title"><span>Posting on Bite</span></div>
                 <div style={{ width: '24px' }}></div>
             </div>
@@ -72,6 +82,35 @@ const CreateBite = () => {
                 exit={() => { setOpenVideoPopUp(false) }}
                 teaser={bite.videos.length === 0 ? "" : bite.videos[videoIndex].videoUrl.preview}
                 size={bite.videos.length === 0 ? false : bite.videos[videoIndex].size}
+            />
+            <Dialog
+                display={openQuit}
+                wrapExit={() => setOpenQuit(false)}
+                title="Quit?"
+                context="Your draft will not be saved."
+                buttons={[
+                    {
+                        text: 'Quit',
+                        handleClick: () => navigate('/')
+                    },
+                    {
+                        text: 'Cancel',
+                        handleClick: () => setOpenQuit(false)
+                    }
+                ]}
+            />
+            <Dialog
+                display={openPublish}
+                exit={() => setOpenPublish(false)}
+                wrapExit={() => setOpenPublish(false)}
+                title="Confirm:"
+                context="Post can not be edited afterwards."
+                buttons={[
+                    {
+                        text: 'Publish',
+                        handleClick: () => publishBite()
+                    }
+                ]}
             />
             <div className="create-bite">
                 <div className="uploaded-vidoes">

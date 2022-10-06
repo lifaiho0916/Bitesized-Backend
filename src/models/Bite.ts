@@ -16,6 +16,7 @@ const BiteSchema = new monogoose.Schema({
         type: String
     },
     videos: [{
+        _id: false,
         coverUrl: {
             type: String
         },

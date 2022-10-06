@@ -12,8 +12,10 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import voucher_codes from 'voucher-code-generator'
 import Mixpanel from "mixpanel";
+import Bite from "../models/Bite"
 import 'dotenv/config'
 import CONSTANT from "../utils/constant"
+import { stringify } from "querystring";
 
 const mixpanel = Mixpanel.init(`${process.env.MIXPANEL_TOKEN}`)
 var mixpanel_importer = Mixpanel.init(`${process.env.MIXPANEL_TOKEN}`, {
@@ -22,11 +24,30 @@ var mixpanel_importer = Mixpanel.init(`${process.env.MIXPANEL_TOKEN}`, {
 
 const welcomeDonuts = 10;
 
-function calcTime() {
-  var d = new Date();
-  var utc = d.getTime();
-  var nd = new Date(utc + (3600000 * 8));
-  return nd;
+const calcTime = () => {
+  var d = new Date()
+  var utc = d.getTime()
+  var nd = new Date(utc + (3600000 * 8))
+  return nd
+}
+
+export const getOwnersOfBites = async (req: any, res: any) => {
+  try {
+    const bites = await Bite.find().populate({
+      path: 'owner',
+      select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1 }
+    })
+
+    const owners: any = []
+    bites.forEach((bite: any) => {
+      const filterRes = owners.filter((owner: any) => String(owner._id) === String(bite.owner._id))
+      if (filterRes.length === 0) owners.push(bite.owner)
+    })
+
+    return res.status(200).json({ success: true, payload: { users: owners } })
+  } catch (err) {
+    console.log(err)
+  }
 }
 
 export const setFirstLogin = async () => {
@@ -637,7 +658,7 @@ const uploadAvatar = multer({
 
 export const editAvatar = async (req: Request, res: Response) => {
   uploadAvatar(req, res, () => {
-    res.status(200).json({ success: true, path: "uploads/avatar/" + req.file?.filename });
+    res.status(200).json({ success: true, path: "uploads/avatar/" + req.file ?.filename });
   });
 }
 

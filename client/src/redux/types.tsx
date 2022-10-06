@@ -1,6 +1,7 @@
 export const GOOGLE_AUTH = 'GOOGLE_AUTH'
 
 export const SET_BITE = 'SET_BITE'
+export const SET_BITES = 'SET_BITES'
 export const SET_BITE_INITIAL = 'SET_BITE_INITIAL'
 
 export const SET_DAREME_INITIAL = 'SET_DAREME_INITIAL';

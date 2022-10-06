@@ -19,6 +19,11 @@ const biteReducer = (state: any = INITIAL_STATE, action: any) => {
                 ...state,
                 bite: payload
             }
+        case actionTypes.SET_BITES:
+            return {
+                ...state,
+                bites: payload
+            }
         case actionTypes.SET_BITE_INITIAL:
             return {
                 bite: {
