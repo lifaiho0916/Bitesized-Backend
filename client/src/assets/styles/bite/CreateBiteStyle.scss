@@ -22,7 +22,8 @@
 
     .create-bite {
         margin: 0px auto;
-        max-width: 340px;
+        max-width: 880px;
+        padding: 0px 30px;
 
         .uploaded-vidoes {
             display: flex;
@@ -32,8 +33,8 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 90px;
-                height: 160px;
+                width: 280px;
+                height: 480px;
 
                 .upload-video-btn {
                     cursor: pointer;
@@ -64,14 +65,37 @@
         }
 
         .currency-description {
-            display: flex;
-            justify-content: center;
             font-family: 'Lato';
             font-style: normal;
             font-weight: 400;
             font-size: 14px;
             line-height: 18px;
             letter-spacing: 0.005em;
+        }
+
+        .publish-btn {
+            margin: 0px auto;
+            width: 340px;
+        }
+
+        .first-divider {
+            margin-top: 20px;
+        }
+
+        .second-divider {
+            margin-top: 40px;
+        }
+
+        .third-divider {
+            margin-top: 40px;
+        }
+
+        .firth-divider {
+            margin-top: 15px;
+        }
+
+        .fifth-divider {
+            margin-top: 50px;
         }
     }
 }
@@ -80,6 +104,35 @@
     .create-bite-wrapper {
         .page-header {
             margin: 15px auto;
+        }
+
+        .create-bite {
+            .uploaded-vidoes {
+                .uploaded-video {
+                    width: 90px;
+                    height: 160px;
+                }
+            }
+
+            .first-divider {
+                margin-top: 20px;
+            }
+    
+            .second-divider {
+                margin-top: 35px;
+            }
+    
+            .third-divider {
+                margin-top: 15px;
+            }
+    
+            .firth-divider {
+                margin-top: 15px;
+            }
+    
+            .fifth-divider {
+                margin-top: 25px;
+            }
         }
     }
 }

@@ -5,7 +5,6 @@ import Button from "../general/button"
 import TeaserCard from "../general/TeaserCard"
 import { TipIcon, ClockIcon, CreatoCoinIcon, NoOfPeopleIcon, Dare1Icon } from "../../assets/svg"
 import { LanguageContext } from "../../routes/authRoute"
-import CONSTANT from "../../constants/constant"
 import "../../assets/styles/dareme/components/daremeCardStyle.scss"
 
 const DareMeCard = (props: any) => {

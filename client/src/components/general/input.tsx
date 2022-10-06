@@ -49,7 +49,7 @@ const Input = (props: any) => {
   }, [title]);
 
   return (
-    <div className="input-wrapper" style={{ width: width ? `${width}px` : '320px' }}>
+    <div className="input-wrapper" style={{ width: width ? width : '320px' }}>
       <div className="input">
         <div className="label">{label}</div>
         <div
@@ -59,7 +59,7 @@ const Input = (props: any) => {
           {
             type === "textarea" ?
               <textarea
-              style={{ width: width ? `${width - 32}px` : '288px' }}
+                style={{ width: width ? width : '288px' }}
                 placeholder={placeholder}
                 onChange={onChange}
                 value={title}
@@ -67,7 +67,7 @@ const Input = (props: any) => {
                 onFocus={setFocus}
               /> :
               <input
-                style={{ width: width ? `${width - 32}px` : '288px' }}
+                style={{ width: width ? width : '288px' }}
                 type={isNumber ? "number" : "text"}
                 placeholder={placeholder}
                 maxLength={wordCount}

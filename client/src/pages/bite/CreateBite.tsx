@@ -51,14 +51,14 @@ const CreateBite = () => {
                     </div>
                 </div>
 
-                <div style={{ marginTop: '20px' }}></div>
+                <div className="first-divider"></div>
                 <div className="session-title">
                     <span>Bite Title</span>
                 </div>
                 <div className="session-input">
                     <Input
                         type="input"
-                        width={340}
+                        width={'100%'}
                         wordCount={100}
                         placeholder="Tell the story..."
                         title={title}
@@ -66,7 +66,7 @@ const CreateBite = () => {
                     />
                 </div>
 
-                <div style={{ marginTop: '35px' }}></div>
+                <div className="second-divider"></div>
                 <div className="session-title">
                     <span> $ Price to unlock</span>
                 </div>
@@ -74,31 +74,34 @@ const CreateBite = () => {
                     <Input
                         type="input"
                         isNumber={true}
+                        width={'100%'}
                         minnum={0}
                         maxnum={100000000000000}
-                        width={340}
                         placeholder="$1 USD is ideal for bite-size!"
                         title={price}
                         setTitle={setPrice}
                     />
                 </div>
 
-                <div style={{ marginTop: '15px' }}></div>
+                <div className="third-divider"></div>
+                <div className="session-title">
+                    <span>Currency</span>
+                </div>
                 <div className="currency-description">
-                    <span>Currency (Price will be displayed in USD)</span>
+                    <span>(Price will be displayed in USD)</span>
                 </div>
 
-                <div style={{ marginTop: '15px' }}></div>
+                <div className="firth-divider"></div>
                 <div className="currency-selection">
                     <CurrencySelect
-                        width={306}
+                        width={'100%'}
                         option={currency}
                         setOption={setCurrency}
                         options={currencies}
                     />
                 </div>
 
-                <div style={{ marginTop: '25px' }}></div>
+                <div className="fifth-divider"></div>
                 <div className="publish-btn" onClick={publish}>
                     <ContainerBtn
                         styleType="fill"

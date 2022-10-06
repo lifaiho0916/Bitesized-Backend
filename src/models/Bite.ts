@@ -21,6 +21,9 @@ const BiteSchema = new monogoose.Schema({
         },
         videoUrl: {
             type: String
+        },
+        size: {
+            type: Boolean
         }
     }],
     purchasedUsers: [{
