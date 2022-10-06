@@ -11,7 +11,7 @@ import { authAction } from "../redux/actions/authActions";
 import { CreatoColorIcon, CreatoCoinIcon, AddIcon, LanguageIcon } from "../assets/svg";
 import { LanguageContext } from "../routes/authRoute";
 import CONSTANT from "../constants/constant";
-import { SET_DAREMES, SET_DIALOG_STATE, SET_PREVIOUS_ROUTE, SET_USERS, SET_LANGUAGE } from "../redux/types";
+import { SET_DAREMES, SET_DIALOG_STATE, SET_PREVIOUS_ROUTE, SET_USERS, SET_LANGUAGE, SET_BITE_INITIAL } from "../redux/types";
 import "../assets/styles/headerStyle.scss";
 
 
@@ -70,7 +70,10 @@ const Header = () => {
   }
 
   const gotoAdminHome = () => { navigate('/admin') }
-  const gotoCreate = () => { navigate("/bite/create") }
+  const gotoCreate = () => {
+    dispatch({ type: SET_BITE_INITIAL })
+    navigate("/bite/create")
+  }
 
   const setLang = () => {
     setOpenLangSelect(true);
@@ -144,38 +147,38 @@ const Header = () => {
                 </div>
               </div>
             ) : (
-              <>
-                <div className="sign-lang-btn">
-                  <div className="lang-btn">
-                    <Button
-                      text={lang === 'EN' ?
-                        width > 880 ? ' 繁體中文' : '中文' :
-                        width > 880 ? 'English' : 'Eng'
-                      }
-                      fillStyle="fill"
-                      color="primary"
-                      shape="rounded"
-                      icon={width > 880 ? [
-                        <LanguageIcon color="white" />,
-                        <LanguageIcon color="white" />,
-                        <LanguageIcon color="white" />
-                      ]
-                        : undefined}
-                      handleSubmit={setLang}
-                    />
+                <>
+                  <div className="sign-lang-btn">
+                    <div className="lang-btn">
+                      <Button
+                        text={lang === 'EN' ?
+                          width > 880 ? ' 繁體中文' : '中文' :
+                          width > 880 ? 'English' : 'Eng'
+                        }
+                        fillStyle="fill"
+                        color="primary"
+                        shape="rounded"
+                        icon={width > 880 ? [
+                          <LanguageIcon color="white" />,
+                          <LanguageIcon color="white" />,
+                          <LanguageIcon color="white" />
+                        ]
+                          : undefined}
+                        handleSubmit={setLang}
+                      />
+                    </div>
+                    <div>
+                      <Button
+                        text={contexts.DIALOG.BUTTON_LETTER.SIGN_IN}
+                        fillStyle="fill"
+                        color="primary"
+                        shape="rounded"
+                        handleSubmit={handleSubmit}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Button
-                      text={contexts.DIALOG.BUTTON_LETTER.SIGN_IN}
-                      fillStyle="fill"
-                      color="primary"
-                      shape="rounded"
-                      handleSubmit={handleSubmit}
-                    />
-                  </div>
-                </div>
-              </>
-            )}
+                </>
+              )}
             {user &&
               <div
                 className="transparent-bg"

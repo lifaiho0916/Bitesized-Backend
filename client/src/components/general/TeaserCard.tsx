@@ -15,7 +15,7 @@ const TeaserCard = (props: any) => {
         if (play) {
           setPlay(false)
           setMuted(true)
-          playerRef.current?.seekTo(0)
+          playerRef.current ?.seekTo(0)
         }
       }}
     >
@@ -24,13 +24,13 @@ const TeaserCard = (props: any) => {
           <img
             src={cover}
             alt="cover Image"
-            style={size ? { width: 'auto', height: '100%' } : { width: '100%', height: 'auto' }} />
+            style={size ? { width: '100%', height: 'auto' } : { width: 'auto', height: '100%' }} />
         </div>
       }
       {play &&
         <>
           <ReactPlayer
-            className={size ? "react-player-height" : "react-player-width"}
+            className={size ? "react-player-width" : "react-player-height"}
             style={{ borderRadius: border ? border : '0px' }}
             ref={playerRef}
             url={teaser}
@@ -38,7 +38,7 @@ const TeaserCard = (props: any) => {
             playing={play}
             playsinline={true}
             onProgress={(progress) => {
-              if (progress.playedSeconds >= progress.loadedSeconds) playerRef.current?.seekTo(0);
+              if (progress.playedSeconds >= progress.loadedSeconds) playerRef.current ?.seekTo(0);
             }}
           />
           <div className="mute-icon" onClick={(e) => {

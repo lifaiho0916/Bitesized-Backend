@@ -33,8 +33,63 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative;
         width: 280px;
         height: 480px;
+
+        .time-duration {
+          position: absolute;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 0px 5px;
+          bottom: 10px;
+          right: 10px;
+          width: fit-content;
+          height: 25px;
+          background: #efa058;
+          font-family: "Lato";
+          font-style: normal;
+          font-weight: 800;
+          font-size: 18px;
+          line-height: 28px;
+          color: #ffffff;
+        }
+
+        .mobile-part {
+          position: relative;
+          width: 100%;
+          height: 100%;
+
+          .cover-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+          }
+
+          .play-icon {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            z-index: 1;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            background: #efa058;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+              background: #f2b176;
+            }
+          }
+        }
 
         .upload-video-btn {
           cursor: pointer;
@@ -99,6 +154,25 @@
     }
   }
 }
+@media screen and (max-width: 940px) {
+  .create-bite-wrapper {
+    .create-bite {
+      .uploaded-vidoes {
+        .uploaded-video {
+          width: 90px;
+          height: 160px;
+
+          .time-duration {
+            bottom: 5px;
+            right: 5px;
+            height: 25px;
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+}
 
 @media screen and (max-width: 680px) {
   .create-bite-wrapper {
@@ -107,13 +181,6 @@
     }
 
     .create-bite {
-      .uploaded-vidoes {
-        .uploaded-video {
-          width: 90px;
-          height: 160px;
-        }
-      }
-
       .first-divider {
         margin-top: 20px;
       }
