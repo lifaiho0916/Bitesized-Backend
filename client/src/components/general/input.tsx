@@ -34,7 +34,7 @@ const Input = (props: any) => {
         let diff = Math.abs(first - second);
         if (diff < 0.1 && diff > 0.0) value = Number(value).toFixed(1);
         if (minnum !== undefined && maxnum !== undefined) {
-          value = parseInt(value);
+          value = Number(value)
           if (value < minnum) value = minnum;
           if (value > maxnum) value = maxnum;
         }

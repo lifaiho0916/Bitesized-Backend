@@ -7,6 +7,7 @@ import TeaserCardPopUp from "../../components/general/TeaserCardPopUp"
 import CurrencySelect from "../../components/stripe/CurrencySelect"
 import ContainerBtn from "../../components/general/containerBtn"
 import { AddIcon, BackIcon, PlayIcon } from "../../assets/svg"
+import { biteAction } from "../../redux/actions/biteActions"
 import "../../assets/styles/bite/CreateBiteStyle.scss"
 
 const useWindowSize = () => {
@@ -24,6 +25,7 @@ const currencies = ['USD', 'INR', 'TWD', 'HKD', 'MYR']
 
 const CreateBite = () => {
     const navigate = useNavigate()
+    const dispatch = useDispatch()
     const biteState = useSelector((state: any) => state.bite)
     const [title, setTitle] = useState('')
     const [price, setPrice] = useState('')
@@ -38,27 +40,25 @@ const CreateBite = () => {
     const gotoHome = () => { navigate('/') }
     const gotoUploadBite = () => { navigate('/bite/create/upload') }
     const publish = () => {
-        if (publishEnable) {
-
-        }
+        if (!publishEnable) return
+        const newBite = { ...bite, title: title, price: price, currency: (currencies[currency]).toLowerCase() }
+        dispatch(biteAction.saveBite(newBite))
     }
-    const displayDuration = (duration: any) => { return Math.floor(duration / 60) + ":" + Math.round(duration % 60) }
+    const displayDuration = (duration: any) => {
+        return Math.floor(duration / 60) + ":" + (Math.round(duration % 60) < 10 ? '0' : '') + Math.round(duration % 60)
+    }
     const popUpTeaser = (index: any) => {
         setVideoIndex(index)
         setOpenVideoPopUp(true)
     }
 
     useEffect(() => {
-        if (title === "") {
-            setPublishEnable(false)
-            return
-        }
-        if (price === "" || Number(price) === 0) {
+        if (title === "" || price === "" || Number(price) === 0 || bite.videos.length === 0) {
             setPublishEnable(false)
             return
         }
         setPublishEnable(true)
-    }, [title, price])
+    }, [title, price, bite])
 
     return (
         <div className="create-bite-wrapper">
@@ -76,7 +76,7 @@ const CreateBite = () => {
             <div className="create-bite">
                 <div className="uploaded-vidoes">
                     {bite.videos.map((video: any, index: any) => (
-                        <div className="uploaded-video">
+                        <div className="uploaded-video" key={index}>
                             {width > 940 ?
                                 <TeaserCard
                                     cover={video.coverUrl.preview}

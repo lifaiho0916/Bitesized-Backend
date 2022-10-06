@@ -20,6 +20,7 @@ import notification from "./Routes/api/notification";
 import transaction from "./Routes/api/transaction";
 import tip from "./Routes/api/tip";
 import referral from "./Routes/api/referral";
+import bite from "./Routes/api/bite"
 
 // import DareMe from "./models/DareMe";
 // import Option from "./models/Option"
@@ -59,6 +60,7 @@ app.use("/api/notification", notification)
 app.use("/api/transactions", transaction)
 app.use("/api/tip", tip)
 app.use("/api/referral", referral)
+app.use("/api/bite", bite)
 app.use(express.static("public"))
 
 server.listen(PORT, async () => {
