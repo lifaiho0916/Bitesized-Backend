@@ -10,6 +10,7 @@ import Dialog from "../../components/general/dialog"
 import { AddIcon, BackIcon, PlayIcon } from "../../assets/svg"
 import { biteAction } from "../../redux/actions/biteActions"
 import "../../assets/styles/bite/CreateBiteStyle.scss"
+import Button from "../../components/general/button"
 
 const useWindowSize = () => {
     const [size, setSize] = useState(0)
@@ -113,7 +114,9 @@ const CreateBite = () => {
                 ]}
             />
             <div className="create-bite">
-                <div className="uploaded-vidoes">
+                <div className="uploaded-vidoes"
+                    style={{ height: width > 940 ? bite.videos.length === 0 ? '50px' : '480px' : '160px' }}
+                >
                     {bite.videos.map((video: any, index: any) => (
                         <div className="uploaded-video" key={index}>
                             {width > 940 ?
@@ -144,9 +147,21 @@ const CreateBite = () => {
                     ))}
                     {bite.videos.length < 3 &&
                         <div className="uploaded-video">
-                            <div className="upload-video-btn" onClick={gotoUploadBite}>
-                                <AddIcon color="white" />
-                            </div>
+                            {width > 940 ?
+                                <Button
+                                    text="Upload Bite Videos"
+                                    width={250}
+                                    shape="rounded"
+                                    fillStyle="fill"
+                                    color="primary"
+                                    icon={[<AddIcon color="white" />, <AddIcon color="white" />, <AddIcon color="white" />]}
+                                    handleSubmit={gotoUploadBite}
+                                />
+                                :
+                                <div className="upload-video-btn" onClick={gotoUploadBite}>
+                                    <AddIcon color="white" />
+                                </div>
+                            }
                         </div>
                     }
                 </div>
@@ -212,7 +227,7 @@ const CreateBite = () => {
                 </div>
 
             </div>
-        </div>
+        </div >
     )
 }
 
