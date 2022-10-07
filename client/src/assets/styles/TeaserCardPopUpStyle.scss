@@ -16,33 +16,15 @@
     left: 50%;
     top: 50%;
     filter: drop-shadow(2px 4px 10px rgba(0, 0, 0, 0.15));
+    max-width: 400px;
+    max-height: 684px;
 
-    .react-player-height {
+    .react-player {
       width: 100% !important;
       height: 100% !important;
-      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-
-      video {
-        width: auto !important;
-        height: 100% !important;
-      }
-    }
-
-    .react-player-width {
-      width: 100% !important;
-      height: 100% !important;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      video {
-        width: 100% !important;
-        height: auto !important;
-      }
     }
 
     .mute-icon {

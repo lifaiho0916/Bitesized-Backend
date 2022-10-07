@@ -13,32 +13,12 @@
         overflow: hidden;
     }
 
-    .react-player-height {
+    .react-player {
         width: 100% !important;
         height: 100% !important;
-        overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
-
-        video {
-            width: auto !important;
-            height: 100% !important;
-        }
-    }
-
-    .react-player-width {
-        width: 100% !important;
-        height: 100% !important;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        video {
-            width: 100% !important;
-            height: auto !important;
-        }
     }
 
     .mute-icon {
@@ -74,14 +54,14 @@
         left: 50%;
         width: 40px;
         height: 40px;
-        background-color: #14BDC7;
+        background-color: #14bdc7;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
 
         &:hover {
-            background-color: #108AA1;
+            background-color: #108aa1;
         }
     }
 }

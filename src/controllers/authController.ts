@@ -1,28 +1,25 @@
-import { Request, Response } from "express";
-import path from "path";
-import fs from "fs";
-import multer from "multer";
-import User from "../models/User";
-import DareMe from "../models/DareMe";
+import { Request, Response } from "express"
+import path from "path"
+import fs from "fs"
+import multer from "multer"
+import User from "../models/User"
+import DareMe from "../models/DareMe"
 import FundMe from "../models/FundMe"
-import AdminWallet from "../models/AdminWallet";
-import GeneralSetting from "../models/GeneralSetting";
-import ReferralLink from "../models/ReferralLink";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import AdminWallet from "../models/AdminWallet"
+import ReferralLink from "../models/ReferralLink"
+import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
 import voucher_codes from 'voucher-code-generator'
-import Mixpanel from "mixpanel";
+import Mixpanel from "mixpanel"
 import Bite from "../models/Bite"
 import 'dotenv/config'
 import CONSTANT from "../utils/constant"
-import { stringify } from "querystring";
 
 const mixpanel = Mixpanel.init(`${process.env.MIXPANEL_TOKEN}`)
 var mixpanel_importer = Mixpanel.init(`${process.env.MIXPANEL_TOKEN}`, {
   secret: `${process.env.MIXPANEL_API_SECRET}`
 });
 
-const welcomeDonuts = 10;
 
 const calcTime = () => {
   var d = new Date()
@@ -83,22 +80,18 @@ export const googleSignin = async (req: Request, res: Response) => {
     const email = userData.email
     const browser = userData.browser
 
-    const user: any = await User.findOne({ email: email });
-    const adminDonuts: any = await AdminWallet.findOne({ admin: "ADMIN" });
+    const user: any = await User.findOne({ email: email })
+
     if (user) {
       if (user.language !== userData.lang) await User.findByIdAndUpdate(user._id, { language: userData.lang })
-      const password = userData.email + userData.googleId;
+      const password = userData.email + userData.googleId
       bcrypt.compare(password, user.password, (err, isMatch) => {
         if (isMatch) {
-          let wallet = user.wallet;
-          if (user.role === "ADMIN") wallet = adminDonuts.wallet;
-
           const payload = {
             id: user._id,
             name: user.name,
             avatar: user.avatar,
             role: user.role,
-            wallet: wallet,
             email: user.email,
             personalisedUrl: user.personalisedUrl,
             language: userData.lang,
@@ -146,15 +139,7 @@ export const googleSignup = async (req: Request, res: Response) => {
     const referral = userData.referral
     let role = "USER"
 
-    const result = await Promise.all([
-      GeneralSetting.findOne(),
-      AdminWallet.findOne(),
-      User.findOne({ email: email })
-    ])
-
-    const generalSetting: any = result[0]
-    const adminDonuts: any = result[1]
-    const user: any = result[2]
+    const user: any = await User.findOne({ email: email })
 
     let referralLink: any = null
     if (referral.userId) referralLink = await ReferralLink.findOne({ user: referral.userId })
@@ -184,7 +169,6 @@ export const googleSignup = async (req: Request, res: Response) => {
             email: userData.email,
             avatar: userData.avatar,
             name: userData.name,
-            wallet: welcomeDonuts,
             role: role,
             password: hash,
             language: userData.lang,
@@ -200,15 +184,12 @@ export const googleSignup = async (req: Request, res: Response) => {
               else url = subEmail;
               User.findOneAndUpdate({ _id: user._id }, { $set: { personalisedUrl: url } }, { new: true })
                 .then((updatedUser: any) => {
-                  let wallet = updatedUser.wallet;
-                  if (updatedUser.role === "ADMIN") wallet = adminDonuts.wallet;
                   const payload = {
                     id: updatedUser._id,
                     name: updatedUser.name,
                     avatar: updatedUser.avatar,
                     role: updatedUser.role,
                     email: updatedUser.email,
-                    wallet: wallet,
                     personalisedUrl: updatedUser.personalisedUrl,
                     language: updatedUser.language,
                     category: updatedUser.categories,
@@ -224,21 +205,6 @@ export const googleSignup = async (req: Request, res: Response) => {
                         $name: updatedUser.name,
                         $email: updatedUser.email,
                       });
-
-                      if (referralLink) {
-                        let users = [...referralLink.invitedUsers]
-                        users[referral.index] = {
-                          date: users[referral.index].date,
-                          newUser: updatedUser._id,
-                          reward: generalSetting.referralLinkDonuts,
-                          earned: false,
-                        }
-
-                        ReferralLink.findByIdAndUpdate(referralLink._id, {
-                          expected: referralLink.expected + generalSetting.referralLinkDonuts,
-                          invitedUsers: users
-                        }).exec()
-                      }
 
                       mixpanel.track("Sign Up", {
                         'Sign Up Method': 'Gmail',
@@ -268,21 +234,17 @@ export const appleSignin = async (req: Request, res: Response) => {
     const browser = userData.browser
 
     const decodeToken: any = jwt.decode(token)
-    const user: any = await User.findOne({ email: decodeToken.email });
-    const adminDonuts: any = await AdminWallet.findOne({ admin: "ADMIN" });
+    const user: any = await User.findOne({ email: decodeToken.email })
     if (user) {
       if (user.language !== userData.lang) await User.findByIdAndUpdate(user._id, { language: userData.lang })
-      const password = decodeToken.email + decodeToken.sub;
+      const password = decodeToken.email + decodeToken.sub
       bcrypt.compare(password, user.password, (err, isMatch) => {
         if (isMatch) {
-          let wallet = user.wallet;
-          if (user.role === "ADMIN") wallet = adminDonuts.wallet;
           const payload = {
             id: user._id,
             name: user.name,
             avatar: user.avatar,
             role: user.role,
-            wallet: wallet,
             email: user.email,
             personalisedUrl: user.personalisedUrl,
             language: userData.lang,
@@ -330,16 +292,7 @@ export const appleSignup = async (req: Request, res: Response) => {
     const referral = userData.referral
 
     const decodeToken: any = jwt.decode(token)
-
-    const result: any = await Promise.all([
-      GeneralSetting.findOne(),
-      AdminWallet.findOne(),
-      User.findOne({ email: decodeToken.email })
-    ])
-
-    const generalSetting = result[0]
-    const adminDonuts = result[1]
-    const user = result[2]
+    const user: any = await User.findOne({ email: decodeToken.email })
 
     let referralLink: any = null
     if (referral.userId) referralLink = await ReferralLink.findOne({ user: referral.userId })
@@ -370,7 +323,6 @@ export const appleSignup = async (req: Request, res: Response) => {
           const newUser = new User({
             email: decodeToken.email,
             name: appleUser ? appleUser.firstName + ' ' + appleUser.lastName : alterName,
-            wallet: welcomeDonuts,
             role: 'USER',
             password: hash,
             language: userData.lang,
@@ -386,15 +338,12 @@ export const appleSignup = async (req: Request, res: Response) => {
               else url = subEmail;
               User.findOneAndUpdate({ _id: user._id }, { $set: { personalisedUrl: url } }, { new: true })
                 .then((updatedUser: any) => {
-                  let wallet = updatedUser.wallet;
-                  if (updatedUser.role === "ADMIN") wallet = adminDonuts.wallet;
                   const payload = {
                     id: updatedUser._id,
                     name: updatedUser.name,
                     avatar: updatedUser.avatar,
                     role: updatedUser.role,
                     email: updatedUser.email,
-                    wallet: wallet,
                     personalisedUrl: updatedUser.personalisedUrl,
                     language: updatedUser.language,
                     category: updatedUser.categories,
@@ -409,162 +358,10 @@ export const appleSignup = async (req: Request, res: Response) => {
                       mixpanel.people.set_once(updatedUser._id, {
                         $name: updatedUser.name,
                         $email: updatedUser.email,
-                      });
-
-                      if (referralLink) {
-                        let users = [...referralLink.invitedUsers]
-                        users[referral.index] = {
-                          date: users[referral.index].date,
-                          newUser: updatedUser._id,
-                          reward: generalSetting.referralLinkDonuts,
-                          earned: false,
-                        }
-
-                        ReferralLink.findByIdAndUpdate(referralLink._id, {
-                          expected: referralLink.expected + generalSetting.referralLinkDonuts,
-                          invitedUsers: users
-                        }).exec()
-                      }
+                      })
 
                       mixpanel.track("Sign Up", {
                         'Sign Up Method': 'Apple',
-                        'Browser Used': browser,
-                        distinct_id: updatedUser._id,
-                        $name: updatedUser.name,
-                        $email: updatedUser.email,
-                      });
-                      return res.status(200).json({ user: payload, token: token, new: true });
-                    }
-                  );
-                }).catch((err: any) => console.log(err));
-            }).catch((err: any) => console.log(err));
-          }).catch((err: any) => console.log(err));
-        });
-      });
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const facebookSignin = async (req: Request, res: Response) => {
-  try {
-    const userData = req.body;
-    const email = userData.email;
-    const browser = userData.browser;
-
-    const user: any = await User.findOne({ email: email });
-    const adminDonuts: any = await AdminWallet.findOne({ admin: "ADMIN" });
-    if (user) {
-      const password = userData.email + userData.facebookId;
-      bcrypt.compare(password, user.password, (err, isMatch) => {
-        if (isMatch) {
-          let wallet = user.wallet;
-          if (user.role === "ADMIN") wallet = adminDonuts.wallet;
-          const payload = {
-            id: user._id,
-            name: user.name,
-            avatar: user.avatar,
-            role: user.role,
-            wallet: wallet,
-            email: user.email,
-            personalisedUrl: user.personalisedUrl,
-            language: user.language,
-            category: user.categories,
-            new_notification: user.new_notification,
-          };
-
-          jwt.sign(
-            payload,
-            `${process.env.KEY}`,
-            { expiresIn: CONSTANT.SESSION_EXPIRE_TIME_IN_SECONDS },
-            (err, token) => {
-              mixpanel.people.set_once(user._id, {
-                $name: user.name,
-                $email: user.email,
-              });
-              mixpanel.track("Sign In", {
-                'Login Method': 'Facebook',
-                'Browser Used': browser,
-                distinct_id: user._id,
-                $name: user.name,
-                $email: user.email,
-              });
-              return res.status(200).json({ user: payload, token: token });
-            }
-          );
-        } else return res.status(400).json({ error: "Error Google Login" });
-      });
-    } else facebookSignup(req, res);
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const facebookSignup = async (req: Request, res: Response) => {
-  try {
-    const userData = req.body;
-    const email = userData.email;
-    const browser = userData.browser;
-    const adminWallet: any = await AdminWallet.find({});
-    let role = "USER";
-    if (adminWallet.length === 0) {
-      role = "ADMIN";
-      const admin = new AdminWallet({ admin: "ADMIN", date: calcTime() });
-      await admin.save();
-    }
-    const adminDonuts: any = await AdminWallet.findOne({ admin: "ADMIN" });
-    const user: any = await User.findOne({ email: email });
-    if (user) facebookSignin(req, res)
-    else {
-      const password = userData.email + userData.facebookId;
-      bcrypt.genSalt(10, (err: any, salt: any) => {
-        bcrypt.hash(password, salt, (err: any, hash: any) => {
-          if (err) throw err;
-          const newUser = new User({
-            email: userData.email,
-            avatar: userData.avatar,
-            name: userData.name,
-            wallet: welcomeDonuts,
-            role: role,
-            password: hash,
-            language: userData.lang,
-            date: calcTime()
-          });
-          newUser.save().then((user: any) => {
-            const index = user.email.indexOf("@");
-            const subEmail = user.email.substring(0, index).replace(/\s/g, '').toLowerCase();
-            User.find({ personalisedUrl: subEmail }).then((foundUsers: any) => {
-              let url = "";
-              if (foundUsers.length > 1) url = `${subEmail}${foundUsers.length - 1}`;
-              else url = subEmail;
-              User.findOneAndUpdate({ _id: user._id }, { $set: { personalisedUrl: url } }, { new: true })
-                .then((updatedUser: any) => {
-                  let wallet = updatedUser.wallet;
-                  if (updatedUser.role === "ADMIN") wallet = adminDonuts.wallet;
-                  const payload = {
-                    id: updatedUser._id,
-                    name: updatedUser.name,
-                    avatar: updatedUser.avatar,
-                    role: updatedUser.role,
-                    email: updatedUser.email,
-                    wallet: wallet,
-                    personalisedUrl: updatedUser.personalisedUrl,
-                    language: updatedUser.language,
-                    category: updatedUser.categories,
-                    new_notification: updatedUser.new_notification,
-                  };
-                  jwt.sign(
-                    payload,
-                    `${process.env.KEY}`,
-                    { expiresIn: CONSTANT.SESSION_EXPIRE_TIME_IN_SECONDS },
-                    (err, token) => {
-                      mixpanel.people.set_once(updatedUser._id, {
-                        $name: updatedUser.name,
-                        $email: updatedUser.email,
-                      });
-                      mixpanel.track("Sign Up", {
-                        'Sign Up Method': 'Facebook',
                         'Browser Used': browser,
                         distinct_id: updatedUser._id,
                         $name: updatedUser.name,

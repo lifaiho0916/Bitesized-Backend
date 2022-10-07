@@ -50,14 +50,14 @@ const UploadBite = () => {
     }
     const playVideo = () => { setPlay(true) }
     const stopVideo = () => { if (play) setPlay(false) }
-    const replayVideo = (progress: any) => { if (progress.playedSeconds >= progress.loadedSeconds) playerRef.current ?.seekTo(0)}
+    const replayVideo = (progress: any) => { if (progress.playedSeconds >= progress.loadedSeconds) playerRef.current?.seekTo(0) }
     const getFirstFrame = () => {
-        const video: any = document.getElementById("element") ?.firstChild
+        const video: any = document.getElementById("element")?.firstChild
         let canvas = document.createElement("canvas") as HTMLCanvasElement
         let context = canvas.getContext('2d')
         canvas.width = video.videoWidth
         canvas.height = video.videoHeight
-        context ?.drawImage(video, 0, 0)
+        context?.drawImage(video, 0, 0)
         let url = canvas.toDataURL('image/png')
         fetch(url)
             .then(res => res.blob())
@@ -68,7 +68,7 @@ const UploadBite = () => {
             })
     }
     const save = () => {
-        if(uploadedVideo === null) return
+        if (uploadedVideo === null) return
         const video = {
             coverUrl: cover,
             videoUrl: uploadedVideo,
@@ -109,7 +109,7 @@ const UploadBite = () => {
                                     <ReactPlayer
                                         id="element"
                                         ref={playerRef}
-                                        className={size ? "react-player-width" : "react-player-height"}
+                                        className="react-player"
                                         url={uploadedVideo.preview}
                                         playing={play}
                                         onProgress={progress => replayVideo(progress)}
@@ -126,7 +126,7 @@ const UploadBite = () => {
                                 </div>
                             </div>
                             :
-                            <div onClick={() => { fileInputRef.current ?.click()}}>
+                            <div onClick={() => { fileInputRef.current?.click() }}>
                                 <AddImageIcon color="#A6A29F" />
                             </div>
                     }

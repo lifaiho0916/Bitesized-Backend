@@ -25,7 +25,7 @@ const TeaserCardPopUp = (props: any) => {
     if (display) {
       setPlay(true)
       setMuted(true)
-      if (playerRef) playerRef.current ?.seekTo(0)
+      if (playerRef) playerRef.current?.seekTo(0)
     }
   }, [display])
 
@@ -35,17 +35,19 @@ const TeaserCardPopUp = (props: any) => {
         style={{ width: `${width}px`, height: `${width * 1.71}px` }}
         onClick={() => { setPlay(!play) }}>
         <>
-          <ReactPlayer
-            className={size ? "react-player-width" : "react-player-height"}
-            ref={playerRef}
-            url={teaser}
-            muted={muted}
-            playing={play}
-            playsinline={true}
-            onProgress={(progress) => {
-              if (progress.playedSeconds >= progress.loadedSeconds) playerRef.current ?.seekTo(0);
-            }}
-          />
+          <div style={{ width: '100%', height: '100%' }}>
+            <ReactPlayer
+              className="react-player"
+              ref={playerRef}
+              url={teaser}
+              muted={muted}
+              playing={play}
+              playsinline={true}
+              onProgress={(progress) => {
+                if (progress.playedSeconds >= progress.loadedSeconds) playerRef.current?.seekTo(0);
+              }}
+            />
+          </div>
           <div className="mute-icon" onClick={(e) => {
             e.stopPropagation()
             setMuted(!muted)

@@ -6,8 +6,6 @@ const router = express.Router();
 import { 
     googleSignin, 
     googleSignup,
-    facebookSignin,
-    facebookSignup,
     appleSignin,
     appleSignup,
     getAuthData,
@@ -28,8 +26,6 @@ router.get('/owners', getOwnersOfBites)
 
 router.post("/googleSignin", googleSignin);
 router.post("/googleSignup", googleSignup);
-router.post("/facebookSignin", facebookSignin);
-router.post("/facebookSignup", facebookSignup);
 router.post("/appleSignin", appleSignin)
 router.post("/appleSignup", appleSignup)
 router.get("/get", auth, getAuthData);

@@ -30,7 +30,7 @@ const TeaserCard = (props: any) => {
       {play &&
         <>
           <ReactPlayer
-            className={size ? "react-player-width" : "react-player-height"}
+            className="react-player"
             style={{ borderRadius: border ? border : '0px' }}
             ref={playerRef}
             url={teaser}

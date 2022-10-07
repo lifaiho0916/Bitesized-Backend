@@ -8,12 +8,10 @@ import SideMenu from "../components/sideMenu";
 import Avatar from "../components/general/avatar";
 import LangDialog from "../components/general/langDialog"
 import { authAction } from "../redux/actions/authActions";
-import { CreatoColorIcon, CreatoCoinIcon, AddIcon, LanguageIcon } from "../assets/svg";
+import { CreatoColorIcon, AddIcon, LanguageIcon } from "../assets/svg";
 import { LanguageContext } from "../routes/authRoute";
-import CONSTANT from "../constants/constant";
-import { SET_DAREMES, SET_DIALOG_STATE, SET_PREVIOUS_ROUTE, SET_USERS, SET_LANGUAGE, SET_BITE_INITIAL } from "../redux/types";
+import { SET_DAREMES, SET_DIALOG_STATE, SET_PREVIOUS_ROUTE, SET_USERS, SET_BITE_INITIAL } from "../redux/types";
 import "../assets/styles/headerStyle.scss";
-
 
 const useWindowSize = () => {
   const [size, setSize] = useState(0);
@@ -122,8 +120,6 @@ const Header = () => {
                     </div>
                   </>
                 }
-                <CreatoCoinIcon color="black" />
-                <p>{user.wallet.toLocaleString()}</p>
                 <div className="avatar" onClick={showSideMenu}>
                   {user.new_notification && <div className="red-dot"></div>}
                   <Avatar

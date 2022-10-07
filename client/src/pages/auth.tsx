@@ -64,7 +64,6 @@ const Auth = (props: any) => {
 
   const responseGoogleSuccess = async (response: any) => {
     const result: any = response?.profileObj;
-    console.log(result)
     let browser = "";
     if (navigator.userAgent.indexOf("Chrome") !== -1) browser = 'Chrome';
     else if (navigator.userAgent.indexOf("Safari") !== -1) browser = "Safari";
@@ -191,9 +190,8 @@ const Auth = (props: any) => {
             <h4>{contexts.AUTH_LETTER.SIGN_UP_TO_ENJOY}</h4>
             <br />
             <ul>
-              <li>{contexts.AUTH_LETTER.SIGN_UP_LETTER1}</li>
-              <li>{contexts.AUTH_LETTER.SIGN_UP_LETTER2}</li>
-              <li>{contexts.AUTH_LETTER.SIGN_UP_LETTER3}</li>
+              <li>✅ New knowledge from Creators</li>
+              <li>✅ A private space for fans & creators</li>
             </ul>
             <br />
             <h2>{contexts.AUTH_LETTER.SIGN_UP_WITH}</h2>
