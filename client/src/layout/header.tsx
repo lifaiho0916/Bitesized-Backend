@@ -75,11 +75,10 @@ const Header = () => {
   }
 
   useEffect(() => {
-    const token = localStorage.getItem(`${process.env.REACT_APP_CREATO_TOKEN}`);
+    const token = localStorage.getItem(`${process.env.REACT_APP_CREATO_TOKEN}`)
     if (token) {
-      dispatch(authAction.getAuthData());
-      const decodedToken: any = decode(JSON.parse(token));
-      if (decodedToken.exp * 1000 < new Date().getTime()) handleLogout();
+      const decodedToken: any = decode(JSON.parse(token))
+      if (decodedToken.exp * 1000 < new Date().getTime()) handleLogout()
     }
   }, [location, dispatch]);
 

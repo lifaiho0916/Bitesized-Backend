@@ -8,6 +8,7 @@ import Dialog from "../components/general/dialog"
 import { SET_DIALOG_STATE, SET_USERS } from "../redux/types"
 import { biteAction } from "../redux/actions/biteActions"
 import "../assets/styles/homeStyle.scss"
+import { RewardIcon } from "../assets/svg"
 
 const Home = () => {
   const dispatch = useDispatch()
@@ -15,11 +16,14 @@ const Home = () => {
   const location = useLocation()
   const userState = useSelector((state: any) => state.auth)
   const biteState = useSelector((state: any) => state.bite)
+  const loadState = useSelector((state: any) => state.load)
   const contexts = useContext(LanguageContext)
+  const [title, setTitle] = useState("")
   const [openFreeUnlock, setOpenFreeUnLock] = useState(false)
 
   const { users } = userState
   const { bites } = biteState
+  const { dlgState } = loadState
 
   const showCategories = (categories: any) => {
     let category = ''
@@ -39,17 +43,31 @@ const Home = () => {
     setOpenFreeUnLock(false)
     dispatch({ type: SET_DIALOG_STATE, payload: "" })
   }
+
   useEffect(() => { dispatch(biteAction.getHomeSessions()) }, [location, dispatch])
+  useEffect(() => {
+    if(dlgState === 'unlock_free') setOpenFreeUnLock(true)
+  }, [dlgState])
 
   return (
     <div className="home-wrapper">
       <Dialog
-        display={true}
+        display={openFreeUnlock}
         title="Sucessful"
-        subTitle="You have unlock this  FREE Bite "
-        context={'Next Look Fashion Trends AW 2022/23: Style & Accessories'}
+        icon={{
+          pos: 1,
+          icon: <RewardIcon color="#efa058" width={70} height={70} />
+        }}
+        subTitle="You have unlock this FREE Bite"
+        context={title}
         exit={exitUnLockFree}
         wrapExit={exitUnLockFree}
+        buttons={[
+          {
+            text: 'Check on profile',
+            handleClick: () => { alert('asdfsd') }
+          }
+        ]}
       />
       {bites.length > 0 &&
         <div className="section" style={{ marginTop: '20px' }}>
@@ -57,7 +75,7 @@ const Home = () => {
           <div className="daremes scroll-bar">
             {bites.map((bite: any, i: any) => (
               <div className="dareme" key={i}>
-                <BiteCardHome bite={bite} />
+                <BiteCardHome bite={bite} setTitle={setTitle} />
               </div>
             ))
             }
