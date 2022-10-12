@@ -73,7 +73,81 @@
         padding-bottom: 40px;
 
         .video-part {
-            height: 200px;
+            display: flex;
+            justify-content: center;
+            position: relative;
+
+            .cover-image {
+                width: 280px;
+                height: 480px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+                border-radius: 0px 0px 15px 15px;
+            }
+
+            .prev-video {
+                position: absolute;
+                left: 25px;
+                cursor: pointer;
+                transform: rotate(180deg);
+            }
+
+            .next-video {
+                position: absolute;
+                right: 25px;
+                cursor: pointer;
+            }
+
+            .play-icon {
+                cursor: pointer;
+                position: absolute;
+                transform: translate(-50%, -50%);
+                top: 50%;
+                left: 50%;
+                width: 40px;
+                height: 40px;
+                background: #efa058;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                &:hover {
+                    background: #f2b176;
+                }
+            }
+
+            .lock-btn {
+                position: absolute;
+                transform: translate(-50%, -50%);
+                top: 50%;
+                left: 50%;
+            }
+
+            .video-count {
+                position: absolute;
+                bottom: 5px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.15);
+
+                .active-bar {
+                    width: 50px;
+                    height: 8px;
+                    background: #EFA058;
+                    border-radius: 6px;
+                }
+
+                .inactive-bar {
+                    width: 50px;
+                    height: 8px;
+                    background: #D9D9D9;
+                    border-radius: 6px;
+                }
+            }
         }
 
         .price-purchased {
@@ -89,6 +163,29 @@
                 height: 18px;
                 padding: 0px 12px;
                 background: #14bdc7;
+                border-radius: 90px;
+                font-family: "Lato";
+                font-style: normal;
+                font-weight: 700;
+                font-size: 14px;
+                line-height: 18px;
+                color: #ffffff;
+            }
+        }
+
+        .price-free {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 6px 0px;
+
+            span {
+                display: flex;
+                align-items: center;
+                width: fit-content;
+                height: 18px;
+                padding: 0px 12px;
+                background: #F8907A;
                 border-radius: 90px;
                 font-family: "Lato";
                 font-style: normal;
