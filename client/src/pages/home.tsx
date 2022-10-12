@@ -4,8 +4,8 @@ import { useSelector, useDispatch } from "react-redux"
 import { LanguageContext } from "../routes/authRoute"
 import Avatar from "../components/general/avatar"
 import BiteCardHome from "../components/bite/BiteCardHome"
-import SignDialog from "../components/general/signDialog"
-import { SET_USERS } from "../redux/types"
+import Dialog from "../components/general/dialog"
+import { SET_DIALOG_STATE, SET_USERS } from "../redux/types"
 import { biteAction } from "../redux/actions/biteActions"
 import "../assets/styles/homeStyle.scss"
 
@@ -16,7 +16,7 @@ const Home = () => {
   const userState = useSelector((state: any) => state.auth)
   const biteState = useSelector((state: any) => state.bite)
   const contexts = useContext(LanguageContext)
-  const [openSigninDlg, setOpenSigninDlg] = useState(false)
+  const [openFreeUnlock, setOpenFreeUnLock] = useState(false)
 
   const { users } = userState
   const { bites } = biteState
@@ -34,14 +34,22 @@ const Home = () => {
     dispatch({ type: SET_USERS, payload: [] })
     navigate(url)
   }
+
+  const exitUnLockFree = () => {
+    setOpenFreeUnLock(false)
+    dispatch({ type: SET_DIALOG_STATE, payload: "" })
+  }
   useEffect(() => { dispatch(biteAction.getHomeSessions()) }, [location, dispatch])
 
   return (
     <div className="home-wrapper">
-      <SignDialog
-        display={openSigninDlg}
-        exit={() => { setOpenSigninDlg(false) }}
-        wrapExit={() => { setOpenSigninDlg(false) }}
+      <Dialog
+        display={true}
+        title="Sucessful"
+        subTitle="You have unlock this  FREE Bite "
+        context={'Next Look Fashion Trends AW 2022/23: Style & Accessories'}
+        exit={exitUnLockFree}
+        wrapExit={exitUnLockFree}
       />
       {bites.length > 0 &&
         <div className="section" style={{ marginTop: '20px' }}>

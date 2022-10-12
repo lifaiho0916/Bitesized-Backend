@@ -16,6 +16,7 @@ export const uploadCover = (data: any, config: any) => API.post('/api/bite/uploa
 export const CreateBite = (data: any) => API.post('/api/bite/create', data)
 
 export const getAllBites = () => API.get('/api/bite')
+export const unLockBite = (id: any, data: any) => API.put(`/api/bite/${id}/unlock`, data)
 
 export const getOwnersOfBites = () => API.get('/api/auth/owners')
 

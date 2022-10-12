@@ -4,10 +4,7 @@ const INITIAL_STATE: any = {
     loading: false,
     prevRoute: "/",
     nextRoute: "/",
-    dlgState: {
-        type: "",
-        state: false
-    },
+    dlgState: "",
     currentDareMe: null,
     currentFundMe: null,
     //// UPLOAD VIDEO AND CoverLetterImage ///

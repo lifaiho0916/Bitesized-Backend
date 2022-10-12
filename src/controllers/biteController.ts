@@ -38,7 +38,7 @@ const uploadBiteVideo = multer({
 
 export const uploadVideo = async (req: any, res: any) => {
   uploadBiteVideo(req, res, () => {
-    return res.status(200).json({ success: true, payload: { path: "uploads/bite/" + req.file ?.filename } })
+    return res.status(200).json({ success: true, payload: { path: "uploads/bite/" + req.file?.filename } })
   })
 }
 
@@ -54,7 +54,7 @@ const uploadBiteCover = multer({
 
 export const uploadCover = async (req: any, res: any) => {
   uploadBiteCover(req, res, () => {
-    return res.status(200).json({ success: true, payload: { path: "uploads/cover/" + req.file ?.filename } })
+    return res.status(200).json({ success: true, payload: { path: "uploads/cover/" + req.file?.filename } })
   })
 }
 
@@ -75,6 +75,30 @@ export const getAllBites = async (req: any, res: any) => {
     })
 
     return res.status(200).json({ success: true, payload: { bites: resBites } })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const unLockBite = async (req: any, res: any) => {
+  try {
+    const { id } = req.params
+    const { userId, currency, amount } = req.body
+    const bite: any = await Bite.findById(id)
+
+    if (currency) {
+
+    }
+
+    let purchasedUsers = bite.purchasedUsers
+    purchasedUsers.push(userId)
+    
+    const resBite = await Bite.findByIdAndUpdate(id, { purchasedUsers: purchasedUsers }, { new: true }).populate({
+      path: 'owner',
+      select: { name: 1, avatar: 1, personalisedUrl: 1 }
+    })
+
+    return res.status(200).json({ success: true, payload: { bite: resBite } })
   } catch (err) {
     console.log(err)
   }

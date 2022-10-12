@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react"
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import ReactPlayer from "react-player"
 import Avatar from "../general/avatar"
@@ -7,11 +7,13 @@ import Button from "../general/button"
 import { LanguageContext } from "../../routes/authRoute"
 import { ClockIcon, NoOfPeopleIcon, PlayIcon, UnlockIcon } from "../../assets/svg"
 import NextBtn from "../../assets/img/next-bright.png"
+import { biteAction } from "../../redux/actions/biteActions"
 import "../../assets/styles/bite/BiteCardHomeStyle.scss"
 
 const BiteCardHome = (props: any) => {
     const { bite } = props
     const navigate = useNavigate()
+    const dispatch = useDispatch()
     const contexts = useContext(LanguageContext)
     const userState = useSelector((state: any) => state.auth)
     const { user } = userState
@@ -51,7 +53,7 @@ const BiteCardHome = (props: any) => {
     }
 
     const findPurchasedUser = (userId: any) => {
-        return (userId + '') !== (user._id + '')
+        return String(userId) !== String(user.id)
     }
 
     const checkUnLock = () => {
@@ -59,7 +61,7 @@ const BiteCardHome = (props: any) => {
             setLock(true)
             return
         }
-        if ((bite.owner._id + '') === (user.id + '')) {
+        if (String(bite.owner._id) === String(user.id)) {
             setLock(false)
             return
         }
@@ -68,14 +70,11 @@ const BiteCardHome = (props: any) => {
     }
 
     const Unlock = () => {
-        alert('aaa')
+        if (user) dispatch(biteAction.unLockBite(bite._id, bite.currency, bite.price))
+        else navigate('/auth/signin')
     }
 
-    const playVideo = () => {
-
-    }
-
-    useEffect(() => { checkUnLock() }, [])
+    useEffect(() => { checkUnLock() }, [bite])
 
     return (
         <div className="bite-card-home-wrapper">
@@ -132,9 +131,6 @@ const BiteCardHome = (props: any) => {
                                 playing={play}
                                 playsinline={true}
                                 controls
-                            // onProgress={(progress) => {
-                            //   if (progress.playedSeconds >= progress.loadedSeconds) playerRef.current?.seekTo(0);
-                            // }}
                             />
                             :
                             <>

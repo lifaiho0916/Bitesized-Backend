@@ -44,7 +44,7 @@
       flex-direction: column;
 
       .dialog-context {
-        width: 150px;
+        width: 220px;
         margin: 0px auto 15px auto;
         font-family: 'Lato';
         font-style: normal;
@@ -58,45 +58,15 @@
         color: #000000;
       }
 
-      .dialog-context-desktop {
-        width: 280px;
-        margin: 15px auto;
-        font-family: 'Lato';
-        font-style: normal;
-        font-weight: 700;
-        font-size: 24px;
-        line-height: 28px;
-        display: flex;
-        align-items: flex-end;
-        text-align: center;
-        color: #000000;
-        word-wrap: break-word;
-        display: none;
-      }
-
-      .sign-image {
-        width: 275px;
-      }
-
       .sign-body {
         margin: 20px auto 0px auto;
-
-        .sign-body-header {
-          font-family: 'Lato';
-          font-style: normal;
-          font-weight: 600;
-          font-size: 20px;
-          line-height: 24px;
-          text-align: center;
-          color: #54504E;
-        }
 
         .icons {
           display: flex;
           justify-content: space-between;
           width: 60%;
           margin: 0px auto;
-          padding: 30px 0 30px 0;
+          padding: 0px 0 25px 0;
 
           .icon {
             width: 40px;
@@ -119,74 +89,13 @@
           }
         }
 
-        .free-letter {
-          margin: 0px auto;
-          width: 200px;
-          font-family: 'Lato';
-          font-style: normal;
-          font-weight: 600;
-          font-size: 14px;
-          line-height: 18px;
-          text-align: center;
-          letter-spacing: 0.005em;
-          color: #EA8426;
-        }
-
         p {
-          padding-top: 20px;
           width: 210px;
           text-align: center;
           color: #bcb6a9;
           font-size: 14px;
           max-width: 263px;
           margin: 0;
-        }
-      }
-    }
-  }
-
-  @media screen and (min-width: 880px) {
-    .sign-dialog-main {
-      width: 880px;
-      padding: 40px;
-
-      .dialog-header {
-        padding: 0px;
-
-        .dialog-title {
-          font-weight: 700;
-          font-size: 24px;
-          line-height: 28px;
-        }
-      }
-
-      .main-body {
-        display: flex;
-        flex-direction: row;
-
-        .dialog-context {
-          display: none;
-        }
-
-        .dialog-context-desktop {
-          display: block;
-        }
-
-        .sign-image {
-          width: 410px;
-        }
-
-        .sign-body {
-
-          .icons {
-            width: 50%;
-            padding: 70px 0;
-          }
-
-          p {
-            margin-top: 80px;
-            width: 280px;
-          }
         }
       }
     }

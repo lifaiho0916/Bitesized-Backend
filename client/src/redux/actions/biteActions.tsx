@@ -1,6 +1,6 @@
 import { Dispatch } from "redux"
 import * as api from "../../api"
-import { SET_LOADING_TRUE, SET_LOADING_FALSE, SET_BITES, SET_USERS } from "../types"
+import { SET_LOADING_TRUE, SET_LOADING_FALSE, SET_BITES, SET_USERS, SET_DIALOG_STATE } from "../types"
 
 export const biteAction = {
     saveBite: (bite: any, navigate: any) => async (dispatch: Dispatch<any>) => {
@@ -45,7 +45,7 @@ export const biteAction = {
             ])
 
             dispatch({ type: SET_LOADING_FALSE })
-            if(responses[0].data.success && responses[1].data.success) {
+            if (responses[0].data.success && responses[1].data.success) {
                 dispatch({ type: SET_BITES, payload: responses[0].data.payload.bites })
                 dispatch({ type: SET_USERS, payload: responses[1].data.payload.users })
             }
@@ -53,5 +53,33 @@ export const biteAction = {
             console.log(err)
             dispatch({ type: SET_LOADING_FALSE })
         }
-    }
+    },
+
+    unLockBite: (id: any, currency: any, price: any) => async (dispatch: Dispatch<any>, getState: any) => {
+        try {
+            dispatch({ type: SET_LOADING_TRUE })
+            let response: any = null
+            if (currency) {
+
+            } else {
+                response = await api.unLockBite(id, {})
+            }
+
+            let bites = getState().bite.bites
+
+            dispatch({ type: SET_LOADING_FALSE })
+            const { data } = response
+            if (data.success) {
+                const { payload } = data
+                const foundIndex = bites.findIndex((bite: any) => String(bite._id) === String(payload.bite._id))
+                bites[foundIndex] = payload.bite
+                dispatch({ type: SET_BITES, payload: bites })
+                dispatch({ type: SET_DIALOG_STATE, payload: 'unlock_free' })
+            }
+
+        } catch (err) {
+            console.log(err)
+            dispatch({ type: SET_LOADING_FALSE })
+        }
+    },
 }

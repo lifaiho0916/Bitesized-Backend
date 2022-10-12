@@ -1,13 +1,12 @@
-import Button from "./button";
-import Avatar from "./avatar";
+import Button from "./button"
+import Avatar from "./avatar"
 import {
     CloseIcon,
     FacebookIcon,
     TwitterIcon,
     WhatsappIcon,
-} from "../../assets/svg";
-import CONSTANT from "../../constants/constant";
-import "../../assets/styles/dialogStyle.scss";
+} from "../../assets/svg"
+import "../../assets/styles/dialogStyle.scss"
 
 const Dialog = (props: any) => {
     const { display, title, exit, context, buttons, icon, social, avatars, daremeId, ownerName, wrapExit, sizeType, subcontext, shareType, daremeTitle, isFundme, subTitle } = props;

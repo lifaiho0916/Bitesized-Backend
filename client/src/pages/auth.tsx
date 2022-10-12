@@ -190,6 +190,7 @@ const Auth = (props: any) => {
             <h4>{contexts.AUTH_LETTER.SIGN_UP_TO_ENJOY}</h4>
             <br />
             <ul>
+              <li>✅ Unlock free Bite content</li>
               <li>✅ New knowledge from Creators</li>
               <li>✅ A private space for fans & creators</li>
             </ul>

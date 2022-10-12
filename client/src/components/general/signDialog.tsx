@@ -2,14 +2,11 @@ import { useContext, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate, useLocation } from "react-router-dom"
 import { GoogleLogin } from "react-google-login";
-// import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import AppleLogin from 'react-apple-login'
 import { CloseIcon } from "../../assets/svg"
-import SignImage from "../../assets/img/sign.jpg"
 import { LanguageContext } from "../../routes/authRoute"
 import { authAction } from "../../redux/actions/authActions"
 import { AppleIcon, FacebookIcon, GoogleIcon } from "../../constants/awesomeIcons"
-import CONSTANT from "../../constants/constant";
 import "../../assets/styles/signDialogStyle.scss"
 
 const SignDialog = (props: any) => {
@@ -61,25 +58,7 @@ const SignDialog = (props: any) => {
 
     if (props.isSignin) dispatch(authAction.googleSigninUser(userData, navigate, prevRoute))
     else dispatch(authAction.googleSignupUser(userData, navigate, prevRoute))
-  };
-
-  // const responseFacebook = (response: any) => {
-  //   console.log(response)
-  //   let browser = "";
-  //   if (navigator.userAgent.indexOf("Chrome") !== -1) browser = 'Chrome';
-  //   else if (navigator.userAgent.indexOf("Safari") !== -1) browser = "Safari";
-  //   else if (navigator.userAgent.indexOf("Firefox") !== -1) browser = 'Firefox';
-
-  //   const userData = ({
-  //     name: response.name,
-  //     avatar: response.picture.data.url,
-  //     email: response.email,
-  //     facebookId: response.id,
-  //     browser: browser
-  //   });
-  //   if (props.isSignin) dispatch(authAction.facebookSigninUser(userData, navigate, prevRoute));
-  //   else dispatch(authAction.facebookSignupUser(userData, navigate, prevRoute));
-  // }
+  }
 
   const responseApple = (response: any) => {
     if (!response.error) {
@@ -106,7 +85,7 @@ const SignDialog = (props: any) => {
       <div className="sign-dialog-main">
         <div className="dialog-header" style={exit ? { marginBottom: '16px' } : { justifyContent: 'center', marginBottom: '8px' }}>
           <div className="dialog-title">
-            {contexts.SIGN_IN_DLG.WELCOME}
+            Sign in
           </div>
           {exit &&
             <div onClick={exit}>
@@ -117,19 +96,10 @@ const SignDialog = (props: any) => {
         <div className="main-body">
           <div>
             <div className="dialog-context">
-              {contexts.SIGN_IN_DLG.WELCOME_LETTER}
-            </div>
-            <div className="sign-image">
-              <img src={SignImage} alt="Sign" width="100%" />
-            </div>
-            <div className="dialog-context-desktop">
-              {contexts.SIGN_IN_DLG.WELCOME_LETTER}
+              Learn bite-sized knowledge in 1-minute!
             </div>
           </div>
           <div className="sign-body">
-            <div className="sign-body-header">
-              <span>{contexts.SIGN_IN_DLG.SIGN_IN_AND_UP}</span>
-            </div>
             <div className="icons">
               <GoogleLogin
                 clientId={`${process.env.REACT_APP_GOOGLE_CLIENT_ID}`}
@@ -141,18 +111,6 @@ const SignDialog = (props: any) => {
                 onSuccess={responseGoogleSuccess}
                 cookiePolicy={"single_host_origin"}
               />
-              {/* <FacebookLogin
-            appId={CONSTANT.FACEBOOK_APP_ID}
-            autoLoad={false}
-            fields="name,email,picture"
-            scope="public_profile,email,user_link"
-            callback={responseFacebook}
-            render={(renderProps) => (
-              <div className="icon" onClick={renderProps.onClick}>
-                <FacebookIcon color="#EFA058" />
-              </div>
-            )}
-          /> */}
               <AppleLogin
                 clientId="creatogether.io.apple.login.service"
                 redirectURI="https://creatogether.io/auth"
@@ -168,9 +126,6 @@ const SignDialog = (props: any) => {
                   </div>
                 )}
               />
-            </div>
-            <div className="free-letter">
-              <span>{contexts.SIGN_IN_DLG.FREE_DONUTS_LETTER}</span>
             </div>
             <div>
               <p>{contexts.AUTH_LETTER.BY_SIGN_UP}
