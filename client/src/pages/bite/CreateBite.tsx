@@ -7,10 +7,10 @@ import TeaserCardPopUp from "../../components/general/TeaserCardPopUp"
 import CurrencySelect from "../../components/stripe/CurrencySelect"
 import ContainerBtn from "../../components/general/containerBtn"
 import Dialog from "../../components/general/dialog"
+import Button from "../../components/general/button"
 import { AddIcon, BackIcon, PlayIcon } from "../../assets/svg"
 import { biteAction } from "../../redux/actions/biteActions"
 import "../../assets/styles/bite/CreateBiteStyle.scss"
-import Button from "../../components/general/button"
 
 const useWindowSize = () => {
     const [size, setSize] = useState(0)

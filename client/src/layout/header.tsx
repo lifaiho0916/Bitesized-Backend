@@ -70,7 +70,7 @@ const Header = () => {
   const gotoAdminHome = () => { navigate('/admin') }
   const gotoCreate = () => {
     dispatch({ type: SET_BITE_INITIAL })
-    navigate("/bite/create")
+    navigate("/bite/create_type")
   }
 
   const setLang = () => {

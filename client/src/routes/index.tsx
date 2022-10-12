@@ -5,6 +5,7 @@ import Auth from "../pages/auth"
 import Home from "../pages/home"
 import Create from '../pages/create'
 
+import CreateType from '../pages/bite/CreateType'
 import CreateBite from '../pages/bite/CreateBite'
 import UploadBite from '../pages/bite/UploadBite'
 
@@ -98,6 +99,7 @@ const AppRoutes = () => {
       <Route path="auth/signin" element={<AuthRoute child={<Auth isSignin={true} />} />} />
       <Route path="auth/signup" element={<AuthRoute child={<Auth isSignin={false} />} />} />
 
+      <Route path="bite/create_type" element={<AuthRoute child={<CreateType />} routeType="private" />} />
       <Route path="bite/create" element={<AuthRoute child={<CreateBite />} routeType="private" />} />
       <Route path="bite/create/upload" element={<AuthRoute child={<UploadBite />} routeType="private" />} />
 
