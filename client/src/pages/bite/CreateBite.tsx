@@ -1,6 +1,7 @@
-import { useEffect, useState, useLayoutEffect } from "react"
+import { useEffect, useState, useLayoutEffect, useRef } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
+import ReactPlayer from "react-player"
 import Input from "../../components/general/input"
 import TeaserCard from "../../components/general/TeaserCard"
 import TeaserCardPopUp from "../../components/general/TeaserCardPopUp"
@@ -10,6 +11,8 @@ import Dialog from "../../components/general/dialog"
 import Button from "../../components/general/button"
 import { AddIcon, BackIcon, PlayIcon } from "../../assets/svg"
 import { biteAction } from "../../redux/actions/biteActions"
+import { SET_BITE, SET_PREVIOUS_ROUTE } from "../../redux/types"
+import CONSTANT from "../../constants/constant"
 import "../../assets/styles/bite/CreateBiteStyle.scss"
 
 const useWindowSize = () => {
@@ -30,6 +33,7 @@ const CreateBite = () => {
     const dispatch = useDispatch()
     const location = useLocation()
 
+    const fileInputRef = useRef<HTMLInputElement>(null)
     const biteState = useSelector((state: any) => state.bite)
     const [title, setTitle] = useState('')
     const [price, setPrice] = useState('')
@@ -44,7 +48,6 @@ const CreateBite = () => {
     const [openQuit, setOpenQuit] = useState(false)
     const [openPublish, setOpenPublish] = useState(false)
 
-    const gotoUploadBite = () => { navigate('/bite/create/upload') }
     const publish = () => {
         if (!publishEnable) return
         setOpenPublish(true)
@@ -65,6 +68,56 @@ const CreateBite = () => {
     const popUpTeaser = (index: any) => {
         setVideoIndex(index)
         setOpenVideoPopUp(true)
+    }
+    const uploadVideo = (e: any) => {
+        const { files } = e.target
+        if (files.length === 0) return
+        let len = bite.videos.length === 0 ? files.length > 3 ? 3 : files.length
+            : files.length > (3 - bite.videos.length) ? 3 - bite.videos.length : files.length
+        for (let i = 0; i < len; i++) {
+            if (files[i].size > CONSTANT.MAX_BITE_FILE_SIZE) {
+                alert("file size is over 150M")
+                return
+            }
+        }
+
+        for (let i = 0; i < len; i++) {
+            const loadFile = Object.assign(files[i], { preview: URL.createObjectURL(files[i]) })
+            window.URL = window.URL || window.webkitURL
+            const video = document.createElement('video')
+            video.preload = "metadata"
+            video.onloadedmetadata = evt => {
+                let videos: any = bite.videos
+                videos.push({
+                    coverUrl: null,
+                    videoUrl: loadFile,
+                    duration: video.duration
+                })
+                dispatch({ type: SET_BITE, payload: { ...bite, videos: videos } })
+            }
+            video.src = URL.createObjectURL(loadFile)
+        }
+    }
+
+    const getFirstFrame = async (index: any) => {
+        const video: any = document.getElementById(`element${index}`)?.firstChild
+        let canvas = document.createElement("canvas") as HTMLCanvasElement
+        let context = canvas.getContext('2d')
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        context?.drawImage(video, 0, 0)
+        let url = canvas.toDataURL('image/png')
+        const res = await fetch(url)
+        const blob = await res.blob()
+        const file = new File([blob], 'cover.png', blob)
+        const cover = Object.assign(file, { preview: url })
+        const videos = bite.videos
+        videos[index].coverUrl = cover
+        dispatch({ type: SET_BITE, payload: { ...bite, videos: videos } })
+    }
+    const gotoEditThumbnail = () => {
+        dispatch({ type: SET_PREVIOUS_ROUTE, payload: location.pathname })
+        navigate('/bite/create/edit_thumbnail')
     }
 
     useEffect(() => {
@@ -92,7 +145,6 @@ const CreateBite = () => {
                 display={openVideoPopup}
                 exit={() => { setOpenVideoPopUp(false) }}
                 teaser={bite.videos.length === 0 ? "" : bite.videos[videoIndex].videoUrl.preview}
-                size={bite.videos.length === 0 ? false : bite.videos[videoIndex].size}
             />
             <Dialog
                 display={openQuit}
@@ -125,25 +177,26 @@ const CreateBite = () => {
             />
             <div className="create-bite">
                 <div className="uploaded-vidoes"
-                    style={{ height: width > 940 ? bite.videos.length === 0 ? '50px' : '480px' : '160px' }}
+                    style={{ height: bite.videos.length === 0 ? '0px' : width > 940 ? '480px' : '160px' }}
                 >
                     {bite.videos.map((video: any, index: any) => (
                         <div className="uploaded-video" key={index}>
                             {width > 940 ?
                                 <TeaserCard
-                                    cover={video.coverUrl.preview}
+                                    cover={video.coverUrl ? video.coverUrl.preview : null}
                                     teaser={video.videoUrl.preview}
-                                    size={video.size}
                                     type={"dareme"}
                                 />
                                 :
                                 <div className="mobile-part">
                                     <div className="cover-image">
-                                        <img
-                                            src={video.coverUrl.preview}
-                                            alt="cover Image"
-                                            style={video.size ? { width: '100%', height: 'auto' } : { width: 'auto', height: '100%' }}
-                                        />
+                                        {video.coverUrl &&
+                                            <img
+                                                src={video.coverUrl.preview}
+                                                alt="cover Image"
+                                                width={'100%'}
+                                            />
+                                        }
                                     </div>
                                     <div className="play-icon" onClick={() => popUpTeaser(index)}>
                                         <PlayIcon color="white" />
@@ -155,25 +208,53 @@ const CreateBite = () => {
                             </div>
                         </div>
                     ))}
-                    {bite.videos.length < 3 &&
-                        <div className="uploaded-video">
-                            {width > 940 ?
-                                <Button
-                                    text="Upload Bite Videos"
-                                    width={250}
-                                    shape="rounded"
-                                    fillStyle="fill"
-                                    color="primary"
-                                    icon={[<AddIcon color="white" />, <AddIcon color="white" />, <AddIcon color="white" />]}
-                                    handleSubmit={gotoUploadBite}
-                                />
-                                :
-                                <div className="upload-video-btn" onClick={gotoUploadBite}>
-                                    <AddIcon color="white" />
-                                </div>
-                            }
+                </div>
+
+                <div className="upload-edit-btns">
+                    {bite.videos.length > 0 &&
+                        <div className="upload-btn">
+                            <Button
+                                text="Edit thumbnail"
+                                width={250}
+                                shape="rounded"
+                                fillStyle="fill"
+                                color="primary"
+                                handleSubmit={gotoEditThumbnail}
+                            />
                         </div>
                     }
+                    {bite.videos.length < 3 &&
+                        <div className="upload-btn">
+                            <Button
+                                text="Upload Bite Videos"
+                                width={250}
+                                shape="rounded"
+                                fillStyle="fill"
+                                color="primary"
+                                icon={[<AddIcon color="white" />, <AddIcon color="white" />, <AddIcon color="white" />]}
+                                handleSubmit={() => fileInputRef.current?.click()}
+                            />
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={uploadVideo}
+                                hidden
+                                multiple
+                                accept="video/*"
+                                value=""
+                            />
+                        </div>
+                    }
+                </div>
+                <div className="react-player-hidden">
+                    {bite.videos.map((video: any, index: any) => (
+                        <ReactPlayer
+                            id={`element${index}`}
+                            key={index}
+                            url={video.videoUrl.preview}
+                            onReady={() => { if (video.coverUrl === null) getFirstFrame(index) }}
+                        />
+                    ))}
                 </div>
 
                 <div className="first-divider"></div>

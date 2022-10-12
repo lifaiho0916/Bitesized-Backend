@@ -4,7 +4,7 @@ import { MuteVolumeIcon, UnMuteVolumeIcon, PlayIcon } from "../../assets/svg"
 import "../../assets/styles/TeaserCardStyle.scss"
 
 const TeaserCard = (props: any) => {
-  const { cover, teaser, size, type, border } = props
+  const { cover, teaser, type, border } = props
   const [play, setPlay] = useState(false)
   const [muted, setMuted] = useState(true)
   const playerRef = useRef<ReactPlayer | null>(null)
@@ -24,7 +24,8 @@ const TeaserCard = (props: any) => {
           <img
             src={cover}
             alt="cover Image"
-            style={size ? { width: '100%', height: 'auto' } : { width: 'auto', height: '100%' }} />
+            width={'100%'}
+          />
         </div>
       }
       {play &&

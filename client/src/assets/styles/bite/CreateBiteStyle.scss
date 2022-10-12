@@ -89,22 +89,26 @@
             }
           }
         }
-
-        .upload-video-btn {
-          cursor: pointer;
-          width: 40px;
-          height: 40px;
-          background: #efa058;
-          border-radius: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
-          &:hover {
-            background: #f2b176;
-          }
-        }
       }
+    }
+
+    .upload-edit-btns {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-evenly;
+      align-items: center;
+      
+      .upload-btn {
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    .react-player-hidden {
+      display: none;
     }
 
     .session-title {
@@ -129,7 +133,7 @@
 
     .publish-btn {
       margin: 0px auto;
-      width: 340px;
+      max-width: 340px;
     }
 
     .first-divider {
@@ -153,6 +157,7 @@
     }
   }
 }
+
 @media screen and (max-width: 940px) {
   .create-bite-wrapper {
     .create-bite {

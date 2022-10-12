@@ -1,0 +1,48 @@
+.edit-cover-wrapper {
+    .page-header {
+        box-sizing: border-box;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 880px;
+        height: 52px;
+        margin: 25px auto;
+        padding: 0px 10px;
+
+        .page-title {
+            font-family: "Lato";
+            font-style: normal;
+            font-weight: 600;
+            font-size: 20px;
+            line-height: 24px;
+            text-align: center;
+            color: #efa058;
+        }
+    }
+
+    .edit-cover {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+
+        .cover-editor {
+            margin: 0px auto;
+            width: 320px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+
+            .next-prev-btn {
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 680px) {
+    .edit-cover-wrapper {
+        .page-header {
+            margin: 15px auto;
+        }
+    }
+}

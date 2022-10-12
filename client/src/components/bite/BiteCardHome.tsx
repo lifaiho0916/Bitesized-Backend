@@ -21,10 +21,10 @@ const BiteCardHome = (props: any) => {
     }
     const displayPrice = (currency: any, price: any) => {
         let res: any = ''
-        if(currency === 'usd') res += "US $" + price 
-        else if(currency === 'hkd') res += 'HK $' + price
-        else if(currency === 'twd') res += 'NT $' + price
-        else if(currency === 'INR') res += 'Rp ₹' + price
+        if (currency === 'usd') res += "US $" + price
+        else if (currency === 'hkd') res += 'HK $' + price
+        else if (currency === 'twd') res += 'NT $' + price
+        else if (currency === 'INR') res += 'Rp ₹' + price
         else res += 'RM ' + price
         return res
     }

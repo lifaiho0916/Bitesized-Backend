@@ -10,7 +10,7 @@ import LangDialog from "../components/general/langDialog"
 import { authAction } from "../redux/actions/authActions";
 import { CreatoColorIcon, AddIcon, LanguageIcon } from "../assets/svg";
 import { LanguageContext } from "../routes/authRoute";
-import { SET_DAREMES, SET_DIALOG_STATE, SET_PREVIOUS_ROUTE, SET_USERS, SET_BITE_INITIAL } from "../redux/types";
+import { SET_DAREMES, SET_DIALOG_STATE, SET_PREVIOUS_ROUTE, SET_USERS } from "../redux/types";
 import "../assets/styles/headerStyle.scss";
 
 const useWindowSize = () => {
@@ -68,10 +68,7 @@ const Header = () => {
   }
 
   const gotoAdminHome = () => { navigate('/admin') }
-  const gotoCreate = () => {
-    dispatch({ type: SET_BITE_INITIAL })
-    navigate("/bite/create_type")
-  }
+  const gotoCreate = () => { navigate("/bite/create_type") }
 
   const setLang = () => {
     setOpenLangSelect(true);
@@ -143,38 +140,38 @@ const Header = () => {
                 </div>
               </div>
             ) : (
-                <>
-                  <div className="sign-lang-btn">
-                    <div className="lang-btn">
-                      <Button
-                        text={lang === 'EN' ?
-                          width > 880 ? ' 繁體中文' : '中文' :
-                          width > 880 ? 'English' : 'Eng'
-                        }
-                        fillStyle="fill"
-                        color="primary"
-                        shape="rounded"
-                        icon={width > 880 ? [
-                          <LanguageIcon color="white" />,
-                          <LanguageIcon color="white" />,
-                          <LanguageIcon color="white" />
-                        ]
-                          : undefined}
-                        handleSubmit={setLang}
-                      />
-                    </div>
-                    <div>
-                      <Button
-                        text={contexts.DIALOG.BUTTON_LETTER.SIGN_IN}
-                        fillStyle="fill"
-                        color="primary"
-                        shape="rounded"
-                        handleSubmit={handleSubmit}
-                      />
-                    </div>
+              <>
+                <div className="sign-lang-btn">
+                  <div className="lang-btn">
+                    <Button
+                      text={lang === 'EN' ?
+                        width > 880 ? ' 繁體中文' : '中文' :
+                        width > 880 ? 'English' : 'Eng'
+                      }
+                      fillStyle="fill"
+                      color="primary"
+                      shape="rounded"
+                      icon={width > 880 ? [
+                        <LanguageIcon color="white" />,
+                        <LanguageIcon color="white" />,
+                        <LanguageIcon color="white" />
+                      ]
+                        : undefined}
+                      handleSubmit={setLang}
+                    />
                   </div>
-                </>
-              )}
+                  <div>
+                    <Button
+                      text={contexts.DIALOG.BUTTON_LETTER.SIGN_IN}
+                      fillStyle="fill"
+                      color="primary"
+                      shape="rounded"
+                      handleSubmit={handleSubmit}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
             {user &&
               <div
                 className="transparent-bg"

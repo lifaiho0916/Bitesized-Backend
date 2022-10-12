@@ -19,6 +19,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
+
+        video {
+            height: auto !important;
+            width: 100% !important;
+        }
     }
 
     .mute-icon {

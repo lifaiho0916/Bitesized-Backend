@@ -7,7 +7,6 @@ import Title from "../../../components/general/title";
 import ContainerBtn from "../../../components/general/containerBtn";
 import Button from "../../../components/general/button";
 import Input from "../../../components/general/input";
-import CONSTANT from "../../../constants/constant";
 import { SET_NAME_EXIST, SET_PROFILE_DATA, SET_URL_EXIST } from "../../../redux/types";
 import { AddIcon, SpreadIcon } from "../../../assets/svg";
 import Dialog from "../../../components/general/dialog";

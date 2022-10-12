@@ -7,7 +7,7 @@ import Create from '../pages/create'
 
 import CreateType from '../pages/bite/CreateType'
 import CreateBite from '../pages/bite/CreateBite'
-import UploadBite from '../pages/bite/UploadBite'
+import EditCoverImage from '../pages/bite/EditCoverImage'
 
 import CreateDareme from "../pages/dareme/create/createDareme"
 import UploadVideo from "../pages/dareme/create/uploadVideo"
@@ -102,7 +102,7 @@ const AppRoutes = () => {
       <Route path="bite/create_type" element={<AuthRoute child={<CreateType />} routeType="private" />} />
       <Route path="bite/create/free" element={<AuthRoute child={<CreateBite />} routeType="private" />} />
       <Route path="bite/create/paid" element={<AuthRoute child={<CreateBite />} routeType="private" />} />
-      <Route path="bite/create/upload" element={<AuthRoute child={<UploadBite />} routeType="private" />} />
+      <Route path="bite/create/edit_thumbnail" element={<AuthRoute child={<EditCoverImage />} routeType="private" />} />
 
       <Route path="create" element={<AuthRoute child={<Create />} routeType="private" />} />
       <Route path="dareme/create" element={<AuthRoute child={<CreateDareme />} routeType="private" />} />

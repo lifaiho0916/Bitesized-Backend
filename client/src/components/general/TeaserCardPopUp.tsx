@@ -16,7 +16,7 @@ const useWindowSize = () => {
 
 const TeaserCardPopUp = (props: any) => {
   const width = useWindowSize()
-  const { teaser, size, display, exit } = props
+  const { teaser, display, exit } = props
   const [play, setPlay] = useState(true)
   const [muted, setMuted] = useState(true)
   const playerRef = useRef<ReactPlayer | null>(null)
