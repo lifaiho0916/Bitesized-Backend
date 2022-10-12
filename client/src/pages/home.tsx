@@ -18,7 +18,7 @@ const Home = () => {
   const biteState = useSelector((state: any) => state.bite)
   const loadState = useSelector((state: any) => state.load)
   const contexts = useContext(LanguageContext)
-  const [title, setTitle] = useState("")
+  const [bite, setBite] = useState<any>(null)
   const [openFreeUnlock, setOpenFreeUnLock] = useState(false)
 
   const { users } = userState
@@ -59,7 +59,7 @@ const Home = () => {
           icon: <RewardIcon color="#efa058" width={70} height={70} />
         }}
         subTitle="You have unlock this FREE Bite"
-        context={title}
+        context={bite?.title}
         exit={exitUnLockFree}
         wrapExit={exitUnLockFree}
         buttons={[
@@ -75,7 +75,7 @@ const Home = () => {
           <div className="daremes scroll-bar">
             {bites.map((bite: any, i: any) => (
               <div className="dareme" key={i}>
-                <BiteCardHome bite={bite} setTitle={setTitle} />
+                <BiteCardHome bite={bite} setBite={setBite} />
               </div>
             ))
             }

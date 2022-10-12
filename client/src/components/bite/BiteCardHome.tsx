@@ -11,7 +11,7 @@ import { biteAction } from "../../redux/actions/biteActions"
 import "../../assets/styles/bite/BiteCardHomeStyle.scss"
 
 const BiteCardHome = (props: any) => {
-    const { bite, setTitle } = props
+    const { bite, setBite } = props
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const contexts = useContext(LanguageContext)
@@ -71,8 +71,9 @@ const BiteCardHome = (props: any) => {
 
     const Unlock = () => {
         if (user) {
-            setTitle(bite.title)
-            dispatch(biteAction.unLockBite(bite._id, bite.currency, bite.price))
+            setBite(bite)
+            if (bite.currency) {
+            } else dispatch(biteAction.unLockBite(bite._id, bite.currency, bite.price))
         }
         else navigate('/auth/signin')
     }

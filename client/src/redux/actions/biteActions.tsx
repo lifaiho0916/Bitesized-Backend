@@ -74,7 +74,9 @@ export const biteAction = {
                 const foundIndex = bites.findIndex((bite: any) => String(bite._id) === String(payload.bite._id))
                 bites[foundIndex] = payload.bite
                 dispatch({ type: SET_BITES, payload: bites })
-                dispatch({ type: SET_DIALOG_STATE, payload: 'unlock_free' })
+                if(currency) {
+
+                } else dispatch({ type: SET_DIALOG_STATE, payload: 'unlock_free' })
             }
 
         } catch (err) {
