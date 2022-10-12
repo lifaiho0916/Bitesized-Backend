@@ -1,5 +1,5 @@
 import { useEffect, useState, useLayoutEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import Input from "../../components/general/input"
 import TeaserCard from "../../components/general/TeaserCard"
@@ -28,12 +28,15 @@ const currencies = ['USD', 'INR', 'TWD', 'HKD', 'MYR']
 const CreateBite = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
+    const location = useLocation()
+
     const biteState = useSelector((state: any) => state.bite)
     const [title, setTitle] = useState('')
     const [price, setPrice] = useState('')
     const [currency, setCurrency] = useState(0)
     const [publishEnable, setPublishEnable] = useState(false)
     const [videoIndex, setVideoIndex] = useState(0)
+    const [free, setFree] = useState(false)
     const { bite } = biteState
     const width = useWindowSize()
 
@@ -47,7 +50,10 @@ const CreateBite = () => {
         setOpenPublish(true)
     }
     const publishBite = () => {
-        const newBite = {
+        const newBite = free ? {
+            ...bite,
+            title: title,
+        } : {
             ...bite,
             title: title,
             price: price,
@@ -55,21 +61,25 @@ const CreateBite = () => {
         }
         dispatch(biteAction.saveBite(newBite, navigate))
     }
-    const displayDuration = (duration: any) => {
-        return Math.floor(duration / 60) + ":" + (Math.round(duration % 60) < 10 ? '0' : '') + Math.round(duration % 60)
-    }
+    const displayDuration = (duration: any) => { return Math.floor(duration / 60) + ":" + (Math.round(duration % 60) < 10 ? '0' : '') + Math.round(duration % 60) }
     const popUpTeaser = (index: any) => {
         setVideoIndex(index)
         setOpenVideoPopUp(true)
     }
 
     useEffect(() => {
-        if (price === "" || Number(price) === 0 || bite.videos.length === 0) {
+        if (title === "" || bite.videos.length === 0) {
+            setPublishEnable(false)
+            return
+        }
+        if (!free && (price === "" || Number(price) === 0)) {
             setPublishEnable(false)
             return
         }
         setPublishEnable(true)
-    }, [price, bite])
+    }, [title, price, bite])
+
+    useEffect(() => { setFree(location.pathname.substring(location.pathname.length - 4) === 'free') }, [location])
 
     return (
         <div className="create-bite-wrapper">
@@ -92,7 +102,7 @@ const CreateBite = () => {
                 buttons={[
                     {
                         text: 'Quit',
-                        handleClick: () => navigate('/')
+                        handleClick: () => navigate('/bite/create_type')
                     },
                     {
                         text: 'Cancel',
@@ -181,40 +191,44 @@ const CreateBite = () => {
                     />
                 </div>
 
-                <div className="second-divider"></div>
-                <div className="session-title">
-                    <span> $ Price to unlock</span>
-                </div>
-                <div className="session-input">
-                    <Input
-                        type="input"
-                        isNumber={true}
-                        width={'100%'}
-                        minnum={0}
-                        maxnum={100000000000000}
-                        placeholder="$1 USD is ideal for bite-size!"
-                        title={price}
-                        setTitle={setPrice}
-                    />
-                </div>
+                {!free &&
+                    <div>
+                        <div className="second-divider"></div>
+                        <div className="session-title">
+                            <span> $ Price to unlock</span>
+                        </div>
+                        <div className="session-input">
+                            <Input
+                                type="input"
+                                isNumber={true}
+                                width={'100%'}
+                                minnum={0}
+                                maxnum={100000000000000}
+                                placeholder="$1 USD is ideal for bite-size!"
+                                title={price}
+                                setTitle={setPrice}
+                            />
+                        </div>
 
-                <div className="third-divider"></div>
-                <div className="session-title">
-                    <span>Currency</span>
-                </div>
-                <div className="currency-description">
-                    <span>(Price will be displayed in USD)</span>
-                </div>
+                        <div className="third-divider"></div>
+                        <div className="session-title">
+                            <span>Currency</span>
+                        </div>
+                        <div className="currency-description">
+                            <span>(Price will be displayed in USD)</span>
+                        </div>
 
-                <div className="firth-divider"></div>
-                <div className="currency-selection">
-                    <CurrencySelect
-                        width={'100%'}
-                        option={currency}
-                        setOption={setCurrency}
-                        options={currencies}
-                    />
-                </div>
+                        <div className="firth-divider"></div>
+                        <div className="currency-selection">
+                            <CurrencySelect
+                                width={'100%'}
+                                option={currency}
+                                setOption={setCurrency}
+                                options={currencies}
+                            />
+                        </div>
+                    </div>
+                }
 
                 <div className="fifth-divider"></div>
                 <div className="publish-btn" onClick={publish}>

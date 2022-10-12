@@ -100,7 +100,8 @@ const AppRoutes = () => {
       <Route path="auth/signup" element={<AuthRoute child={<Auth isSignin={false} />} />} />
 
       <Route path="bite/create_type" element={<AuthRoute child={<CreateType />} routeType="private" />} />
-      <Route path="bite/create" element={<AuthRoute child={<CreateBite />} routeType="private" />} />
+      <Route path="bite/create/free" element={<AuthRoute child={<CreateBite />} routeType="private" />} />
+      <Route path="bite/create/paid" element={<AuthRoute child={<CreateBite />} routeType="private" />} />
       <Route path="bite/create/upload" element={<AuthRoute child={<UploadBite />} routeType="private" />} />
 
       <Route path="create" element={<AuthRoute child={<Create />} routeType="private" />} />

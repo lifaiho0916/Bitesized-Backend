@@ -29,7 +29,7 @@ const CreateType = () => {
                     icon={[
                         <AddIcon color="white" />, <AddIcon color="white" />, <AddIcon color="white" />
                     ]}
-                    handleSubmit={() => navigate('/bite/create?type=free')}
+                    handleSubmit={() => navigate('/bite/create/free')}
                 />
                 <div className="second-divider"></div>
                 <div className="type-description">
@@ -45,7 +45,7 @@ const CreateType = () => {
                     icon={[
                         <AddIcon color="white" />, <AddIcon color="white" />, <AddIcon color="white" />
                     ]}
-                    handleSubmit={() => navigate('/bite/create?type=paid')}
+                    handleSubmit={() => navigate('/bite/create/paid')}
                 />
             </div>
         </div>
