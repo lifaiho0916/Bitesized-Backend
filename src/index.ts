@@ -44,7 +44,7 @@ app.use((req: Request, res: Response, next) => {
 mongoose.connect(`${process.env.MONGO_URL}`,
   {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: false
   } as ConnectOptions)
   .then((res) => {
     console.log("Connected to Mongo DB!!");

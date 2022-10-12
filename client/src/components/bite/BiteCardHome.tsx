@@ -1,14 +1,17 @@
 import { useState, useContext, useEffect } from "react"
 import { useSelector } from "react-redux"
+import { useNavigate } from "react-router-dom"
+import ReactPlayer from "react-player"
 import Avatar from "../general/avatar"
 import Button from "../general/button"
 import { LanguageContext } from "../../routes/authRoute"
-import { ClockIcon, NoOfPeopleIcon, PlayIcon } from "../../assets/svg"
+import { ClockIcon, NoOfPeopleIcon, PlayIcon, UnlockIcon } from "../../assets/svg"
 import NextBtn from "../../assets/img/next-bright.png"
 import "../../assets/styles/bite/BiteCardHomeStyle.scss"
 
 const BiteCardHome = (props: any) => {
-    const { bite, navigate } = props
+    const { bite } = props
+    const navigate = useNavigate()
     const contexts = useContext(LanguageContext)
     const userState = useSelector((state: any) => state.auth)
     const { user } = userState
@@ -64,6 +67,14 @@ const BiteCardHome = (props: any) => {
         setLock(bite.purchasedUsers.every(findPurchasedUser))
     }
 
+    const Unlock = () => {
+        alert('aaa')
+    }
+
+    const playVideo = () => {
+
+    }
+
     useEffect(() => { checkUnLock() }, [])
 
     return (
@@ -89,7 +100,11 @@ const BiteCardHome = (props: any) => {
             </div>
 
             <div className="bite-body">
-                <div className="video-part">
+                <div className="video-part"
+                    onClick={() => {
+                        if (play) { setPlay(false) }
+                    }}
+                >
                     <div className="cover-image">
                         {videoIndex > 0 &&
                             <div className="prev-video" onClick={PrevVideo}>
@@ -101,7 +116,27 @@ const BiteCardHome = (props: any) => {
                                 <img src={NextBtn} alt="next video" />
                             </div>
                         }
-                        {play === false &&
+                        {play === true ?
+                            <ReactPlayer
+                                className="react-player"
+                                config={{
+                                    file: {
+                                        attributes: {
+                                            controlsList: 'nodownload noremoteplayback noplaybackrate',
+                                            disablePictureInPicture: true,
+                                        }
+                                    }
+                                }}
+                                url={`${process.env.REACT_APP_SERVER_URL}/${bite.videos[videoIndex].videoUrl}`}
+                                muted={true}
+                                playing={play}
+                                playsinline={true}
+                                controls
+                            // onProgress={(progress) => {
+                            //   if (progress.playedSeconds >= progress.loadedSeconds) playerRef.current?.seekTo(0);
+                            // }}
+                            />
+                            :
                             <>
                                 <img
                                     src={`${process.env.REACT_APP_SERVER_URL}/${bite.videos[videoIndex].coverUrl}`}
@@ -112,8 +147,11 @@ const BiteCardHome = (props: any) => {
                                     <div className="lock-btn">
                                         <Button
                                             text="Unlock"
+                                            shape="rounded"
                                             fillStyle="outline"
                                             color="primary"
+                                            icon={[<UnlockIcon color="#EFA058" />, <UnlockIcon color="white" />, <UnlockIcon color="white" />]}
+                                            handleSubmit={Unlock}
                                         />
                                     </div>
                                     :
@@ -121,7 +159,6 @@ const BiteCardHome = (props: any) => {
                                         <PlayIcon color="white" />
                                     </div>
                                 }
-
                             </>
                         }
                         <div

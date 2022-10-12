@@ -43,16 +43,13 @@ const Home = () => {
         exit={() => { setOpenSigninDlg(false) }}
         wrapExit={() => { setOpenSigninDlg(false) }}
       />
-      {(bites.length > 0) &&
+      {bites.length > 0 &&
         <div className="section" style={{ marginTop: '20px' }}>
           <div className="title">Bite-sized Knowledge 💡</div>
           <div className="daremes scroll-bar">
             {bites.map((bite: any, i: any) => (
               <div className="dareme" key={i}>
-                <BiteCardHome
-                  navigate={navigate}
-                  bite={bite}
-                />
+                <BiteCardHome bite={bite} />
               </div>
             ))
             }

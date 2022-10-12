@@ -77,6 +77,20 @@
             justify-content: center;
             position: relative;
 
+            .react-player {
+                width: 100% !important;
+                height: 100% !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+
+                video {
+                    height: auto !important;
+                    width: 100% !important;
+                }
+            }
+
             .cover-image {
                 width: 280px;
                 height: 480px;
@@ -88,6 +102,7 @@
             }
 
             .prev-video {
+                z-index: 1;
                 position: absolute;
                 left: 25px;
                 cursor: pointer;
@@ -95,6 +110,7 @@
             }
 
             .next-video {
+                z-index: 1;
                 position: absolute;
                 right: 25px;
                 cursor: pointer;
@@ -121,9 +137,14 @@
 
             .lock-btn {
                 position: absolute;
-                transform: translate(-50%, -50%);
-                top: 50%;
-                left: 50%;
+                width: 280px;
+                height: 480px;
+                top: 0;
+                left: 25;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: rgba(0, 0, 0, 0.3);
             }
 
             .video-count {

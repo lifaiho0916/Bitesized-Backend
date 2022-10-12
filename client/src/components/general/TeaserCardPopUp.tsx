@@ -18,13 +18,11 @@ const TeaserCardPopUp = (props: any) => {
   const width = useWindowSize()
   const { teaser, display, exit } = props
   const [play, setPlay] = useState(true)
-  const [muted, setMuted] = useState(true)
   const playerRef = useRef<ReactPlayer | null>(null)
 
   useEffect(() => {
     if (display) {
       setPlay(true)
-      setMuted(true)
       if (playerRef) playerRef.current?.seekTo(0)
     }
   }, [display])
@@ -32,34 +30,28 @@ const TeaserCardPopUp = (props: any) => {
   return (
     <div className="teaser-pop-up-wrapper" style={display ? { visibility: 'visible', opacity: 1 } : {}}>
       <div className="teaser-main-wrapper"
-        style={{ width: `${width}px`, height: `${width * 1.71}px` }}
+        style={{ width: `${width > 500 ? 500 : width}px`, height: `${(width > 500 ? 500 : width) * 1.71}px` }}
         onClick={() => { setPlay(!play) }}>
-        <>
-          <div style={{ width: '100%', height: '100%' }}>
-            <ReactPlayer
-              className="react-player"
-              ref={playerRef}
-              url={teaser}
-              muted={muted}
-              playing={play}
-              playsinline={true}
-              onProgress={(progress) => {
-                if (progress.playedSeconds >= progress.loadedSeconds) playerRef.current?.seekTo(0);
-              }}
-            />
-          </div>
-          <div className="mute-icon" onClick={(e) => {
-            e.stopPropagation()
-            setMuted(!muted)
-          }}>
-            {muted === true ? <MuteVolumeIcon color="white" /> : <UnMuteVolumeIcon color="white" />}
-          </div>
-        </>
-        {!play &&
-          <div className="play-icon">
-            <StopIcon color="white" width={40} height={40} />
-          </div>
-        }
+        <ReactPlayer
+          className="react-player"
+          config={{
+            file: {
+              attributes: {
+                controlsList: 'nodownload noremoteplayback noplaybackrate',
+                disablePictureInPicture: true,
+              }
+            }
+          }}
+          ref={playerRef}
+          url={teaser}
+          muted={true}
+          playing={play}
+          playsinline={true}
+          controls
+          onProgress={(progress) => {
+            if (progress.playedSeconds >= progress.loadedSeconds) playerRef.current?.seekTo(0);
+          }}
+        />
         <div className="exit-icon" onClick={(e) => {
           e.stopPropagation()
           exit()
