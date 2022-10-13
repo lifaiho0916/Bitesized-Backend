@@ -1,7 +1,13 @@
 import path from "path"
 import multer from "multer"
 import fs from "fs"
+import Stripe from "stripe"
 import Bite from "../models/Bite"
+
+const stripe = new Stripe(
+  `${process.env.STRIPE_SECRET_KEY}`,
+  { apiVersion: '2020-08-27', typescript: true }
+)
 
 const calcTime = () => {
   var d = new Date()
@@ -83,16 +89,32 @@ export const getAllBites = async (req: any, res: any) => {
 export const unLockBite = async (req: any, res: any) => {
   try {
     const { id } = req.params
-    const { userId, currency, amount } = req.body
+    const { userId, currency, amount, rate, token } = req.body
     const bite: any = await Bite.findById(id)
 
     if (currency) {
+      let charge = { status: 'requested' }
+      let usdAmount = (amount + amount * 0.034 + 0.3) * 100
+      let ratedAmount = usdAmount * rate
 
+      await stripe.charges.create({
+        amount: Number(Math.round(ratedAmount)),
+        currency: currency,
+        source: token.id,
+        description: `Unlock Bite (id: ${id})`,
+      }).then(result => {
+        charge = result
+      }).catch(err => { return res.status(200).json({ success: false, payload: err.raw.message }) })
+
+      if (charge.status !== 'succeeded') {
+        /// ERROR Message
+        return res.status(200).json({ success: false, payload: charge })
+      }
     }
 
     let purchasedUsers = bite.purchasedUsers
     purchasedUsers.push(userId)
-    
+
     const resBite = await Bite.findByIdAndUpdate(id, { purchasedUsers: purchasedUsers }, { new: true }).populate({
       path: 'owner',
       select: { name: 1, avatar: 1, personalisedUrl: 1 }
