@@ -3,6 +3,7 @@ import multer from "multer"
 import fs from "fs"
 import Stripe from "stripe"
 import Bite from "../models/Bite"
+import User from "../models/User"
 
 const stripe = new Stripe(
   `${process.env.STRIPE_SECRET_KEY}`,
@@ -81,6 +82,22 @@ export const getAllBites = async (req: any, res: any) => {
     })
 
     return res.status(200).json({ success: true, payload: { bites: resBites } })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
+  try {
+    const { url } = req.params
+    const user = await User.findOne({ personalisedUrl: url })
+    if (user) {
+      const bites = await Bite.find({ owner: user._id }).populate({
+        path: 'owner',
+        select: { name: 1, avatar: 1, personalisedUrl: 1 }
+      })
+      return res.status(200).json({ success: true, payload: { bites: bites } })
+    } else return res.status(200).json({ success: false })
   } catch (err) {
     console.log(err)
   }

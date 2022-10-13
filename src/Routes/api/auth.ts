@@ -1,6 +1,6 @@
-import express from "express";
-import auth from "../../middleware/auth";
-const router = express.Router();
+import express from "express"
+import auth from "../../middleware/auth"
+const router = express.Router()
 
 //import Controller
 import { 
@@ -19,10 +19,13 @@ import {
     getTipState,
     inviteFriend,
     getCreatorsByCategory,
-    getOwnersOfBites
-} from '../../controllers/authController';
+
+    getOwnersOfBites,
+    getUserByPersonalisedUrl
+} from '../../controllers/authController'
 
 router.get('/owners', getOwnersOfBites)
+router.get('/personalurl/:url', getUserByPersonalisedUrl)
 
 router.post("/googleSignin", googleSignin);
 router.post("/googleSignup", googleSignup);

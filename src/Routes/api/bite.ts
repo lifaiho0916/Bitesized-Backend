@@ -8,7 +8,8 @@ import {
     CreateBite,
     uploadVideo,
     uploadCover,
-    unLockBite
+    unLockBite,
+    getBitesByPersonalisedUrl
 } from '../../controllers/biteController'
 
 router.get('/', getAllBites)
@@ -16,5 +17,6 @@ router.post('/create', auth, CreateBite)
 router.post('/upload/video', auth, uploadVideo)
 router.post('/upload/cover', auth, uploadCover)
 router.put('/:id/unlock', auth, unLockBite)
+router.get('/personalurl/:url', getBitesByPersonalisedUrl)
 
 export default router

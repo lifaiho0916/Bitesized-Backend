@@ -47,6 +47,19 @@ export const getOwnersOfBites = async (req: any, res: any) => {
   }
 }
 
+export const getUserByPersonalisedUrl = async (req: any, res: any) => {
+  try {
+    const { url } = req.params
+    const user = await User.findOne({ personalisedUrl: url }).select({
+      name: 1, avatar: 1, personalisedUrl: 1, categories: 1
+    })
+    if (user) return res.status(200).json({ success: true, payload: { users: [user] } })
+    else return res.status(200).json({ success: false })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 export const setFirstLogin = async () => {
   try {
     const users: any = await User.find()
@@ -455,7 +468,7 @@ const uploadAvatar = multer({
 
 export const editAvatar = async (req: Request, res: Response) => {
   uploadAvatar(req, res, () => {
-    res.status(200).json({ success: true, path: "uploads/avatar/" + req.file ?.filename });
+    res.status(200).json({ success: true, path: "uploads/avatar/" + req.file?.filename });
   });
 }
 
