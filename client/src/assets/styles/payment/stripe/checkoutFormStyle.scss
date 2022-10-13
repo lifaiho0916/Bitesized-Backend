@@ -17,7 +17,7 @@
     transform: translate(-50%, -50%);
     left: 50%;
     top: 50%;
-    padding: 24px;
+    padding: 15px;
     width: 280px;
     background: #ffffff;
     z-index: 55;
@@ -95,7 +95,7 @@
       .holder-name {
         font-weight: 400;
         margin-top: 5px;
-        width: 230px;
+        width: 246px;
         height: 42px;
         background-color: #E1E0DF;
         border: 1px solid #E1E0DF;
@@ -105,7 +105,7 @@
         align-items: center;
 
         input {
-          width: 190px;
+          width: 220px;
           padding: 10px 0px;
           border: none;
           background-color: #E1E0DF;
@@ -129,7 +129,7 @@
       margin-top: 10px;
 
       .expire {
-        width: 95px;
+        width: 100px;
 
         .letter {
           font-family: 'Lato';
@@ -154,7 +154,7 @@
       }
 
       .cvv {
-        width: 95px;
+        width: 100px;
 
         .letter {
           font-family: 'Lato';

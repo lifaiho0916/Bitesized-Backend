@@ -73,6 +73,14 @@ const AuthRoute = (props: routeProps) => {
         }
     }, [navigate, props.routeType]);
 
+    useEffect(() => {
+        if (localStorage.getItem(`${process.env.REACT_APP_CREATO_TOKEN}`)) {
+            const decoded: any = decode(token)
+            if (decoded.exp * 1000 < new Date().getTime()) dispatch(authAction.logout(navigate))
+            else dispatch(authAction.getAuthData())
+        } else navigate("/")
+    }, [])
+
     return (
         <LanguageContext.Provider value={contexts}>
             {location.pathname.indexOf('admin') !== -1 ? <Layout1 child={props.child} /> : <Layout child={props.child} />}

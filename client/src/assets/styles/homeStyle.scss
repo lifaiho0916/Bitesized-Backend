@@ -5,6 +5,68 @@
   max-width: 1400px;
   min-width: 375px;
 
+  #purchaseModal {
+    .sub-title {
+      font-family: 'Lato';
+      font-style: normal;
+      font-weight: 700;
+      font-size: 18px;
+      line-height: 20px;
+      color: #000000;
+      margin-bottom: 25px;
+    }
+
+    .purchase-card {
+      box-sizing: border-box;
+      width: 100%;
+      background: #FFFFFF;
+      box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.15);
+      border-radius: 6px;
+      padding: 10px;
+
+      .creator-price {
+        margin: 0px 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .creator {
+          font-family: 'Lato';
+          font-style: normal;
+          font-weight: 600;
+          font-size: 14px;
+          line-height: 18px;
+          text-align: center;
+          color: #000000;
+        }
+
+        .price {
+          font-family: 'Lato';
+          font-style: normal;
+          font-weight: 700;
+          font-size: 14px;
+          line-height: 18px;
+          color: #EFA058;
+        }
+      }
+
+      .bite-title {
+        margin: 10px 5px 5px 5px;
+        font-family: 'Lato';
+        font-style: normal;
+        font-weight: 300;
+        font-size: 12px;
+        line-height: 14px;
+        letter-spacing: 0.02em;
+        color: #000000;
+      }
+    }
+
+    .next-btn {
+      margin-top: 20px;
+    }
+  }
+
   .scroll-bar {
     &::-webkit-scrollbar {
       height: 12px;
@@ -140,29 +202,6 @@
         justify-content: center;
         margin: 10px;
       }
-    }
-
-    .donuts-list {
-      display: flex;
-      flex-flow: row nowrap;
-      padding: 16px 0 7px 0;
-      overflow-x: scroll;
-
-      .donuts {
-        margin-right: 10px;
-      }
-
-      &::after,
-      &::before {
-        content: '';
-        margin: auto;
-      }
-    }
-
-    .banner {
-      margin: 30px 0px 20px 0px;
-      display: flex;
-      justify-content: center;
     }
   }
 }

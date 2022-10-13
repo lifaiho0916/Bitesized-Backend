@@ -14,15 +14,15 @@ import ContainerBtn from "../general/containerBtn"
 import CurrencySelect from "./CurrencySelect"
 import { SET_LOADING_FALSE, SET_LOADING_TRUE } from "../../redux/types";
 import { CloseIcon, VisaCardIcon, VisaCardActiveIcon, MasterCardIcon, MasterCardActiveIcon, AECardIcon, AECardActiveIcon, UnionPayCardIcon, UnionPayCardActiveIcon } from "../../assets/svg"
-import { paymentAction } from "../../redux/actions/paymentActions"
 import { LanguageContext } from "../../routes/authRoute"
-import { tipAction } from "../../redux/actions/tipActions"
+import { biteAction } from "../../redux/actions/biteActions"
 import CONSTANT from "../../constants/constant"
 import '../../assets/styles/payment/stripe/checkoutFormStyle.scss'
 
 const stripePromise = loadStripe(`${process.env.REACT_APP_STRIPE_PUBLIC_KEY}`)
 
 const CheckoutForm = (props: any) => {
+  const { bite } = props
   const [numberInfo, setNumberInfo] = useState<any>(null)
   const [holder, setHolder] = useState("")
   const dispatch = useDispatch()
@@ -53,26 +53,24 @@ const CheckoutForm = (props: any) => {
         return setErrorToDisplay('' + token.error.message)
       }
 
+      props.exit()
+
       const response = await axios.get('https://api.striperates.com/rates/usd', {
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': `${process.env.REACT_APP_STRIPE_CURRENCY_RATE_API_KEY}`,
         }
       })
-      
-      const { data } = response
-      const rate = currency === 0 ? 1.0 : data.data[0].rates[CONSTANT.PAYMENT_CURRENCIES[currency]] 
 
-      const donutsPlan = {
-        ...props.donutPlan,
-        currency: CONSTANT.PAYMENT_CURRENCIES[currency],
-        rate: rate
-      }
-      if (props.tipData !== undefined) dispatch(tipAction.tipDonutAsVistor(token.token, donutsPlan, props.tipData))
-      else dispatch(paymentAction.buyDonuts(token.token, donutsPlan, null, saveCheck))
+      const { data } = response
+      const rate1 = bite.currency === 'usd' ? 1.0 : data.data[0].rates[bite.currency]
+      const usdAmount = rate1 * bite.price
+      const rate2 = currency === 0 ? 1.0 : data.data[0].rates[CONSTANT.PAYMENT_CURRENCIES[currency]]
+      dispatch(biteAction.unLockBite(bite.id, CONSTANT.PAYMENT_CURRENCIES[currency], usdAmount, rate2, token.token))
       setErrorToDisplay('')
     } catch (err) {
       console.log(err)
+      dispatch({ type: SET_LOADING_FALSE })
     }
   }
 
@@ -93,7 +91,7 @@ const CheckoutForm = (props: any) => {
       <div className="stripe-checkout" onClick={e => e.stopPropagation()}>
         <div className="stripe-header">
           <div className="header-title">
-            {context.PAYMENT.BUY_DONUTS}
+            {/* {context.PAYMENT.BUY_DONUTS} */}
           </div>
           <div onClick={props.exit}>
             <CloseIcon color="black" />
@@ -166,14 +164,14 @@ const CheckoutForm = (props: any) => {
               </div>
             </div>
           </div>
-          {props.tipData === undefined &&
+          {/* {props.tipData === undefined &&
             <div className="check-box">
               <label className="checkbox">
                 <input type="checkbox" id="save_card" ref={checkBoxRef} checked={saveCheck} onChange={(e) => { setSaveCheck(e.target.checked) }} />
                 <span className="letter">&nbsp;{context.PAYMENT.SAVE_CARD_INFO}</span>
               </label>
             </div>
-          }
+          } */}
           <div className="error-letter">
             <span>{errorToDisplay ? errorToDisplay : null}</span>
           </div>
@@ -181,16 +179,17 @@ const CheckoutForm = (props: any) => {
           <div className="select-currency">
             <span>{context.PAYMENT.SELECT_CURRENCY}</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px' }}>
-            <CurrencySelect 
+          <div style={{ marginBottom: '30px' }}>
+            <CurrencySelect
               label={context.PAYMENT.YOU_WILL_PAY_IN}
               options={context.PAYMENT_CURRENCIES}
               setOption={setCurrency}
               option={currency}
+              width={'100%'}
             />
           </div>
           <div className="pay-button">
-            <div style={{ width: '240px' }} onClick={() => { formRef.current.click(); }}>
+            <div style={{ width: '250px' }} onClick={() => { formRef.current.click(); }}>
               <ContainerBtn text={context.PAYMENT.PAY} styleType="fill" />
               <input type="submit" hidden ref={formRef} />
             </div>
