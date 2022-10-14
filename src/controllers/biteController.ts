@@ -90,12 +90,22 @@ export const getAllBites = async (req: any, res: any) => {
 export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
   try {
     const { url } = req.params
-    const user = await User.findOne({ personalisedUrl: url })
+    const { userId } = req.query
+    const user: any = await User.findOne({ personalisedUrl: url })
+
     if (user) {
-      const bites = await Bite.find({ owner: user._id }).populate({
-        path: 'owner',
-        select: { name: 1, avatar: 1, personalisedUrl: 1 }
-      })
+      let bites: any = []
+      if (userId !== String(user._id)) {
+        bites = await Bite.find({ owner: user._id }).populate({
+          path: 'owner',
+          select: { name: 1, avatar: 1, personalisedUrl: 1 }
+        })
+      } else {
+        bites = await Bite.find({ $or: [{ 'owner': user._id }, { "purchasedUsers.purchasedBy": user._id }] }).populate({
+          path: 'owner',
+          select: { name: 1, avatar: 1, personalisedUrl: 1 }
+        })
+      }
 
       const resBites: any = []
 
