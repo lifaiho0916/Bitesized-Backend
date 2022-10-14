@@ -18,14 +18,15 @@ import {
     getUserFromUrl,
     getTipState,
     inviteFriend,
-    getCreatorsByCategory,
 
     getOwnersOfBites,
-    getUserByPersonalisedUrl
+    getUserByPersonalisedUrl,
+    getCreatorsByCategory
 } from '../../controllers/authController'
 
 router.get('/owners', getOwnersOfBites)
 router.get('/personalurl/:url', getUserByPersonalisedUrl)
+router.post('/creators', getCreatorsByCategory)
 
 router.post("/googleSignin", googleSignin);
 router.post("/googleSignup", googleSignup);
@@ -40,7 +41,6 @@ router.post('/exist_url', auth ,getExistURL);
 router.post('/userFromUrl', getUserFromUrl);
 router.get('/tip_state', auth, getTipState)
 router.post('/invite_friend', inviteFriend)
-router.post('/creators', getCreatorsByCategory)
 
 router.post('/users', auth, getUsersList);
 

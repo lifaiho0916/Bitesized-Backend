@@ -32,7 +32,7 @@ export const getOwnersOfBites = async (req: any, res: any) => {
   try {
     const bites = await Bite.find().populate({
       path: 'owner',
-      select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1 }
+      select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1 }
     })
 
     const owners: any = []
@@ -50,11 +50,44 @@ export const getOwnersOfBites = async (req: any, res: any) => {
 export const getUserByPersonalisedUrl = async (req: any, res: any) => {
   try {
     const { url } = req.params
-    const user = await User.findOne({ personalisedUrl: url }).select({
-      name: 1, avatar: 1, personalisedUrl: 1, categories: 1
-    })
+    const user = await User.findOne({ personalisedUrl: url }).select({ name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1 })
+
     if (user) return res.status(200).json({ success: true, payload: { users: [user] } })
     else return res.status(200).json({ success: false })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const getCreatorsByCategory = async (req: Request, res: Response) => {
+  try {
+    const { categories } = req.body
+    const bites = await Bite.find().populate({ path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1 } })
+
+    let users = <Array<any>>[]
+
+    bites.forEach((bite: any) => {
+      const filters = users.filter((user: any) => String(user._id) === String(bite.owner._id))
+      if (filters.length === 0 && bite.owner.role === 'USER') users.push(bite.owner)
+    })
+
+    if (categories.length !== 0) {
+      const filterUsers = users.filter((user: any) => {
+        for (let i = 0; i < categories.length; i++) if (user.categories.indexOf(categories[i]) !== -1) return true
+        return false
+      })
+      users = [...filterUsers]
+    }
+
+    const newArr1 = users.slice()
+    for (let i = newArr1.length - 1; i > 0; i--) {
+      const rand = Math.floor(Math.random() * (i + 1))
+      const temp = newArr1[i]
+      newArr1[i] = newArr1[rand]
+      newArr1[rand] = temp
+    }
+
+    return res.status(200).json({ success: true, payload: { creators: newArr1 } })
   } catch (err) {
     console.log(err)
   }
@@ -593,48 +626,6 @@ export const inviteFriend = async (req: Request, res: Response) => {
     }
 
     return res.status(200).json({ success: true, data: { index: index, userId: user._id } })
-  } catch (err) {
-    console.log(err)
-  }
-}
-
-export const getCreatorsByCategory = async (req: Request, res: Response) => {
-  try {
-    const { categories } = req.body
-    const finishedDareme = DareMe.find({ finished: true }).populate({ path: 'owner' })
-    const finishedFundme = FundMe.find({ finished: true }).populate({ path: 'owner' })
-
-    const result: any = await Promise.all([finishedDareme, finishedFundme])
-
-    let users = <Array<any>>[];
-    for (const dareme of result[0]) {
-      const filters = users.filter((user: any) => (user._id + '') === (dareme.owner._id + ''))
-      if (filters.length === 0 && dareme.owner.role === 'USER') {
-        users.push(dareme.owner);
-      }
-    }
-
-    for (const fundme of result[1]) {
-      const filters = users.filter((user: any) => (user._id + '') === (fundme.owner._id + ''))
-      if (filters.length === 0 && fundme.owner.role === 'USER') {
-        users.push(fundme.owner);
-      }
-    }
-    if (categories.length !== 0) {
-      const filterUsers = users.filter((user: any) => {
-        for (let i = 0; i < categories.length; i++) if (user.categories.indexOf(categories[i]) !== -1) return true
-        return false
-      })
-      users = [...filterUsers]
-    }
-
-    const newArr1 = users.slice()
-    for (let i = newArr1.length - 1; i > 0; i--) {
-      const rand = Math.floor(Math.random() * (i + 1));
-      [newArr1[i], newArr1[rand]] = [newArr1[rand], newArr1[i]];
-    }
-
-    return res.status(200).json({ success: true, creators: newArr1 })
   } catch (err) {
     console.log(err)
   }

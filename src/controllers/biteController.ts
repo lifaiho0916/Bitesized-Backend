@@ -164,3 +164,34 @@ export const unLockBite = async (req: any, res: any) => {
     console.log(err)
   }
 }
+
+
+export const getBitesList = async (req: any, res: any) => {
+  try {
+    const bites = await Bite.find().populate({
+      path: 'owner',
+      select: { name: 1, avatar: 1, personalisedUrl: 1 }
+    })
+
+    const resBites: any = []
+
+    bites.forEach((bite: any) => {
+      resBites.push({
+        ...bite._doc,
+        time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
+      })
+    })
+
+    const newArr1 = resBites.slice()
+    for (let i = newArr1.length - 1; i > 0; i--) {
+      const rand = Math.floor(Math.random() * (i + 1))
+      const temp = newArr1[i]
+      newArr1[i] = newArr1[rand]
+      newArr1[rand] = temp
+    }
+
+    return res.status(200).json({ success: true, payload: { bites: newArr1 } })
+  } catch (err) {
+    console.log(err)
+  }
+}
