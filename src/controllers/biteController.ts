@@ -96,7 +96,16 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
         path: 'owner',
         select: { name: 1, avatar: 1, personalisedUrl: 1 }
       })
-      return res.status(200).json({ success: true, payload: { bites: bites } })
+
+      const resBites: any = []
+
+      bites.forEach((bite: any) => {
+        resBites.push({
+          ...bite._doc,
+          time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
+        })
+      })
+      return res.status(200).json({ success: true, payload: { bites: resBites } })
     } else return res.status(200).json({ success: false })
   } catch (err) {
     console.log(err)
@@ -130,7 +139,10 @@ export const unLockBite = async (req: any, res: any) => {
     }
 
     let purchasedUsers = bite.purchasedUsers
-    purchasedUsers.push(userId)
+    purchasedUsers.push({
+      purchasedBy: userId,
+      purchasedAt: calcTime()
+    })
 
     const resBite = await Bite.findByIdAndUpdate(id, { purchasedUsers: purchasedUsers }, { new: true }).populate({
       path: 'owner',

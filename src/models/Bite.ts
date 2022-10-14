@@ -25,7 +25,14 @@ const BiteSchema = new monogoose.Schema({
         }
     }],
     purchasedUsers: [{
-        type: Schema.Types.ObjectId
+        _id: false,
+        purchasedBy: {
+            type: Schema.Types.ObjectId,
+            ref: User
+        },
+        purchasedAt: {
+            type: Date
+        }
     }],
     date: {
         type: Date
