@@ -13,15 +13,19 @@ import {
     saveProfileInfo,
     setLanguage,
     getUsersList,
-    getExistName,
-    getExistURL,
     getUserFromUrl,
     inviteFriend,
+
+    checkName,
+    checkUrl,
 
     getOwnersOfBites,
     getUserByPersonalisedUrl,
     getCreatorsByCategory
 } from '../../controllers/authController'
+
+router.post('/checkname', auth ,checkName)
+router.post('/checkurl', auth ,checkUrl)
 
 router.get('/owners', getOwnersOfBites)
 router.get('/personalurl/:url', getUserByPersonalisedUrl)
@@ -35,8 +39,6 @@ router.get("/get", auth, getAuthData);
 router.post("/avatar/upload", auth, editAvatar);
 router.post('/profile/save', auth ,saveProfileInfo);
 router.post('/setting/lang', auth, setLanguage);
-router.post('/exist_name', auth ,getExistName);
-router.post('/exist_url', auth ,getExistURL);
 router.post('/userFromUrl', getUserFromUrl);
 router.post('/invite_friend', inviteFriend)
 

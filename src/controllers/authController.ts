@@ -89,12 +89,21 @@ export const getCreatorsByCategory = async (req: Request, res: Response) => {
   }
 }
 
-export const setFirstLogin = async () => {
+export const checkName = async (req: Request, res: Response) => {
   try {
-    const users: any = await User.find()
-    let setFuncs: Array<any> = []
-    for (const user of users) setFuncs.push(User.findByIdAndUpdate(user._id, { firstLogin: false }))
-    Promise.all(setFuncs)
+    const { name, userId } = req.body
+    const users = await User.find({ name: new RegExp(`^${name}$`, 'i') }).where('_id').ne(userId)
+    return res.status(200).json({ success: true, payload: { exist: users.length > 0 ? true : false } })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const checkUrl = async (req: Request, res: Response) => {
+  try {
+    const { url, userId } = req.body
+    const users = await User.find({ personalisedUrl: new RegExp(`^${url}$`, 'i') }).where('_id').ne(userId)
+    return res.status(200).json({ success: true, payload: { exist: users.length > 0 ? true : false } })
   } catch (err) {
     console.log(err)
   }
@@ -121,6 +130,7 @@ export const googleSignin = async (req: Request, res: Response) => {
             personalisedUrl: user.personalisedUrl,
             language: user.language,
             category: user.categories,
+            bioText: user.bioText
           };
 
           jwt.sign(
@@ -191,6 +201,7 @@ export const googleSignup = async (req: Request, res: Response) => {
                     personalisedUrl: updatedUser.personalisedUrl,
                     language: updatedUser.language,
                     category: updatedUser.categories,
+                    bioText: user.bioText
                   };
                   jwt.sign(
                     payload,
@@ -244,6 +255,7 @@ export const appleSignin = async (req: Request, res: Response) => {
             personalisedUrl: user.personalisedUrl,
             language: user.language,
             category: user.categories,
+            bioText: user.bioText
           }
 
           jwt.sign(
@@ -316,7 +328,8 @@ export const appleSignup = async (req: Request, res: Response) => {
                     email: updatedUser.email,
                     personalisedUrl: updatedUser.personalisedUrl,
                     language: updatedUser.language,
-                    category: updatedUser.categories
+                    category: updatedUser.categories,
+                    bioText: user.bioText
                   }
                   jwt.sign(
                     payload,
@@ -352,8 +365,7 @@ export const appleSignup = async (req: Request, res: Response) => {
 export const getAuthData = async (req: Request, res: Response) => {
   try {
     const { userId } = req.body;
-    const user: any = await User.findById(userId);
-    // if (!user) return res.status(200).json({ user: null });
+    const user: any = await User.findById(userId)
     const payload = {
       id: user._id,
       name: user.name,
@@ -363,9 +375,9 @@ export const getAuthData = async (req: Request, res: Response) => {
       personalisedUrl: user.personalisedUrl,
       language: user.language,
       category: user.categories,
-      new_notification: user.new_notification,
+      bioText: user.bioText
     }
-    return res.status(200).json({ user: payload });
+    return res.status(200).json({ success: true, payload: { user: payload } })
   } catch (err) {
     console.log(err);
   }
@@ -473,26 +485,6 @@ export const getUsersList = async (req: Request, res: Response) => {
       });
     }
     return res.status(200).json({ success: true, users: result });
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const getExistName = async (req: Request, res: Response) => {
-  try {
-    const { name, userId } = req.body;
-    const users = await User.find({ name: new RegExp(`^${name}$`, 'i') }).where('_id').ne(userId);
-    return res.status(200).json({ success: true, isExist: users.length > 0 ? true : false });
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const getExistURL = async (req: Request, res: Response) => {
-  try {
-    const { url, userId } = req.body;
-    const users = await User.find({ personalisedUrl: new RegExp(`^${url}$`, 'i') }).where('_id').ne(userId);
-    return res.status(200).json({ success: true, isExist: users.length > 0 ? true : false });
   } catch (err) {
     console.log(err);
   }
