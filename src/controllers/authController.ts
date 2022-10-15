@@ -6,7 +6,6 @@ import User from "../models/User"
 import ReferralLink from "../models/ReferralLink"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
-import voucher_codes from 'voucher-code-generator'
 import Mixpanel from "mixpanel"
 import Bite from "../models/Bite"
 import 'dotenv/config'
@@ -120,7 +119,7 @@ export const googleSignin = async (req: Request, res: Response) => {
             role: user.role,
             email: user.email,
             personalisedUrl: user.personalisedUrl,
-            language: user.lang.language,
+            language: user.language,
             category: user.categories,
           };
 
@@ -140,7 +139,7 @@ export const googleSignin = async (req: Request, res: Response) => {
                 $name: user.name,
                 $email: user.email,
               })
-              return res.status(200).json({ sucess: true, payload: { user: payload, token: token } })
+              return res.status(200).json({ success: true, payload: { user: payload, token: token } })
             }
           )
         } else return res.status(400).json({ error: 'sing-up methods error' })
