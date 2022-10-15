@@ -17,10 +17,6 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  wallet: {
-    type: Number,
-    default: 0,
-  },
   role: {
     type: String,
     default: "USER",
@@ -29,35 +25,20 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
-  categories: [
-    {
-      type: Number,
-    },
-  ],
+  categories: [{
+    type: Number,
+  }],
+  bioText: {
+    type: String,
+    default: ""
+  },
   language: {
     type: String,
     default: "EN",
   },
-  new_notification: {
-    type: Boolean,
-    default: false,
-  },
   subscribed_users: [{
-      type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
   }],
-  stripeID: {
-    type: String
-  },
-  tipFunction: {
-    type: Boolean,
-    default: false,
-  },
-  firstLogin: {
-    type: Boolean
-  },
-  referralLink: {
-    type: String
-  },
   date: {
     type: Date,
   }

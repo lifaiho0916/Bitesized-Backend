@@ -3,9 +3,6 @@ import path from "path"
 import fs from "fs"
 import multer from "multer"
 import User from "../models/User"
-import DareMe from "../models/DareMe"
-import FundMe from "../models/FundMe"
-import AdminWallet from "../models/AdminWallet"
 import ReferralLink from "../models/ReferralLink"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
@@ -104,32 +101,15 @@ export const setFirstLogin = async () => {
   }
 }
 
-export const getTipState = async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.body
-    const result: any = await Promise.all([
-      DareMe.find({ owner: userId, finished: true }),
-      FundMe.find({ owner: userId, finished: true }),
-      User.findById(userId)
-    ])
-    const cnt = result[0].length + result[1].length
-    return res.status(200).json({ success: true, cnt: cnt, tipFunction: result[2].tipFunction })
-  } catch (err) {
-    console.log(err)
-  }
-}
-
 //-------------Google Signin---------------------------
 export const googleSignin = async (req: Request, res: Response) => {
   try {
     const userData = req.body
     const email = userData.email
     const browser = userData.browser
-
     const user: any = await User.findOne({ email: email })
 
     if (user) {
-      if (user.language !== userData.lang) await User.findByIdAndUpdate(user._id, { language: userData.lang })
       const password = userData.email + userData.googleId
       bcrypt.compare(password, user.password, (err, isMatch) => {
         if (isMatch) {
@@ -140,10 +120,8 @@ export const googleSignin = async (req: Request, res: Response) => {
             role: user.role,
             email: user.email,
             personalisedUrl: user.personalisedUrl,
-            language: userData.lang,
+            language: user.lang.language,
             category: user.categories,
-            new_notification: user.new_notification,
-            referralLink: user.referralLink
           };
 
           jwt.sign(
@@ -154,60 +132,37 @@ export const googleSignin = async (req: Request, res: Response) => {
               mixpanel.people.set_once(user._id, {
                 $name: user.name,
                 $email: user.email,
-              });
+              })
               mixpanel.track("Sign In", {
                 'Login Method': 'Gmail',
                 'Browser Used': browser,
                 distinct_id: user._id,
                 $name: user.name,
                 $email: user.email,
-              });
-
-              const firstLogin = user.firstLogin
-              User.findByIdAndUpdate(user._id, { firstLogin: true }).exec()
-              return res.status(200).json({ user: payload, token: token, firstLogin: firstLogin });
+              })
+              return res.status(200).json({ sucess: true, payload: { user: payload, token: token } })
             }
-          );
+          )
         } else return res.status(400).json({ error: 'sing-up methods error' })
-      });
-    } else googleSignup(req, res);
+      })
+    } else googleSignup(req, res)
   } catch (err) {
-    console.log(err);
+    console.log(err)
   }
 }
 
 //-------------Google Signup---------------------------
 export const googleSignup = async (req: Request, res: Response) => {
   try {
-    const userData = req.body;
-    const email = userData.email;
-    const browser = userData.browser;
-    const referral = userData.referral
+    const userData = req.body
+    const email = userData.email
+    const browser = userData.browser
     let role = "USER"
-
     const user: any = await User.findOne({ email: email })
 
-    let referralLink: any = null
-    if (referral.userId) referralLink = await ReferralLink.findOne({ user: referral.userId })
     if (user) googleSignin(req, res)
     else {
-      const users = await User.find()
-      let link: any = null
-      while (1) {
-        let flag = false
-        const links = voucher_codes.generate({
-          length: 10,
-          count: 1,
-          charset: '0123456789abcdefghijklmnopqrstuvwxyz',
-        })
-        users.forEach((user: any) => { if (user.referralLink === links[0]) flag = true })
-        if (flag === false) {
-          link = links[0]
-          break
-        }
-      }
-
-      const password = userData.email + userData.googleId;
+      const password = userData.email + userData.googleId
       bcrypt.genSalt(10, (err: any, salt: any) => {
         bcrypt.hash(password, salt, (err: any, hash: any) => {
           if (err) throw err;
@@ -217,17 +172,15 @@ export const googleSignup = async (req: Request, res: Response) => {
             name: userData.name,
             role: role,
             password: hash,
-            language: userData.lang,
-            referralLink: link,
             date: calcTime()
           });
           newUser.save().then((user: any) => {
-            const index = user.email.indexOf("@");
-            const subEmail = user.email.substring(0, index).replace(/\s/g, '').toLowerCase();
+            const index = user.email.indexOf("@")
+            const subEmail = user.email.substring(0, index).replace(/\s/g, '').toLowerCase()
             User.find({ personalisedUrl: subEmail }).then((foundUsers: any) => {
-              let url = "";
-              if (foundUsers.length > 1) url = `${subEmail}${foundUsers.length - 1}`;
-              else url = subEmail;
+              let url = ""
+              if (foundUsers.length > 1) url = `${subEmail}${foundUsers.length - 1}`
+              else url = subEmail
               User.findOneAndUpdate({ _id: user._id }, { $set: { personalisedUrl: url } }, { new: true })
                 .then((updatedUser: any) => {
                   const payload = {
@@ -239,8 +192,6 @@ export const googleSignup = async (req: Request, res: Response) => {
                     personalisedUrl: updatedUser.personalisedUrl,
                     language: updatedUser.language,
                     category: updatedUser.categories,
-                    new_notification: updatedUser.new_notification,
-                    referralLink: user.referralLink
                   };
                   jwt.sign(
                     payload,
@@ -259,17 +210,17 @@ export const googleSignup = async (req: Request, res: Response) => {
                         $name: updatedUser.name,
                         $email: updatedUser.email,
                       });
-                      return res.status(200).json({ user: payload, token: token, new: true });
+                      return res.status(200).json({ success: true, payload: { user: payload, token: token } })
                     }
                   );
-                }).catch((err: any) => console.log(err));
-            }).catch((err: any) => console.log(err));
-          }).catch((err: any) => console.log(err));
-        });
-      });
+                }).catch((err: any) => console.log(err))
+            }).catch((err: any) => console.log(err))
+          }).catch((err: any) => console.log(err))
+        })
+      })
     }
   } catch (err) {
-    console.log(err);
+    console.log(err)
   }
 }
 
@@ -282,7 +233,6 @@ export const appleSignin = async (req: Request, res: Response) => {
     const decodeToken: any = jwt.decode(token)
     const user: any = await User.findOne({ email: decodeToken.email })
     if (user) {
-      if (user.language !== userData.lang) await User.findByIdAndUpdate(user._id, { language: userData.lang })
       const password = decodeToken.email + decodeToken.sub
       bcrypt.compare(password, user.password, (err, isMatch) => {
         if (isMatch) {
@@ -293,11 +243,9 @@ export const appleSignin = async (req: Request, res: Response) => {
             role: user.role,
             email: user.email,
             personalisedUrl: user.personalisedUrl,
-            language: userData.lang,
+            language: user.language,
             category: user.categories,
-            new_notification: user.new_notification,
-            referralLink: user.referralLink
-          };
+          }
 
           jwt.sign(
             payload,
@@ -314,18 +262,16 @@ export const appleSignin = async (req: Request, res: Response) => {
                 distinct_id: user._id,
                 $name: user.name,
                 $email: user.email,
-              });
+              })
 
-              const firstLogin = user.firstLogin
-              User.findByIdAndUpdate(user._id, { firstLogin: true }).exec()
-              return res.status(200).json({ user: payload, token: token, firstLogin: firstLogin });
+              return res.status(200).json({ success: true, payload: { user: payload, token: token } })
             }
           );
         } else return res.status(400).json({ error: 'sing-up methods error' })
       });
-    } else appleSignup(req, res);
+    } else appleSignup(req, res)
   } catch (err) {
-    console.log(err);
+    console.log(err)
   }
 }
 
@@ -335,31 +281,12 @@ export const appleSignup = async (req: Request, res: Response) => {
     const token = userData.token
     const browser = userData.browser
     const appleUser = userData.user
-    const referral = userData.referral
 
     const decodeToken: any = jwt.decode(token)
     const user: any = await User.findOne({ email: decodeToken.email })
 
-    let referralLink: any = null
-    if (referral.userId) referralLink = await ReferralLink.findOne({ user: referral.userId })
     if (user) appleSignin(req, res)
     else {
-      const users: any = await User.find()
-      let link: any = null
-      while (1) {
-        let flag = false
-        const links = voucher_codes.generate({
-          length: 10,
-          count: 1,
-          charset: '0123456789abcdefghijklmnopqrstuvwxyz',
-        })
-        users.forEach((user: any) => { if (user.referralLink === links[0]) flag = true })
-        if (flag === false) {
-          link = links[0]
-          break
-        }
-      }
-
       const password = decodeToken.email + decodeToken.sub
       bcrypt.genSalt(10, (err: any, salt: any) => {
         bcrypt.hash(password, salt, (err: any, hash: any) => {
@@ -371,17 +298,15 @@ export const appleSignup = async (req: Request, res: Response) => {
             name: appleUser ? appleUser.firstName + ' ' + appleUser.lastName : alterName,
             role: 'USER',
             password: hash,
-            language: userData.lang,
-            referralLink: link,
             date: calcTime()
-          });
+          })
           newUser.save().then((user: any) => {
-            const index = user.email.indexOf("@");
-            const subEmail = user.email.substring(0, index).replace(/\s/g, '').toLowerCase();
+            const index = user.email.indexOf("@")
+            const subEmail = user.email.substring(0, index).replace(/\s/g, '').toLowerCase()
             User.find({ personalisedUrl: subEmail }).then((foundUsers: any) => {
               let url = "";
-              if (foundUsers.length > 1) url = `${subEmail}${foundUsers.length - 1}`;
-              else url = subEmail;
+              if (foundUsers.length > 1) url = `${subEmail}${foundUsers.length - 1}`
+              else url = subEmail
               User.findOneAndUpdate({ _id: user._id }, { $set: { personalisedUrl: url } }, { new: true })
                 .then((updatedUser: any) => {
                   const payload = {
@@ -392,10 +317,8 @@ export const appleSignup = async (req: Request, res: Response) => {
                     email: updatedUser.email,
                     personalisedUrl: updatedUser.personalisedUrl,
                     language: updatedUser.language,
-                    category: updatedUser.categories,
-                    new_notification: updatedUser.new_notification,
-                    referralLink: user.referralLink
-                  };
+                    category: updatedUser.categories
+                  }
                   jwt.sign(
                     payload,
                     `${process.env.KEY}`,
@@ -413,17 +336,17 @@ export const appleSignup = async (req: Request, res: Response) => {
                         $name: updatedUser.name,
                         $email: updatedUser.email,
                       });
-                      return res.status(200).json({ user: payload, token: token, new: true });
+                      return res.status(200).json({ success: true, payload: { user: payload, token: token } })
                     }
                   );
-                }).catch((err: any) => console.log(err));
-            }).catch((err: any) => console.log(err));
-          }).catch((err: any) => console.log(err));
-        });
-      });
+                }).catch((err: any) => console.log(err))
+            }).catch((err: any) => console.log(err))
+          }).catch((err: any) => console.log(err))
+        })
+      })
     }
   } catch (err) {
-    console.log(err);
+    console.log(err)
   }
 }
 
@@ -432,19 +355,17 @@ export const getAuthData = async (req: Request, res: Response) => {
     const { userId } = req.body;
     const user: any = await User.findById(userId);
     // if (!user) return res.status(200).json({ user: null });
-    const adminDonuts: any = await AdminWallet.findOne({ admin: "ADMIN" });
     const payload = {
       id: user._id,
       name: user.name,
       avatar: user.avatar,
       role: user.role,
       email: user.email,
-      wallet: user.role === "ADMIN" ? adminDonuts.wallet : user.wallet,
       personalisedUrl: user.personalisedUrl,
       language: user.language,
       category: user.categories,
       new_notification: user.new_notification,
-    };
+    }
     return res.status(200).json({ user: payload });
   } catch (err) {
     console.log(err);
@@ -468,14 +389,12 @@ export const saveProfileInfo = async (req: Request, res: Response) => {
       }
     }
     const updatedUser: any = await User.findByIdAndUpdate(userId, { name: name, personalisedUrl: creatoUrl, categories: category, avatar: realPath }, { new: true })
-    const adminDonuts: any = await AdminWallet.findOne({ admin: "ADMIN" })
     const payload = {
       id: updatedUser._id,
       name: updatedUser.name,
       avatar: updatedUser.avatar,
       role: updatedUser.role,
       email: updatedUser.email,
-      wallet: updatedUser.role === "ADMIN" ? adminDonuts.wallet : updatedUser.wallet,
       personalisedUrl: updatedUser.personalisedUrl,
       language: updatedUser.language,
       category: updatedUser.categories,
@@ -520,9 +439,6 @@ export const getUsersList = async (req: Request, res: Response) => {
     const { search } = req.body;
     if (search === "") {
       const users = await User.find().select({ 'personalisedUrl': 1, 'date': 1, 'email': 1, 'name': 1, 'categories': 1, 'wallet': 1, 'tipFunction': 1, 'role': 1 });
-      var dareFuncs: Array<any> = [];
-      users.forEach((user: any) => { dareFuncs.push(DareMe.find({ owner: user._id })) });
-      const resultDaremes = await Promise.all(dareFuncs);
       var result: Array<object> = [];
       users.forEach((user: any, index: any) => {
         result.push({
@@ -532,10 +448,7 @@ export const getUsersList = async (req: Request, res: Response) => {
           email: user.email,
           name: user.name,
           categories: user.categories,
-          wallet: user.wallet,
           role: user.role,
-          daremeCnt: resultDaremes[index].length,
-          tipFunction: user.tipFunction
         });
       });
     } else {
@@ -547,9 +460,6 @@ export const getUsersList = async (req: Request, res: Response) => {
             { personalisedUrl: { $regex: search, $options: "i" } }
           ]
       }).select({ 'personalisedUrl': 1, 'date': 1, 'email': 1, 'name': 1, 'categories': 1, 'wallet': 1, 'tipFunction': 1, 'role': 1 });
-      var dareFuncs: Array<any> = [];
-      users.forEach((user: any) => { dareFuncs.push(DareMe.find({ owner: user._id })) });
-      const resultDaremes = await Promise.all(dareFuncs);
       var result: Array<object> = [];
       users.forEach((user: any, index: any) => {
         result.push({
@@ -560,9 +470,6 @@ export const getUsersList = async (req: Request, res: Response) => {
           name: user.name,
           role: user.role,
           categories: user.categories,
-          wallet: user.wallet,
-          daremeCnt: resultDaremes[index].length,
-          tipFunction: user.tipFunction
         });
       });
     }

@@ -22,6 +22,10 @@ const BiteSchema = new monogoose.Schema({
         },
         videoUrl: {
             type: String
+        },
+        visible: {
+            type: Boolean,
+            default: true
         }
     }],
     purchasedUsers: [{
@@ -34,6 +38,10 @@ const BiteSchema = new monogoose.Schema({
             type: Date
         }
     }],
+    visible: {
+        type: Boolean,
+        default: true
+    },
     date: {
         type: Date
     }
