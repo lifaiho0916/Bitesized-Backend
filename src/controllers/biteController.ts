@@ -67,13 +67,34 @@ export const uploadCover = async (req: any, res: any) => {
 
 export const getAllBites = async (req: any, res: any) => {
   try {
-    const bites = await Bite.find().populate({
+    const bites = await Bite.find({ visible: true }).populate({
       path: 'owner',
       select: { name: 1, avatar: 1, personalisedUrl: 1 }
     })
 
     const resBites: any = []
 
+    bites.forEach((bite: any) => {
+      resBites.push({
+        ...bite._doc,
+        time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
+      })
+    })
+
+    return res.status(200).json({ success: true, payload: { bites: resBites } })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const getBitesAdmin = async (req: any, res: any) => {
+  try {
+    const bites = await Bite.find().populate({
+      path: 'owner',
+      select: { name: 1, avatar: 1, personalisedUrl: 1 }
+    })
+
+    const resBites: any = []
     bites.forEach((bite: any) => {
       resBites.push({
         ...bite._doc,
@@ -96,12 +117,12 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
     if (user) {
       let bites: any = []
       if (userId !== String(user._id)) {
-        bites = await Bite.find({ owner: user._id }).populate({
+        bites = await Bite.find({ owner: user._id, visible: true }).populate({
           path: 'owner',
           select: { name: 1, avatar: 1, personalisedUrl: 1 }
         })
       } else {
-        bites = await Bite.find({ $or: [{ 'owner': user._id }, { "purchasedUsers.purchasedBy": user._id }] }).populate({
+        bites = await Bite.find({ $or: [{ 'owner': user._id }, { "purchasedUsers.purchasedBy": user._id }], visible: true }).populate({
           path: 'owner',
           select: { name: 1, avatar: 1, personalisedUrl: 1 }
         })
@@ -168,7 +189,7 @@ export const unLockBite = async (req: any, res: any) => {
 
 export const getBitesList = async (req: any, res: any) => {
   try {
-    const bites = await Bite.find().populate({
+    const bites = await Bite.find({ visible: true }).populate({
       path: 'owner',
       select: { name: 1, avatar: 1, personalisedUrl: 1 }
     })
@@ -191,6 +212,60 @@ export const getBitesList = async (req: any, res: any) => {
     }
 
     return res.status(200).json({ success: true, payload: { bites: newArr1 } })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const getBiteById = async (req: any, res: any) => {
+  try {
+    const { id } = req.params
+    const bite = await Bite.findById(id).populate({
+      path: 'owner',
+      select: { name: 1, avatar: 1, personalisedUrl: 1 }
+    })
+
+    return res.status(200).json({ success: true, payload: { bite: bite } })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const setVisible = async (req: any, res: any) => {
+  try {
+    const { id } = req.params
+    const { visible } = req.body
+    await Bite.findByIdAndUpdate(id, { visible: visible })
+    return res.status(200).json({ success: true })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const deleteBite = async (req: any, res: any) => {
+  try {
+    const { id } = req.params
+    const bite = await Bite.findById(id)
+    bite?.videos.forEach((video: any) => {
+      if(video.coverUrl) {
+        const filePath = "public/" + video.coverUrl
+        if (fs.existsSync(filePath)) {
+          fs.unlink(filePath, (err) => {
+            if (err) throw err
+          })
+        }
+      }
+      if(video.videoUrl) {
+        const filePath = "public/" + video.videoUrl
+        if (fs.existsSync(filePath)) {
+          fs.unlink(filePath, (err) => {
+            if (err) throw err
+          })
+        }
+      }
+    })
+    await Bite.findByIdAndDelete(id)
+    return res.status(200).json({ success: true })
   } catch (err) {
     console.log(err)
   }
