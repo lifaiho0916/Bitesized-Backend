@@ -364,7 +364,7 @@ export const appleSignup = async (req: Request, res: Response) => {
 
 export const getAuthData = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.body;
+    const { userId } = req.body
     const user: any = await User.findById(userId)
     const payload = {
       id: user._id,
@@ -379,17 +379,15 @@ export const getAuthData = async (req: Request, res: Response) => {
     }
     return res.status(200).json({ success: true, payload: { user: payload } })
   } catch (err) {
-    console.log(err);
+    console.log(err)
   }
 }
 
-export const saveProfileInfo = async (req: Request, res: Response) => {
+export const editProfile = async (req: Request, res: Response) => {
   try {
-    const { userId, name, creatoUrl, category, path } = req.body
+    const { userId, name, url, category, avatar } = req.body
     const user: any = await User.findById(userId)
-    let realPath = user.avatar
-    if (path) {
-      realPath = path
+    if (avatar) {
       if (user.avatar.indexOf('uploads') !== -1) {
         const filePath = "public/" + user.avatar
         if (fs.existsSync(filePath)) {
@@ -399,7 +397,7 @@ export const saveProfileInfo = async (req: Request, res: Response) => {
         }
       }
     }
-    const updatedUser: any = await User.findByIdAndUpdate(userId, { name: name, personalisedUrl: creatoUrl, categories: category, avatar: realPath }, { new: true })
+    const updatedUser: any = await User.findByIdAndUpdate(userId, { name: name, personalisedUrl: url, categories: category, avatar: avatar }, { new: true })
     const payload = {
       id: updatedUser._id,
       name: updatedUser.name,
@@ -409,9 +407,9 @@ export const saveProfileInfo = async (req: Request, res: Response) => {
       personalisedUrl: updatedUser.personalisedUrl,
       language: updatedUser.language,
       category: updatedUser.categories,
-      new_notification: updatedUser.new_notification,
-    };
-    return res.status(200).json({ user: payload, success: true })
+      bioText: updatedUser.bioText
+    }
+    return res.status(200).json({ success: true, payload: { user: payload } })
   } catch (err) {
     console.log(err);
   }

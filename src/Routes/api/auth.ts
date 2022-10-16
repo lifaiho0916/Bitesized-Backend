@@ -8,14 +8,15 @@ import {
     googleSignup,
     appleSignin,
     appleSignup,
-    getAuthData,
-    editAvatar,
-    saveProfileInfo,
+    
     setLanguage,
     getUsersList,
     getUserFromUrl,
     inviteFriend,
 
+    getAuthData,
+    editProfile,
+    editAvatar,
     checkName,
     checkUrl,
 
@@ -24,6 +25,9 @@ import {
     getCreatorsByCategory
 } from '../../controllers/authController'
 
+router.get("/", auth, getAuthData)
+router.post('/profile/save', auth ,editProfile)
+router.post("/avatar/upload", auth, editAvatar)
 router.post('/checkname', auth ,checkName)
 router.post('/checkurl', auth ,checkUrl)
 
@@ -35,9 +39,6 @@ router.post("/googleSignin", googleSignin);
 router.post("/googleSignup", googleSignup);
 router.post("/appleSignin", appleSignin)
 router.post("/appleSignup", appleSignup)
-router.get("/get", auth, getAuthData);
-router.post("/avatar/upload", auth, editAvatar);
-router.post('/profile/save', auth ,saveProfileInfo);
 router.post('/setting/lang', auth, setLanguage);
 router.post('/userFromUrl', getUserFromUrl);
 router.post('/invite_friend', inviteFriend)
