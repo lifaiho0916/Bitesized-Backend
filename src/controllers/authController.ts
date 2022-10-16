@@ -28,7 +28,7 @@ export const getOwnersOfBites = async (req: any, res: any) => {
   try {
     const bites = await Bite.find().populate({
       path: 'owner',
-      select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1 }
+      select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 }
     })
 
     const owners: any = []
@@ -46,7 +46,7 @@ export const getOwnersOfBites = async (req: any, res: any) => {
 export const getUserByPersonalisedUrl = async (req: any, res: any) => {
   try {
     const { url } = req.params
-    const user = await User.findOne({ personalisedUrl: url }).select({ name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1 })
+    const user = await User.findOne({ personalisedUrl: url }).select({ name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 })
 
     if (user) return res.status(200).json({ success: true, payload: { users: [user] } })
     else return res.status(200).json({ success: false })
@@ -58,7 +58,7 @@ export const getUserByPersonalisedUrl = async (req: any, res: any) => {
 export const getCreatorsByCategory = async (req: Request, res: Response) => {
   try {
     const { categories } = req.body
-    const bites = await Bite.find().populate({ path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1 } })
+    const bites = await Bite.find().populate({ path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 } })
 
     let users = <Array<any>>[]
 
@@ -385,7 +385,7 @@ export const getAuthData = async (req: Request, res: Response) => {
 
 export const editProfile = async (req: Request, res: Response) => {
   try {
-    const { userId, name, url, category, avatar } = req.body
+    const { userId, name, url, category, avatar, bioText } = req.body
     const user: any = await User.findById(userId)
     if (avatar) {
       if (user.avatar.indexOf('uploads') !== -1) {
@@ -397,7 +397,7 @@ export const editProfile = async (req: Request, res: Response) => {
         }
       }
     }
-    const updatedUser: any = await User.findByIdAndUpdate(userId, { name: name, personalisedUrl: url, categories: category, avatar: avatar }, { new: true })
+    const updatedUser: any = await User.findByIdAndUpdate(userId, { name: name, personalisedUrl: url, categories: category, avatar: avatar ? avatar : user.avatar, bioText: bioText }, { new: true })
     const payload = {
       id: updatedUser._id,
       name: updatedUser.name,
