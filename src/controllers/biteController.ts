@@ -247,7 +247,7 @@ export const deleteBite = async (req: any, res: any) => {
     const { id } = req.params
     const bite = await Bite.findById(id)
     bite?.videos.forEach((video: any) => {
-      if(video.coverUrl) {
+      if (video.coverUrl) {
         const filePath = "public/" + video.coverUrl
         if (fs.existsSync(filePath)) {
           fs.unlink(filePath, (err) => {
@@ -255,7 +255,7 @@ export const deleteBite = async (req: any, res: any) => {
           })
         }
       }
-      if(video.videoUrl) {
+      if (video.videoUrl) {
         const filePath = "public/" + video.videoUrl
         if (fs.existsSync(filePath)) {
           fs.unlink(filePath, (err) => {
@@ -270,3 +270,31 @@ export const deleteBite = async (req: any, res: any) => {
     console.log(err)
   }
 }
+
+export const removeVideoFromBite = async (req: any, res: any) => {
+  try {
+    const { id, index } = req.params
+    const bite = await Bite.findById(id)
+    if (bite?.videos[index].coverUrl) {
+      const filePath = "public/" + bite?.videos[index].coverUrl
+      if (fs.existsSync(filePath)) {
+        fs.unlink(filePath, (err) => {
+          if (err) throw err
+        })
+      }
+    }
+    if (bite?.videos[index].videoUrl) {
+      const filePath = "public/" + bite?.videos[index].videoUrl
+      if (fs.existsSync(filePath)) {
+        fs.unlink(filePath, (err) => {
+          if (err) throw err
+        })
+      }
+    }
+    let videos = bite?.videos.filter((video: any, i: any) => i !== Number(index))
+    await Bite.findByIdAndUpdate(id, { videos: videos })
+    return res.status(200).json({ success: true })
+  } catch (err) {
+    console.log(err)
+  }
+} 

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose"
 
 const UserSchema = new mongoose.Schema({
   email: {
@@ -35,6 +35,10 @@ const UserSchema = new mongoose.Schema({
   language: {
     type: String,
     default: "EN",
+  },
+  visible: {
+    type: Boolean,
+    default: true
   },
   subscribed_users: [{
     type: mongoose.Schema.Types.ObjectId,
