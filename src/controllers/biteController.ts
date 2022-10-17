@@ -67,16 +67,52 @@ export const uploadCover = async (req: any, res: any) => {
 
 export const getAllBites = async (req: any, res: any) => {
   try {
-    const bites = await Bite.find({ visible: true }).populate({
-      path: 'owner',
-      select: { name: 1, avatar: 1, personalisedUrl: 1 }
-    })
+    const bites: any = await Bite.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          pipeline: [{
+            $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
+          }],
+          as: "owner"
+        }
+      },
+      { $unwind: "$owner" },
+      {
+        $match: {
+          $and: [
+            { visible: true },
+            { 'owner.visible': { $eq: true } }
+          ]
+        }
+      },
+      {
+        $project: {
+          videos: {
+            $filter: {
+              input: "$videos",
+              as: "videos",
+              cond: { $eq: ["$$videos.visible", true] }
+            }
+          },
+          currency: 1,
+          owner: 1,
+          price: 1,
+          title: 1,
+          visible: 1,
+          purchasedUsers: 1,
+          date: 1,
+        }
+      }
+    ])
 
     const resBites: any = []
 
     bites.forEach((bite: any) => {
       resBites.push({
-        ...bite._doc,
+        ...bite,
         time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
       })
     })
@@ -117,22 +153,101 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
     if (user) {
       let bites: any = []
       if (userId !== String(user._id)) {
-        bites = await Bite.find({ owner: user._id, visible: true }).populate({
-          path: 'owner',
-          select: { name: 1, avatar: 1, personalisedUrl: 1 }
-        })
+        bites = await Bite.aggregate([
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              pipeline: [{
+                $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
+              }],
+              as: "owner"
+            }
+          },
+          { $unwind: "$owner" },
+          {
+            $match: {
+              $and: [
+                { "owner._id": user._id },
+                { visible: true },
+                { 'owner.visible': { $eq: true } }
+              ]
+            }
+          },
+          {
+            $project: {
+              videos: {
+                $filter: {
+                  input: "$videos",
+                  as: "videos",
+                  cond: { $eq: ["$$videos.visible", true] } //<-- filter sub-array based on condition
+                }
+              },
+              currency: 1,
+              owner: 1,
+              price: 1,
+              title: 1,
+              visible: 1,
+              purchasedUsers: 1,
+              date: 1,
+            }
+          }
+        ])
       } else {
-        bites = await Bite.find({ $or: [{ 'owner': user._id }, { "purchasedUsers.purchasedBy": user._id }], visible: true }).populate({
-          path: 'owner',
-          select: { name: 1, avatar: 1, personalisedUrl: 1 }
-        })
+        bites = await Bite.aggregate([
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              pipeline: [{
+                $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
+              }],
+              as: "owner"
+            }
+          },
+          { $unwind: "$owner" },
+          {
+            $match: {
+              $and: [
+                {
+                  $or: [
+                    { "owner._id": user._id },
+                    { "purchasedUsers.purchasedBy": user._id }
+                  ]
+                },
+                { visible: true },
+                { 'owner.visible': { $eq: true } }
+              ]
+            }
+          },
+          {
+            $project: {
+              videos: {
+                $filter: {
+                  input: "$videos",
+                  as: "videos",
+                  cond: { $eq: ["$$videos.visible", true] } //<-- filter sub-array based on condition
+                }
+              },
+              currency: 1,
+              owner: 1,
+              price: 1,
+              title: 1,
+              visible: 1,
+              purchasedUsers: 1,
+              date: 1,
+            }
+          }
+        ])
       }
 
       const resBites: any = []
 
       bites.forEach((bite: any) => {
         resBites.push({
-          ...bite._doc,
+          ...bite,
           time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
         })
       })
@@ -186,19 +301,54 @@ export const unLockBite = async (req: any, res: any) => {
   }
 }
 
-
 export const getBitesList = async (req: any, res: any) => {
   try {
-    const bites = await Bite.find({ visible: true }).populate({
-      path: 'owner',
-      select: { name: 1, avatar: 1, personalisedUrl: 1 }
-    })
+    const bites = await Bite.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          pipeline: [{
+            $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
+          }],
+          as: "owner"
+        }
+      },
+      { $unwind: "$owner" },
+      {
+        $match: {
+          $and: [
+            { visible: true },
+            { 'owner.visible': { $eq: true } }
+          ]
+        }
+      },
+      {
+        $project: {
+          videos: {
+            $filter: {
+              input: "$videos",
+              as: "videos",
+              cond: { $eq: ["$$videos.visible", true] }
+            }
+          },
+          currency: 1,
+          owner: 1,
+          price: 1,
+          title: 1,
+          visible: 1,
+          purchasedUsers: 1,
+          date: 1,
+        }
+      }
+    ])
 
     const resBites: any = []
 
     bites.forEach((bite: any) => {
       resBites.push({
-        ...bite._doc,
+        ...bite,
         time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
       })
     })
@@ -297,4 +447,18 @@ export const removeVideoFromBite = async (req: any, res: any) => {
   } catch (err) {
     console.log(err)
   }
-} 
+}
+
+export const changeVideoVisible = async (req: any, res: any) => {
+  try {
+    const { id, index } = req.params
+    const { visible } = req.body
+    const bite = await Bite.findById(id)
+    let videos: any = bite?.videos
+    videos[index].visible = visible
+    await Bite.findByIdAndUpdate(id, { videos: videos })
+    return res.status(200).json({ success: true })
+  } catch (err) {
+    console.log(err)
+  }
+}

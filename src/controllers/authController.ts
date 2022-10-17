@@ -26,7 +26,7 @@ const calcTime = () => {
 
 export const getOwnersOfBites = async (req: any, res: any) => {
   try {
-    const bites = await Bite.find().populate({
+    const bites = await Bite.find({ visible: true }).populate({
       path: 'owner',
       select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 }
     })
@@ -58,7 +58,7 @@ export const getUserByPersonalisedUrl = async (req: any, res: any) => {
 export const getCreatorsByCategory = async (req: Request, res: Response) => {
   try {
     const { categories } = req.body
-    const bites = await Bite.find().populate({ path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 } })
+    const bites = await Bite.find({ visible: true }).populate({ path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 } })
 
     let users = <Array<any>>[]
 
@@ -447,7 +447,7 @@ export const getUsersList = async (req: Request, res: Response) => {
   try {
     const { search } = req.body;
     if (search === "") {
-      const users = await User.find().select({ 'personalisedUrl': 1, 'date': 1, 'email': 1, 'name': 1, 'categories': 1, 'wallet': 1, 'tipFunction': 1, 'role': 1 });
+      const users = await User.find({ visible: true }).select({ 'personalisedUrl': 1, 'date': 1, 'email': 1, 'name': 1, 'categories': 1, 'wallet': 1, 'tipFunction': 1, 'role': 1 });
       var result: Array<object> = [];
       users.forEach((user: any, index: any) => {
         result.push({
@@ -461,14 +461,15 @@ export const getUsersList = async (req: Request, res: Response) => {
         });
       });
     } else {
-      const users = await User.find({
-        $or:
-          [
+      const users = await User.find(
+        { visible: true },
+        {
+          $or: [
             { name: { $regex: search, $options: "i" } },
             { email: { $regex: search, $options: "i" } },
             { personalisedUrl: { $regex: search, $options: "i" } }
           ]
-      }).select({ 'personalisedUrl': 1, 'date': 1, 'email': 1, 'name': 1, 'categories': 1, 'wallet': 1, 'tipFunction': 1, 'role': 1 });
+        }).select({ 'personalisedUrl': 1, 'date': 1, 'email': 1, 'name': 1, 'categories': 1, 'wallet': 1, 'tipFunction': 1, 'role': 1 });
       var result: Array<object> = [];
       users.forEach((user: any, index: any) => {
         result.push({
