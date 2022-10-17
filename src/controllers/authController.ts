@@ -3,7 +3,6 @@ import path from "path"
 import fs from "fs"
 import multer from "multer"
 import User from "../models/User"
-import ReferralLink from "../models/ReferralLink"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import Mixpanel from "mixpanel"
@@ -503,28 +502,28 @@ export const getUserFromUrl = async (req: Request, res: Response) => {
 
 export const inviteFriend = async (req: Request, res: Response) => {
   try {
-    const { referralLink } = req.body
-    const user: any = await User.findOne({ referralLink: referralLink })
-    const referral: any = await ReferralLink.findOne({ user: user._id })
-    let index = 0
-    if (referral) {
+    // const { referralLink } = req.body
+    // const user: any = await User.findOne({ referralLink: referralLink })
+    // const referral: any = await ReferralLink.findOne({ user: user._id })
+    // let index = 0
+    // if (referral) {
 
-      let users = [...referral.invitedUsers]
-      users.push({ date: calcTime() })
-      index = referral.invitedUsers.length
-      await ReferralLink.findByIdAndUpdate(referral._id, { invitedUsers: users })
+    //   let users = [...referral.invitedUsers]
+    //   users.push({ date: calcTime() })
+    //   index = referral.invitedUsers.length
+    //   await ReferralLink.findByIdAndUpdate(referral._id, { invitedUsers: users })
 
-    } else {
+    // } else {
 
-      const newReferral = new ReferralLink({
-        user: user._id,
-        invitedUsers: [{ date: calcTime() }]
-      })
-      await newReferral.save()
+    //   const newReferral = new ReferralLink({
+    //     user: user._id,
+    //     invitedUsers: [{ date: calcTime() }]
+    //   })
+    //   await newReferral.save()
 
-    }
+    // }
 
-    return res.status(200).json({ success: true, data: { index: index, userId: user._id } })
+    // return res.status(200).json({ success: true, data: { index: index, userId: user._id } })
   } catch (err) {
     console.log(err)
   }
