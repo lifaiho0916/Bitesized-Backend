@@ -9,8 +9,9 @@ import 'dotenv/config'
 
 //schedule functions
 //Routers
-import auth from "./Routes/api/auth";
+import auth from "./Routes/api/auth"
 import bite from "./Routes/api/bite"
+import social from "./Routes/api/socialAccounts"
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -40,6 +41,7 @@ mongoose.connect(`${process.env.MONGO_URL}`,
 //Routes
 app.use("/api/auth", auth)
 app.use("/api/bite", bite)
+app.use("/api/social-accounts", social)
 app.use(express.static("public"))
 
 server.listen(PORT, async () => {

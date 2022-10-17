@@ -46,7 +46,8 @@ export const getOwnersOfBites = async (req: any, res: any) => {
 export const getUserByPersonalisedUrl = async (req: any, res: any) => {
   try {
     const { url } = req.params
-    const user = await User.findOne({ personalisedUrl: url }).select({ name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 })
+    const user = await User.findOne({ personalisedUrl: url })
+      .select({ name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 })
 
     if (user) return res.status(200).json({ success: true, payload: { users: [user] } })
     else return res.status(200).json({ success: false })
@@ -58,7 +59,8 @@ export const getUserByPersonalisedUrl = async (req: any, res: any) => {
 export const getCreatorsByCategory = async (req: Request, res: Response) => {
   try {
     const { categories } = req.body
-    const bites = await Bite.find({ visible: true }).populate({ path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 } })
+    const bites = await Bite.find({ visible: true })
+      .populate({ path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 } })
 
     let users = <Array<any>>[]
 
