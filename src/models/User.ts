@@ -40,14 +40,6 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  purchasedUsers: [{
-    purchasedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-    },
-    purchasedAt: {
-      type: Date
-    }
-  }],
   date: {
     type: Date,
   }

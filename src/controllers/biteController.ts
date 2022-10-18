@@ -71,12 +71,18 @@ export const getAllBites = async (req: any, res: any) => {
       {
         $lookup: {
           from: "users",
-          localField: "owner",
-          foreignField: "_id",
-          pipeline: [{
-            $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
-          }],
-          as: "owner"
+          as: 'owner',
+          let: { owner: "$owner" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$$owner", "$_id"] }
+              }
+            },
+            {
+              $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
+            }
+          ],
         }
       },
       { $unwind: "$owner" },
@@ -157,12 +163,18 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
           {
             $lookup: {
               from: "users",
-              localField: "owner",
-              foreignField: "_id",
-              pipeline: [{
-                $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
-              }],
-              as: "owner"
+              as: 'owner',
+              let: { owner: "$owner" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$$owner", "$_id"] }
+                  }
+                },
+                {
+                  $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
+                }
+              ],
             }
           },
           { $unwind: "$owner" },
@@ -199,12 +211,18 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
           {
             $lookup: {
               from: "users",
-              localField: "owner",
-              foreignField: "_id",
-              pipeline: [{
-                $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
-              }],
-              as: "owner"
+              as: 'owner',
+              let: { owner: "$owner" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$$owner", "$_id"] }
+                  }
+                },
+                {
+                  $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
+                }
+              ],
             }
           },
           { $unwind: "$owner" },
@@ -307,12 +325,18 @@ export const getBitesList = async (req: any, res: any) => {
       {
         $lookup: {
           from: "users",
-          localField: "owner",
-          foreignField: "_id",
-          pipeline: [{
-            $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
-          }],
-          as: "owner"
+          as: 'owner',
+          let: { owner: "$owner" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$$owner", "$_id"] }
+              }
+            },
+            {
+              $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
+            }
+          ],
         }
       },
       { $unwind: "$owner" },
