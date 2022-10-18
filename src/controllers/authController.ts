@@ -468,47 +468,34 @@ export const setLanguage = async (req: Request, res: Response) => {
 
 export const getUsersList = async (req: Request, res: Response) => {
   try {
-    const { search } = req.body;
-    if (search === "") {
-      const users = await User.find({ visible: true }).select({ 'personalisedUrl': 1, 'date': 1, 'email': 1, 'name': 1, 'categories': 1, 'wallet': 1, 'tipFunction': 1, 'role': 1 });
-      var result: Array<object> = [];
-      users.forEach((user: any, index: any) => {
-        result.push({
-          id: user._id,
-          personalisedUrl: user.personalisedUrl,
-          date: user.date,
-          email: user.email,
-          name: user.name,
-          categories: user.categories,
-          role: user.role,
-        });
-      });
-    } else {
-      const users = await User.find(
-        { visible: true },
-        {
-          $or: [
-            { name: { $regex: search, $options: "i" } },
-            { email: { $regex: search, $options: "i" } },
-            { personalisedUrl: { $regex: search, $options: "i" } }
-          ]
-        }).select({ 'personalisedUrl': 1, 'date': 1, 'email': 1, 'name': 1, 'categories': 1, 'wallet': 1, 'tipFunction': 1, 'role': 1 });
-      var result: Array<object> = [];
-      users.forEach((user: any, index: any) => {
-        result.push({
-          id: user._id,
-          personalisedUrl: user.personalisedUrl,
-          date: user.date,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          categories: user.categories,
-        });
-      });
-    }
-    return res.status(200).json({ success: true, users: result });
+    const { search } = req.body
+
+    let users: any = []
+    if (search === "") users = await User.find().select({ personalisedUrl: 1, date: 1, email: 1, name: 1, categories: 1, role: 1, avatar: 1, visible: 1 })
+    else users = await User.find({
+      $or: [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ]
+    }).select({ personalisedUrl: 1, date: 1, email: 1, name: 1, categories: 1, role: 1, avatar: 1, visible: 1 })
+
+    let biteFuncs: any = []
+    users.forEach((user: any) => { biteFuncs.push(Bite.find({ owner: user._id })) })
+    const responses: any = await Promise.all(biteFuncs)
+
+    let resUsers: any = []
+    users.forEach((user: any, index: any) => {
+      const sum = responses[index].reduce((prev: any, current: any) => prev + current.videos.length, 0)
+      resUsers.push({
+        ...user._doc,
+        videoCnt: sum,
+        biteCnt: responses[index].length
+      })
+    })
+
+    return res.status(200).json({ success: true, payload: { users: resUsers } })
   } catch (err) {
-    console.log(err);
+    console.log(err)
   }
 }
 
@@ -519,34 +506,5 @@ export const getUserFromUrl = async (req: Request, res: Response) => {
     return res.status(200).json({ success: true, user: user });
   } catch (err) {
     console.log(err);
-  }
-}
-
-export const inviteFriend = async (req: Request, res: Response) => {
-  try {
-    // const { referralLink } = req.body
-    // const user: any = await User.findOne({ referralLink: referralLink })
-    // const referral: any = await ReferralLink.findOne({ user: user._id })
-    // let index = 0
-    // if (referral) {
-
-    //   let users = [...referral.invitedUsers]
-    //   users.push({ date: calcTime() })
-    //   index = referral.invitedUsers.length
-    //   await ReferralLink.findByIdAndUpdate(referral._id, { invitedUsers: users })
-
-    // } else {
-
-    //   const newReferral = new ReferralLink({
-    //     user: user._id,
-    //     invitedUsers: [{ date: calcTime() }]
-    //   })
-    //   await newReferral.save()
-
-    // }
-
-    // return res.status(200).json({ success: true, data: { index: index, userId: user._id } })
-  } catch (err) {
-    console.log(err)
   }
 }

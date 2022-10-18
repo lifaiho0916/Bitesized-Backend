@@ -12,7 +12,6 @@ import {
     setLanguage,
     getUsersList,
     getUserFromUrl,
-    inviteFriend,
 
     getAuthData,
     editProfile,
@@ -42,9 +41,8 @@ router.post("/googleSignup", googleSignup);
 router.post("/appleSignin", appleSignin)
 router.post("/appleSignup", appleSignup)
 router.post('/setting/lang', auth, setLanguage);
-router.post('/userFromUrl', getUserFromUrl);
-router.post('/invite_friend', inviteFriend)
+router.post('/userFromUrl', getUserFromUrl)
 
-router.post('/users', auth, getUsersList);
+router.post('/users', auth, getUsersList)
 
 export default router;
