@@ -40,12 +40,17 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  subscribed_users: [{
-    type: mongoose.Schema.Types.ObjectId,
+  purchasedUsers: [{
+    purchasedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+    },
+    purchasedAt: {
+      type: Date
+    }
   }],
   date: {
     type: Date,
   }
 });
 
-export default mongoose.model("users", UserSchema);
+export default mongoose.model("users", UserSchema)
