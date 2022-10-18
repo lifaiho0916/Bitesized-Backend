@@ -90,6 +90,28 @@ export const getCreatorsByCategory = async (req: Request, res: Response) => {
   }
 }
 
+export const getUsersByCategory = async (req: Request, res: Response) => {
+  try {
+    const { categories } = req.body
+
+    const users = await User.aggregate([{ $match: { role: 'USER' } }])
+    let resUsers: any = []
+
+    if (categories.length !== 0) {
+      const filterUsers = users.filter((user: any) => {
+        for (let i = 0; i < categories.length; i++) if (user.categories.indexOf(categories[i]) !== -1) return true
+        return false
+      })
+      resUsers = filterUsers
+    } else resUsers = users
+
+    return res.status(200).json({ success: true, payload: { users: resUsers } })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+
 export const checkName = async (req: Request, res: Response) => {
   try {
     const { name, userId } = req.body

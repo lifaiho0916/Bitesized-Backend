@@ -22,7 +22,8 @@ import {
 
     getOwnersOfBites,
     getUserByPersonalisedUrl,
-    getCreatorsByCategory
+    getCreatorsByCategory,
+    getUsersByCategory
 } from '../../controllers/authController'
 
 router.get("/", auth, getAuthData)
@@ -34,6 +35,7 @@ router.post('/checkurl', auth ,checkUrl)
 router.get('/owners', getOwnersOfBites)
 router.get('/personalurl/:url', getUserByPersonalisedUrl)
 router.post('/creators', getCreatorsByCategory)
+router.post('/list', getUsersByCategory)
 
 router.post("/googleSignin", googleSignin);
 router.post("/googleSignup", googleSignup);
