@@ -6,6 +6,7 @@ const router = express.Router()
 import {
     getAllBites,
     CreateBite,
+    CreateBiteByUserId,
     uploadVideo,
     uploadCover,
     unLockBite,
@@ -21,6 +22,7 @@ import {
 
 router.get('/', getAllBites)
 router.post('/create', auth, CreateBite)
+router.post('/create/:userId', auth, CreateBiteByUserId)
 router.post('/upload/video', auth, uploadVideo)
 router.post('/upload/cover', auth, uploadCover)
 router.put('/:id/unlock', auth, unLockBite)

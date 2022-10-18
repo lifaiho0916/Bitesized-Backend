@@ -33,6 +33,24 @@ export const CreateBite = async (req: any, res: any) => {
   }
 }
 
+export const CreateBiteByUserId = async (req: any, res: any) => {
+  try {
+    const { bite } = req.body
+    const { userId } = req.params
+
+    const newBite = new Bite({
+      ...bite,
+      owner: userId,
+      date: calcTime()
+    })
+
+    await newBite.save()
+    return res.status(200).json({ success: true })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 const biteVideoStorage = multer.diskStorage({
   destination: "./public/uploads/bite/",
   filename: (req, file, cb) => { cb(null, "Bite-" + Date.now() + path.extname(file.originalname)) }
