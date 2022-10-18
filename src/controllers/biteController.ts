@@ -115,8 +115,15 @@ export const getAllBites = async (req: any, res: any) => {
     ])
 
     const resBites: any = []
+    const newArr1 = bites.slice()
+    for (let i = newArr1.length - 1; i > 0; i--) {
+      const rand = Math.floor(Math.random() * (i + 1))
+      const temp = newArr1[i]
+      newArr1[i] = newArr1[rand]
+      newArr1[rand] = temp
+    }
 
-    bites.forEach((bite: any) => {
+    newArr1.forEach((bite: any) => {
       resBites.push({
         ...bite,
         time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
