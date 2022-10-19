@@ -4,6 +4,7 @@ import fs from "fs"
 import Stripe from "stripe"
 import Bite from "../models/Bite"
 import User from "../models/User"
+import Transaction from "../models/Transaction"
 
 const stripe = new Stripe(
   `${process.env.STRIPE_SECRET_KEY}`,
@@ -305,7 +306,13 @@ export const unLockBite = async (req: any, res: any) => {
   try {
     const { id } = req.params
     const { userId, currency, amount, rate, token } = req.body
-    const bite: any = await Bite.findById(id)
+    const responses = await Promise.all([
+      User.findById(userId),
+      Bite.findById(id)
+    ])
+
+    const user: any = responses[0]
+    const bite: any = responses[1]
 
     if (currency) {
       let charge = { status: 'requested' }
@@ -316,7 +323,7 @@ export const unLockBite = async (req: any, res: any) => {
         amount: Number(Math.round(ratedAmount)),
         currency: currency,
         source: token.id,
-        description: `Unlock Bite (id: ${id})`,
+        description: `Unlock Bite (${bite.title})`,
       }).then(result => {
         charge = result
       }).catch(err => { return res.status(200).json({ success: false, payload: err.raw.message }) })
@@ -325,6 +332,34 @@ export const unLockBite = async (req: any, res: any) => {
         /// ERROR Message
         return res.status(200).json({ success: false, payload: charge })
       }
+      const time = calcTime()
+
+      const newTransaction1 = new Transaction({
+        type: 2,
+        bite: id,
+        user: userId,
+        currency: currency,
+        createdAt: time
+      })
+      newTransaction1.save()
+
+      const newTransaction2 = new Transaction({
+        type: 3,
+        bite: id,
+        user: bite.owner,
+        createdAt: time
+      })
+      newTransaction2.save()
+      User.findByIdAndUpdate(userId, { earnings: user.earnings + amount.toFixed(2) }).exec()
+    } else {
+      const newTransaction = new Transaction({
+        type: 1,
+        bite: id,
+        user: userId,
+        createdAt: calcTime()
+      })
+
+      newTransaction.save()
     }
 
     let purchasedUsers = bite.purchasedUsers
