@@ -116,8 +116,8 @@ export const getUsersByCategory = async (req: Request, res: Response) => {
 
 export const checkName = async (req: Request, res: Response) => {
   try {
-    const { name, userId } = req.body
-    const users = await User.find({ name: new RegExp(`^${name}$`, 'i') }).where('_id').ne(userId)
+    const { name, id } = req.body
+    const users = await User.find({ name: new RegExp(`^${name}$`, 'i') }).where('_id').ne(id)
     return res.status(200).json({ success: true, payload: { exist: users.length > 0 ? true : false } })
   } catch (err) {
     console.log(err)
@@ -126,8 +126,8 @@ export const checkName = async (req: Request, res: Response) => {
 
 export const checkUrl = async (req: Request, res: Response) => {
   try {
-    const { url, userId } = req.body
-    const users = await User.find({ personalisedUrl: new RegExp(`^${url}$`, 'i') }).where('_id').ne(userId)
+    const { url, id } = req.body
+    const users = await User.find({ personalisedUrl: new RegExp(`^${url}$`, 'i') }).where('_id').ne(id)
     return res.status(200).json({ success: true, payload: { exist: users.length > 0 ? true : false } })
   } catch (err) {
     console.log(err)
@@ -410,8 +410,8 @@ export const getAuthData = async (req: Request, res: Response) => {
 
 export const editProfile = async (req: Request, res: Response) => {
   try {
-    const { userId, name, url, category, avatar, bioText } = req.body
-    const user: any = await User.findById(userId)
+    const { id, name, url, category, avatar, bioText } = req.body
+    const user: any = await User.findById(id)
     if (avatar) {
       if (user.avatar.indexOf('uploads') !== -1) {
         const filePath = "public/" + user.avatar
@@ -422,7 +422,7 @@ export const editProfile = async (req: Request, res: Response) => {
         }
       }
     }
-    const updatedUser: any = await User.findByIdAndUpdate(userId, { name: name, personalisedUrl: url, categories: category, avatar: avatar ? avatar : user.avatar, bioText: bioText }, { new: true })
+    const updatedUser: any = await User.findByIdAndUpdate(id, { name: name, personalisedUrl: url, categories: category, avatar: avatar ? avatar : user.avatar, bioText: bioText }, { new: true })
     const payload = {
       id: updatedUser._id,
       name: updatedUser.name,
