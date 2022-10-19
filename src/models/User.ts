@@ -36,6 +36,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: "EN",
   },
+  earnings: {
+    type: Number,
+    default: 0
+  },
   visible: {
     type: Boolean,
     default: true
