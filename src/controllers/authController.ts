@@ -27,13 +27,13 @@ export const getOwnersOfBites = async (req: any, res: any) => {
   try {
     const bites = await Bite.find({ visible: true }).populate({
       path: 'owner',
-      select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 }
+      select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1, visible: 1 }
     })
 
     const owners: any = []
     bites.forEach((bite: any) => {
       const filterRes = owners.filter((owner: any) => String(owner._id) === String(bite.owner._id))
-      if (filterRes.length === 0) owners.push(bite.owner)
+      if (filterRes.length === 0 && bite.owner.visible === true && bite.owner.role === "USER") owners.push(bite.owner)
     })
 
     return res.status(200).json({ success: true, payload: { users: owners } })
@@ -59,24 +59,26 @@ export const getCreatorsByCategory = async (req: Request, res: Response) => {
   try {
     const { categories } = req.body
     const bites = await Bite.find({ visible: true })
-      .populate({ path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 } })
+      .populate({ path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1, visible: 1 } })
 
     let users = <Array<any>>[]
 
     bites.forEach((bite: any) => {
       const filters = users.filter((user: any) => String(user._id) === String(bite.owner._id))
-      if (filters.length === 0 && bite.owner.role === 'USER') users.push(bite.owner)
+      if (filters.length === 0 && bite.owner.visible === true && bite.owner.role === 'USER') users.push(bite.owner)
     })
+
+    let resUsers: any = []
 
     if (categories.length !== 0) {
       const filterUsers = users.filter((user: any) => {
         for (let i = 0; i < categories.length; i++) if (user.categories.indexOf(categories[i]) !== -1) return true
         return false
       })
-      users = [...filterUsers]
-    }
+      resUsers = filterUsers
+    } else resUsers = users
 
-    const newArr1 = users.slice()
+    const newArr1 = resUsers.slice()
     for (let i = newArr1.length - 1; i > 0; i--) {
       const rand = Math.floor(Math.random() * (i + 1))
       const temp = newArr1[i]
@@ -468,84 +470,45 @@ export const setLanguage = async (req: Request, res: Response) => {
 
 export const getUsersList = async (req: Request, res: Response) => {
   try {
-    const { search } = req.body;
-    if (search === "") {
-      const users = await User.find({ visible: true }).select({ 'personalisedUrl': 1, 'date': 1, 'email': 1, 'name': 1, 'categories': 1, 'wallet': 1, 'tipFunction': 1, 'role': 1 });
-      var result: Array<object> = [];
-      users.forEach((user: any, index: any) => {
-        result.push({
-          id: user._id,
-          personalisedUrl: user.personalisedUrl,
-          date: user.date,
-          email: user.email,
-          name: user.name,
-          categories: user.categories,
-          role: user.role,
-        });
-      });
-    } else {
-      const users = await User.find(
-        { visible: true },
-        {
-          $or: [
-            { name: { $regex: search, $options: "i" } },
-            { email: { $regex: search, $options: "i" } },
-            { personalisedUrl: { $regex: search, $options: "i" } }
-          ]
-        }).select({ 'personalisedUrl': 1, 'date': 1, 'email': 1, 'name': 1, 'categories': 1, 'wallet': 1, 'tipFunction': 1, 'role': 1 });
-      var result: Array<object> = [];
-      users.forEach((user: any, index: any) => {
-        result.push({
-          id: user._id,
-          personalisedUrl: user.personalisedUrl,
-          date: user.date,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          categories: user.categories,
-        });
-      });
-    }
-    return res.status(200).json({ success: true, users: result });
+    const { search } = req.body
+
+    let users: any = []
+    if (search === "") users = await User.find().select({ personalisedUrl: 1, date: 1, email: 1, name: 1, categories: 1, role: 1, avatar: 1, visible: 1 })
+    else users = await User.find({
+      $or: [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ]
+    }).select({ personalisedUrl: 1, date: 1, email: 1, name: 1, categories: 1, role: 1, avatar: 1, visible: 1 })
+
+    let biteFuncs: any = []
+    users.forEach((user: any) => { biteFuncs.push(Bite.find({ owner: user._id })) })
+    const responses: any = await Promise.all(biteFuncs)
+
+    let resUsers: any = []
+    users.forEach((user: any, index: any) => {
+      const sum = responses[index].reduce((prev: any, current: any) => prev + current.videos.length, 0)
+      resUsers.push({
+        ...user._doc,
+        videoCnt: sum,
+        biteCnt: responses[index].length
+      })
+    })
+
+    return res.status(200).json({ success: true, payload: { users: resUsers } })
   } catch (err) {
-    console.log(err);
+    console.log(err)
   }
 }
 
-export const getUserFromUrl = async (req: Request, res: Response) => {
+
+export const setUserVisible = async (req: any, res: any) => {
   try {
-    const { url } = req.body;
-    const user = await User.find({ personalisedUrl: url });
-    return res.status(200).json({ success: true, user: user });
-  } catch (err) {
-    console.log(err);
-  }
-}
+    const { id } = req.params
+    const { visible } = req.body
 
-export const inviteFriend = async (req: Request, res: Response) => {
-  try {
-    // const { referralLink } = req.body
-    // const user: any = await User.findOne({ referralLink: referralLink })
-    // const referral: any = await ReferralLink.findOne({ user: user._id })
-    // let index = 0
-    // if (referral) {
-
-    //   let users = [...referral.invitedUsers]
-    //   users.push({ date: calcTime() })
-    //   index = referral.invitedUsers.length
-    //   await ReferralLink.findByIdAndUpdate(referral._id, { invitedUsers: users })
-
-    // } else {
-
-    //   const newReferral = new ReferralLink({
-    //     user: user._id,
-    //     invitedUsers: [{ date: calcTime() }]
-    //   })
-    //   await newReferral.save()
-
-    // }
-
-    // return res.status(200).json({ success: true, data: { index: index, userId: user._id } })
+    await User.findByIdAndUpdate(id, { visible: visible })
+    return res.status(200).json({ success: true })
   } catch (err) {
     console.log(err)
   }

@@ -11,8 +11,6 @@ import {
     
     setLanguage,
     getUsersList,
-    getUserFromUrl,
-    inviteFriend,
 
     getAuthData,
     editProfile,
@@ -23,7 +21,8 @@ import {
     getOwnersOfBites,
     getUserByPersonalisedUrl,
     getCreatorsByCategory,
-    getUsersByCategory
+    getUsersByCategory,
+    setUserVisible
 } from '../../controllers/authController'
 
 router.get("/", auth, getAuthData)
@@ -37,14 +36,13 @@ router.get('/personalurl/:url', getUserByPersonalisedUrl)
 router.post('/creators', getCreatorsByCategory)
 router.post('/list', getUsersByCategory)
 
-router.post("/googleSignin", googleSignin);
-router.post("/googleSignup", googleSignup);
+router.post("/googleSignin", googleSignin)
+router.post("/googleSignup", googleSignup)
 router.post("/appleSignin", appleSignin)
 router.post("/appleSignup", appleSignup)
-router.post('/setting/lang', auth, setLanguage);
-router.post('/userFromUrl', getUserFromUrl);
-router.post('/invite_friend', inviteFriend)
+router.post('/setting/lang', auth, setLanguage)
 
-router.post('/users', auth, getUsersList);
+router.post('/users', auth, getUsersList)
+router.put('/:id/setvisible', auth, setUserVisible)
 
 export default router;
