@@ -27,13 +27,13 @@ export const getOwnersOfBites = async (req: any, res: any) => {
   try {
     const bites = await Bite.find({ visible: true }).populate({
       path: 'owner',
-      select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 }
+      select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1, visible: 1 }
     })
 
     const owners: any = []
     bites.forEach((bite: any) => {
       const filterRes = owners.filter((owner: any) => String(owner._id) === String(bite.owner._id))
-      if (filterRes.length === 0) owners.push(bite.owner)
+      if (filterRes.length === 0 && bite.owner.visible === true && bite.owner.role === "USER") owners.push(bite.owner)
     })
 
     return res.status(200).json({ success: true, payload: { users: owners } })
@@ -59,24 +59,26 @@ export const getCreatorsByCategory = async (req: Request, res: Response) => {
   try {
     const { categories } = req.body
     const bites = await Bite.find({ visible: true })
-      .populate({ path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 } })
+      .populate({ path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1, visible: 1 } })
 
     let users = <Array<any>>[]
 
     bites.forEach((bite: any) => {
       const filters = users.filter((user: any) => String(user._id) === String(bite.owner._id))
-      if (filters.length === 0 && bite.owner.role === 'USER') users.push(bite.owner)
+      if (filters.length === 0 && bite.owner.visible === true && bite.owner.role === 'USER') users.push(bite.owner)
     })
+
+    let resUsers: any = []
 
     if (categories.length !== 0) {
       const filterUsers = users.filter((user: any) => {
         for (let i = 0; i < categories.length; i++) if (user.categories.indexOf(categories[i]) !== -1) return true
         return false
       })
-      users = [...filterUsers]
-    }
+      resUsers = filterUsers
+    } else resUsers = users
 
-    const newArr1 = users.slice()
+    const newArr1 = resUsers.slice()
     for (let i = newArr1.length - 1; i > 0; i--) {
       const rand = Math.floor(Math.random() * (i + 1))
       const temp = newArr1[i]
@@ -499,12 +501,15 @@ export const getUsersList = async (req: Request, res: Response) => {
   }
 }
 
-export const getUserFromUrl = async (req: Request, res: Response) => {
+
+export const setUserVisible = async (req: any, res: any) => {
   try {
-    const { url } = req.body;
-    const user = await User.find({ personalisedUrl: url });
-    return res.status(200).json({ success: true, user: user });
+    const { id } = req.params
+    const { visible } = req.body
+
+    await User.findByIdAndUpdate(id, { visible: visible })
+    return res.status(200).json({ success: true })
   } catch (err) {
-    console.log(err);
+    console.log(err)
   }
 }
