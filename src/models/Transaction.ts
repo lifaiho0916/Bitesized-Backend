@@ -14,8 +14,19 @@ const TransactionSchema = new monogoose.Schema({
         required: true
     },
     bite: {
-        type: Schema.Types.ObjectId,
-        ref: Bite
+        id: {
+            type: Schema.Types.ObjectId,
+            ref: Bite
+        },
+        title: {
+            type: String
+        },
+        currency: {
+            type: String
+        },
+        price: {
+            type: Number
+        }
     },
     user: {
         type: Schema.Types.ObjectId,
