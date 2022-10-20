@@ -5,6 +5,7 @@ import Stripe from "stripe"
 import Bite from "../models/Bite"
 import User from "../models/User"
 import Transaction from "../models/Transaction"
+import Setting from "../models/Setting"
 
 const stripe = new Stripe(
   `${process.env.STRIPE_SECRET_KEY}`,
@@ -305,14 +306,17 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
 export const unLockBite = async (req: any, res: any) => {
   try {
     const { id } = req.params
-    const { userId, currency, amount, rate, token } = req.body
+    const { userId, currency, amount, token } = req.body
     const bite: any = await Bite.findById(id)
     const user: any = await User.findById(bite.owner)
+    const setting: any = await Setting.findOne()
+
+    const currencyRate = setting.currencyRate
 
     if (currency) {
       let charge = { status: 'requested' }
       let usdAmount = (amount + amount * 0.034 + 0.3) * 100
-      let ratedAmount = usdAmount * rate
+      let ratedAmount = usdAmount * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`])
 
       await stripe.charges.create({
         amount: Number(Math.round(ratedAmount)),
@@ -339,6 +343,7 @@ export const unLockBite = async (req: any, res: any) => {
         },
         user: userId,
         currency: currency,
+        localPrice: amount * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`]),
         createdAt: time
       })
       newTransaction1.save()

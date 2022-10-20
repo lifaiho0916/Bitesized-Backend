@@ -8,6 +8,7 @@ import { Request, Response } from "express"
 import 'dotenv/config'
 
 //schedule functions
+import { getCurrencyRate } from "./controllers/transactionController"
 //Routers
 import auth from "./Routes/api/auth"
 import bite from "./Routes/api/bite"
@@ -45,13 +46,13 @@ app.use("/api/bite", bite)
 app.use("/api/social-accounts", social)
 app.use("/api/transaction", transaction)
 app.use(express.static("public"))
-
 server.listen(PORT, async () => {
   console.log(`The Server is up and running on PORT ${PORT}`)
+  getCurrencyRate()
 })
 
 // cron.schedule("*/10 * * * * *", () => checkOngoingfundmes(io))
-// cron.schedule("59 23 * * *", () => setFirstLogin(), {
-//   scheduled: true,
-//   timezone: "Asia/Hong_Kong",
-// })
+cron.schedule("59 23 * * *", () => getCurrencyRate(), {
+  scheduled: true,
+  timezone: "Asia/Hong_Kong",
+})

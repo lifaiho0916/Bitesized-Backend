@@ -40,6 +40,10 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  currency: {
+    type: String,
+    default: 'usd'
+  },
   visible: {
     type: Boolean,
     default: true
