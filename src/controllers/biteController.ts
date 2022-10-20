@@ -331,7 +331,12 @@ export const unLockBite = async (req: any, res: any) => {
 
       const newTransaction1 = new Transaction({
         type: 2,
-        bite: id,
+        bite: {
+          id: bite._id,
+          title: bite.title,
+          currency: bite.currency,
+          price: bite.price
+        },
         user: userId,
         currency: currency,
         createdAt: time
@@ -340,7 +345,12 @@ export const unLockBite = async (req: any, res: any) => {
 
       const newTransaction2 = new Transaction({
         type: 3,
-        bite: id,
+        bite: {
+          id: bite._id,
+          title: bite.title,
+          currency: bite.currency,
+          price: bite.price
+        },
         user: bite.owner,
         createdAt: time
       })
@@ -349,7 +359,10 @@ export const unLockBite = async (req: any, res: any) => {
     } else {
       const newTransaction = new Transaction({
         type: 1,
-        bite: id,
+        bite: {
+          id: bite._id,
+          title: bite.title
+        },
         user: userId,
         createdAt: calcTime()
       })
