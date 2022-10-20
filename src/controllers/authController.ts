@@ -9,6 +9,7 @@ import Mixpanel from "mixpanel"
 import Bite from "../models/Bite"
 import 'dotenv/config'
 import CONSTANT from "../utils/constant"
+import Setting from "../models/Setting"
 
 const mixpanel = Mixpanel.init(`${process.env.MIXPANEL_TOKEN}`)
 var mixpanel_importer = Mixpanel.init(`${process.env.MIXPANEL_TOKEN}`, {
@@ -390,7 +391,15 @@ export const appleSignup = async (req: Request, res: Response) => {
 export const getAuthData = async (req: Request, res: Response) => {
   try {
     const { userId } = req.body
-    const user: any = await User.findById(userId)
+
+    const responses: any = await Promise.all([
+      User.findById(userId),
+      Setting.findOne()
+    ])
+
+    const user: any = responses[0]
+    const setting: any = responses[1]
+
     const payload = {
       id: user._id,
       name: user.name,
@@ -402,7 +411,7 @@ export const getAuthData = async (req: Request, res: Response) => {
       category: user.categories,
       bioText: user.bioText
     }
-    return res.status(200).json({ success: true, payload: { user: payload } })
+    return res.status(200).json({ success: true, payload: { user: payload, currencyRate: setting.currencyRate } })
   } catch (err) {
     console.log(err)
   }

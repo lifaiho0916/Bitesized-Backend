@@ -35,6 +35,9 @@ const TransactionSchema = new monogoose.Schema({
     currency: {
         type: String
     },
+    localPrice: {
+        type: Number
+    },
     createdAt: {
         type: Date
     }
