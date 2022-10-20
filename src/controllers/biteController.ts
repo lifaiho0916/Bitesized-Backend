@@ -306,13 +306,8 @@ export const unLockBite = async (req: any, res: any) => {
   try {
     const { id } = req.params
     const { userId, currency, amount, rate, token } = req.body
-    const responses = await Promise.all([
-      User.findById(userId),
-      Bite.findById(id)
-    ])
-
-    const user: any = responses[0]
-    const bite: any = responses[1]
+    const bite: any = await Bite.findById(id)
+    const user: any = await User.findById(bite.owner)
 
     if (currency) {
       let charge = { status: 'requested' }
@@ -350,7 +345,7 @@ export const unLockBite = async (req: any, res: any) => {
         createdAt: time
       })
       newTransaction2.save()
-      User.findByIdAndUpdate(userId, { earnings: user.earnings + amount.toFixed(2) }).exec()
+      User.findByIdAndUpdate(user._id, { earnings: user.earnings + amount }).exec()
     } else {
       const newTransaction = new Transaction({
         type: 1,
