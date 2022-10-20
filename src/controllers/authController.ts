@@ -7,9 +7,9 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import Mixpanel from "mixpanel"
 import Bite from "../models/Bite"
+import Setting from "../models/Setting"
 import 'dotenv/config'
 import CONSTANT from "../utils/constant"
-import Setting from "../models/Setting"
 
 const mixpanel = Mixpanel.init(`${process.env.MIXPANEL_TOKEN}`)
 var mixpanel_importer = Mixpanel.init(`${process.env.MIXPANEL_TOKEN}`, {
@@ -156,7 +156,9 @@ export const googleSignin = async (req: Request, res: Response) => {
             personalisedUrl: user.personalisedUrl,
             language: user.language,
             category: user.categories,
-            bioText: user.bioText
+            bioText: user.bioText,
+            earnings: user.earnings,
+            currency: user.currency,
           };
 
           jwt.sign(
@@ -227,7 +229,8 @@ export const googleSignup = async (req: Request, res: Response) => {
                     personalisedUrl: updatedUser.personalisedUrl,
                     language: updatedUser.language,
                     category: updatedUser.categories,
-                    bioText: user.bioText
+                    bioText: updatedUser.bioText,
+                    earnings: updatedUser.earnings,
                   };
                   jwt.sign(
                     payload,
@@ -281,7 +284,9 @@ export const appleSignin = async (req: Request, res: Response) => {
             personalisedUrl: user.personalisedUrl,
             language: user.language,
             category: user.categories,
-            bioText: user.bioText
+            bioText: user.bioText,
+            earnings: user.earnings,
+            currency: user.currency
           }
 
           jwt.sign(
@@ -355,7 +360,8 @@ export const appleSignup = async (req: Request, res: Response) => {
                     personalisedUrl: updatedUser.personalisedUrl,
                     language: updatedUser.language,
                     category: updatedUser.categories,
-                    bioText: user.bioText
+                    bioText: updatedUser.bioText,
+                    currency: updatedUser.currency
                   }
                   jwt.sign(
                     payload,
@@ -409,7 +415,9 @@ export const getAuthData = async (req: Request, res: Response) => {
       personalisedUrl: user.personalisedUrl,
       language: user.language,
       category: user.categories,
-      bioText: user.bioText
+      bioText: user.bioText,
+      earnings: user.earnings,
+      currency: user.currency
     }
     return res.status(200).json({ success: true, payload: { user: payload, currencyRate: setting.currencyRate } })
   } catch (err) {
@@ -441,7 +449,9 @@ export const editProfile = async (req: Request, res: Response) => {
       personalisedUrl: updatedUser.personalisedUrl,
       language: updatedUser.language,
       category: updatedUser.categories,
-      bioText: updatedUser.bioText
+      bioText: updatedUser.bioText,
+      earnings: user.earnings,
+      currency: user.currency
     }
     return res.status(200).json({ success: true, payload: { user: payload } })
   } catch (err) {

@@ -1,3 +1,4 @@
+import mongoose from "mongoose"
 import Transaction from "../models/Transaction"
 import Setting from "../models/Setting"
 import axios from "axios"
@@ -31,7 +32,44 @@ export const getTransactions = async (req: any, res: any) => {
         const { userId, search, type } = req.body
         let transactions: any = []
         if (userId) {
-
+            if (type === 0)
+                transactions = await Transaction.aggregate([
+                    {
+                        $match: {
+                            $and: [
+                                { user: { $eq: new mongoose.Types.ObjectId(userId) } },
+                                { type: { $ne: 1 } }
+                            ]
+                        }
+                    },
+                    { $sort: { createdAt: -1 } },
+                    { $limit: 5 },
+                ])
+            else if (type === 1 || type === 2) {
+                transactions = await Transaction.aggregate([
+                    {
+                        $match: {
+                            $and: [
+                                { user: { $eq: new mongoose.Types.ObjectId(userId) } },
+                                { type: { $ne: 1 } }
+                            ]
+                        }
+                    },
+                    { $sort: { createdAt: -1 } },
+                ])
+            } else if (type === 3) {
+                transactions = await Transaction.aggregate([
+                    {
+                        $match: {
+                            $and: [
+                                { user: { $eq: new mongoose.Types.ObjectId(userId) } },
+                                { type: { $ne: 1 } }
+                            ]
+                        }
+                    },
+                    { $sort: { createdAt: -1 } }
+                ])
+            }
         } else {
             const typeVal = type === 'free' ? 1 : type === 'paid' ? 2 : type === 'earn' ? 3 : type === 'cash' ? 5 : 0
             if (typeVal === 0) {
