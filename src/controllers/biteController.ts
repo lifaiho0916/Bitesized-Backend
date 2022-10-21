@@ -158,15 +158,84 @@ export const getAllBites = async (req: any, res: any) => {
 
 export const getBitesAdmin = async (req: any, res: any) => {
   try {
-    const bites = await Bite.find().populate({
-      path: 'owner',
-      select: { name: 1, avatar: 1, personalisedUrl: 1 }
-    })
+    const { search, type, sort } = req.query
+    const sortOrder: any = Number(sort)
+    let bites: any = []
+    if (type === 'all') {
+      bites = await Bite.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            as: "owner",
+            let: { owner: '$owner' },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$$owner", "$_id"] } } },
+              { $project: { name: 1, avatar: 1, personalisedUrl: 1 } }
+            ]
+          }
+        },
+        { $unwind: "$owner" },
+        { $sort: { date: sortOrder } },
+        {
+          $match: {
+            title: { $regex: search, $options: "i" }
+          }
+        }
+      ])
+    } else if (type === 'paid') {
+      bites = await Bite.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            as: "owner",
+            let: { owner: '$owner' },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$$owner", "$_id"] } } },
+              { $project: { name: 1, avatar: 1, personalisedUrl: 1 } }
+            ]
+          }
+        },
+        { $unwind: "$owner" },
+        { $sort: { date: sortOrder } },
+        {
+          $match: {
+            $and: [
+              { title: { $regex: search, $options: "i" } },
+              { currency: { $ne: null } }
+            ]
+          }
+        }
+      ])
+    } else {
+      bites = await Bite.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            as: "owner",
+            let: { owner: '$owner' },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$$owner", "$_id"] } } },
+              { $project: { name: 1, avatar: 1, personalisedUrl: 1 } }
+            ]
+          }
+        },
+        { $unwind: "$owner" },
+        { $sort: { date: sortOrder } },
+        {
+          $match: {
+            $and: [
+              { title: { $regex: search, $options: "i" } },
+              { currency: { $eq: null } }
+            ]
+          }
+        }
+      ])
+    }
 
     const resBites: any = []
     bites.forEach((bite: any) => {
       resBites.push({
-        ...bite._doc,
+      ...bite,
         time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
       })
     })
