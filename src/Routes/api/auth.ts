@@ -9,7 +9,7 @@ import {
     appleSignin,
     appleSignup,
     
-    setLanguage,
+    setLanguageCurrency,
     getUsersList,
 
     getAuthData,
@@ -40,7 +40,7 @@ router.post("/googleSignin", googleSignin)
 router.post("/googleSignup", googleSignup)
 router.post("/appleSignin", appleSignin)
 router.post("/appleSignup", appleSignup)
-router.post('/setting/lang', auth, setLanguage)
+router.post('/setting/lang-currency', auth, setLanguageCurrency)
 
 router.post('/users', auth, getUsersList)
 router.put('/:id/setvisible', auth, setUserVisible)

@@ -477,11 +477,11 @@ export const editAvatar = async (req: Request, res: Response) => {
   });
 }
 
-export const setLanguage = async (req: Request, res: Response) => {
+export const setLanguageCurrency = async (req: Request, res: Response) => {
   try {
-    const { userId, lang } = req.body;
-    const updatedUser = await User.findByIdAndUpdate(userId, { language: lang }, { new: true });
-    if (updatedUser) return res.status(200).json({ success: true });
+    const { userId, lang, currency } = req.body
+    await User.findByIdAndUpdate(userId, { language: lang, currency: currency })
+    return res.status(200).json({ success: true })
   } catch (err) {
     console.log(err);
   }
