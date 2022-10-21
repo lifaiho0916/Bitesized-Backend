@@ -137,3 +137,42 @@ export const getTransactions = async (req: any, res: any) => {
         console.log(err)
     }
 }
+
+export const getTransactionsByBiteId = async (req: any, res: any) => {
+    try {
+        const { biteId } = req.params
+        const { sort } = req.query
+        const sortValue: any = Number(sort)
+
+        const transactions = await Transaction.aggregate([
+            {
+                $lookup: {
+                    from: "users",
+                    as: 'user',
+                    let: { user: "$user" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ["$$user", "$_id"] }
+                            }
+                        },
+                        {
+                            $project: { name: 1, avatar: 1 }
+                        }
+                    ],
+                }
+            },
+            { $unwind: "$user" },
+            {
+                $match: {
+                    "bite.id": { $eq: new mongoose.Types.ObjectId(biteId) }
+                }
+            },
+            { $sort: { createdAt: sortValue } }
+        ])
+
+        return res.status(200).json({ success: true, payload: { transactions: transactions } })
+    } catch (err) {
+        console.log(err)
+    }
+}

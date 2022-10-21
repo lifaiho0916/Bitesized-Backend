@@ -235,7 +235,7 @@ export const getBitesAdmin = async (req: any, res: any) => {
     const resBites: any = []
     bites.forEach((bite: any) => {
       resBites.push({
-      ...bite,
+        ...bite,
         time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
       })
     })
@@ -536,12 +536,17 @@ export const getBitesList = async (req: any, res: any) => {
 export const getBiteById = async (req: any, res: any) => {
   try {
     const { id } = req.params
-    const bite = await Bite.findById(id).populate({
+    const bite: any = await Bite.findById(id).populate({
       path: 'owner',
       select: { name: 1, avatar: 1, personalisedUrl: 1 }
     })
 
-    return res.status(200).json({ success: true, payload: { bite: bite } })
+    const resBite = {
+      ...bite._doc,
+      time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
+    }
+
+    return res.status(200).json({ success: true, payload: { bite: resBite } })
   } catch (err) {
     console.log(err)
   }

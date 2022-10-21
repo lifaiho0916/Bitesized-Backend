@@ -4,9 +4,11 @@ const router = express.Router()
 
 //import Controller
 import {
-    getTransactions
+    getTransactions,
+    getTransactionsByBiteId
 } from '../../controllers/transactionController'
 
-router.post('/', getTransactions)
+router.post('/', auth, getTransactions)
+router.get('/bite/:biteId', auth, getTransactionsByBiteId)
 
 export default router

@@ -397,14 +397,7 @@ export const appleSignup = async (req: Request, res: Response) => {
 export const getAuthData = async (req: Request, res: Response) => {
   try {
     const { userId } = req.body
-
-    const responses: any = await Promise.all([
-      User.findById(userId),
-      Setting.findOne()
-    ])
-
-    const user: any = responses[0]
-    const setting: any = responses[1]
+    const user: any = await User.findById(userId)
 
     const payload = {
       id: user._id,
@@ -419,7 +412,7 @@ export const getAuthData = async (req: Request, res: Response) => {
       earnings: user.earnings,
       currency: user.currency
     }
-    return res.status(200).json({ success: true, payload: { user: payload, currencyRate: setting.currencyRate } })
+    return res.status(200).json({ success: true, payload: { user: payload } })
   } catch (err) {
     console.log(err)
   }
@@ -528,6 +521,15 @@ export const setUserVisible = async (req: any, res: any) => {
 
     await User.findByIdAndUpdate(id, { visible: visible })
     return res.status(200).json({ success: true })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const getCurrencyRate = async (req: any, res: any) => {
+  try {
+    const setting: any = await Setting.findOne()
+    return res.status(200).json({ success: true, payload: { currencyRate: setting.currencyRate } })
   } catch (err) {
     console.log(err)
   }
