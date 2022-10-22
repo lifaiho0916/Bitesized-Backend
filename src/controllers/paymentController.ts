@@ -12,7 +12,8 @@ export const getPayment = async (req: any, res: any) => {
     try {
         const { userId } = req.body
         const payment = await Payment.aggregate([
-            { $match: { user: { $$eq: new mongoose.Types.ObjectId(userId) } } }
+            { $match: { user: { $eq: new mongoose.Types.ObjectId(userId) } } },
+            { $limit: 1 }
         ])
 
         return res.status(200).json({ success: true, payload: { payment: payment } })
