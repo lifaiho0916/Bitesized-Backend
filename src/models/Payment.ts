@@ -7,10 +7,16 @@ const PaymentSchema = new mongoose.Schema({
         ref: User
     },
     stripe: {
+        customerId: {
+            type: String
+        },
+        cardType: {
+            type: String
+        },
         cardNumber: {
             type: String
         },
-        customerId: {
+        cardHolder: {
             type: String
         }
     }
