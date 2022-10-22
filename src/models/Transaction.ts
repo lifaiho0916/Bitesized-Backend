@@ -1,4 +1,4 @@
-import monogoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import Bite from './Bite'
 import User from './User'
 
@@ -8,7 +8,7 @@ import User from './User'
 // type === 4 // Refund
 // type === 5 // Cash out
 
-const TransactionSchema = new monogoose.Schema({
+const TransactionSchema = new mongoose.Schema({
     type: {
         type: Number,
         required: true
@@ -43,4 +43,4 @@ const TransactionSchema = new monogoose.Schema({
     }
 })
 
-export default monogoose.model("transactions", TransactionSchema)
+export default mongoose.model("transactions", TransactionSchema)

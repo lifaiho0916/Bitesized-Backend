@@ -1,7 +1,7 @@
-import monogoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import User from './User'
 
-const BiteSchema = new monogoose.Schema({
+const BiteSchema = new mongoose.Schema({
     owner: {
         type: Schema.Types.ObjectId,
         ref: User
@@ -47,4 +47,4 @@ const BiteSchema = new monogoose.Schema({
     }
 })
 
-export default monogoose.model("bites", BiteSchema)
+export default mongoose.model("bites", BiteSchema)

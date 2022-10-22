@@ -1,9 +1,9 @@
-import monogoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 
-const SettingSchema = new monogoose.Schema({
+const SettingSchema = new mongoose.Schema({
     currencyRate:  {
         type: Object
     }
 })
 
-export default monogoose.model("settings", SettingSchema)
+export default mongoose.model("settings", SettingSchema)
