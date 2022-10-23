@@ -7,8 +7,11 @@ import SocketServer from "./socket"
 import { Request, Response } from "express"
 import 'dotenv/config'
 
+import User from "./models/User"
+
 //schedule functions
 import { getCurrencyRate } from "./controllers/transactionController"
+
 //Routers
 import auth from "./Routes/api/auth"
 import bite from "./Routes/api/bite"
@@ -38,7 +41,7 @@ mongoose.connect(`${process.env.MONGO_URL}`,
     useUnifiedTopology: false
   } as ConnectOptions)
   .then((res) => {
-    console.log("Connected to Mongo DB!!");
+    console.log("Connected to Mongo DB!!")
   }).catch((err) => console.log(err))
 
 //Routes
@@ -51,11 +54,23 @@ app.use("/api/payment", payment)
 app.use(express.static("public"))
 server.listen(PORT, async () => {
   console.log(`The Server is up and running on PORT ${PORT}`)
-  getCurrencyRate()
+
+  // const users = await User.find()
+  // let funcs: any = users
+  // users.forEach((user: any) => {
+  //   funcs.push(User.findByIdAndUpdate(user.id, { categories: [] }))
+  // })
+
+  // await Promise.all(funcs)
 })
 
 // cron.schedule("*/10 * * * * *", () => checkOngoingfundmes(io))
 cron.schedule("59 23 * * *", () => getCurrencyRate(), {
+  scheduled: true,
+  timezone: "Asia/Hong_Kong",
+})
+
+cron.schedule("59 11 * * *", () => getCurrencyRate(), {
   scheduled: true,
   timezone: "Asia/Hong_Kong",
 })
