@@ -21,7 +21,6 @@ export const getCurrencyRate = async () => {
             })
             await newSetting.save()
         }
-
     } catch (err) {
         console.log(err)
     }
@@ -98,7 +97,8 @@ export const getTransactions = async (req: any, res: any) => {
 export const getTransactionsByUserId = async (req: any, res: any) => {
     try {
         const { userId } = req.params
-        const { type } = req.query
+        const { type, sort } = req.query
+        const sortValue: any = Number(sort)
         let transactions: any = []
         if (type === '0')
             transactions = await Transaction.aggregate([
@@ -110,7 +110,7 @@ export const getTransactionsByUserId = async (req: any, res: any) => {
                         ]
                     }
                 },
-                { $sort: { createdAt: -1 } },
+                { $sort: { createdAt: sortValue } },
                 { $limit: 5 },
             ])
         else if (type === '1' || type === '2') {
@@ -123,7 +123,7 @@ export const getTransactionsByUserId = async (req: any, res: any) => {
                         ]
                     }
                 },
-                { $sort: { createdAt: -1 } },
+                { $sort: { createdAt: sortValue } },
             ])
         } else if (type === '3') {
             transactions = await Transaction.aggregate([
@@ -135,7 +135,7 @@ export const getTransactionsByUserId = async (req: any, res: any) => {
                         ]
                     }
                 },
-                { $sort: { createdAt: -1 } }
+                { $sort: { createdAt: sortValue } }
             ])
         }
 
