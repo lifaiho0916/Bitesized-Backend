@@ -485,13 +485,13 @@ export const getUsersList = async (req: Request, res: Response) => {
     const { search } = req.body
 
     let users: any = []
-    if (search === "") users = await User.find().select({ personalisedUrl: 1, date: 1, email: 1, name: 1, categories: 1, role: 1, avatar: 1, visible: 1, earnings: 1 })
+    if (search === "") users = await User.find().select({ personalisedUrl: 1, date: 1, email: 1, name: 1, categories: 1, role: 1, avatar: 1, visible: 1, earnings: 1, subscribe: 1 })
     else users = await User.find({
       $or: [
         { name: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
       ]
-    }).select({ personalisedUrl: 1, date: 1, email: 1, name: 1, categories: 1, role: 1, avatar: 1, visible: 1, earnings: 1 })
+    }).select({ personalisedUrl: 1, date: 1, email: 1, name: 1, categories: 1, role: 1, avatar: 1, visible: 1, earnings: 1, subscribe: 1 })
 
     let biteFuncs: any = []
     users.forEach((user: any) => { biteFuncs.push(Bite.find({ owner: user._id })) })

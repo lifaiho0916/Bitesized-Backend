@@ -48,6 +48,16 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  subscribe: {
+    available: {
+      type: Boolean,
+      default: false,
+    },
+    switch: {
+      type: Boolean,
+      default: false
+    }
+  },
   date: {
     type: Date,
   }

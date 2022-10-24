@@ -54,6 +54,12 @@ app.use("/api/payment", payment)
 app.use(express.static("public"))
 server.listen(PORT, async () => {
   console.log(`The Server is up and running on PORT ${PORT}`)
+  // const users: any = await User.find()
+  // const funcs: any = []
+  // users.forEach((user: any) => {
+  //   funcs.push(User.findByIdAndUpdate(user._id, { subscribe: { available: false, switch: false } }))
+  // })
+  // await Promise.all(funcs)
 })
 
 // cron.schedule("*/10 * * * * *", () => checkOngoingfundmes(io))
