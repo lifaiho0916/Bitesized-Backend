@@ -13,12 +13,18 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  password: {
-    type: String,
-    required: true,
+  authProvider: {
+    authId: {
+      type: String
+    },
+    authType: {
+      type: String,
+      enum: ['Google', 'Apple', 'Facebook'],
+    }
   },
   role: {
     type: String,
+    enum: ['USER', 'ADMIN'],
     default: "USER",
   },
   personalisedUrl: {

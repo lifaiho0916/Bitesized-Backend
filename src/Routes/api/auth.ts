@@ -4,10 +4,8 @@ const router = express.Router()
 
 //import Controller
 import { 
-    googleSignin, 
-    googleSignup,
-    appleSignin,
-    appleSignup,
+    googleAuth,
+    appleAuth,
     
     setLanguageCurrency,
     getUsersList,
@@ -39,10 +37,8 @@ router.get('/personalurl/:url', getUserByPersonalisedUrl)
 router.post('/creators', getCreatorsByCategory)
 router.post('/list', getUsersByCategory)
 
-router.post("/googleSignin", googleSignin)
-router.post("/googleSignup", googleSignup)
-router.post("/appleSignin", appleSignin)
-router.post("/appleSignup", appleSignup)
+router.post('/google', googleAuth)
+router.post('/apple', appleAuth)
 router.post('/setting/lang-currency', auth, setLanguageCurrency)
 
 router.post('/users', auth, getUsersList)
