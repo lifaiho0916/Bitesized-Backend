@@ -159,6 +159,7 @@ export const googleSignin = async (req: Request, res: Response) => {
             bioText: user.bioText,
             earnings: user.earnings,
             currency: user.currency,
+            subscribe: user.subscribe
           };
 
           jwt.sign(
@@ -231,6 +232,8 @@ export const googleSignup = async (req: Request, res: Response) => {
                     category: updatedUser.categories,
                     bioText: updatedUser.bioText,
                     earnings: updatedUser.earnings,
+                    currency: updatedUser.currency,
+                    subscribe: updatedUser.subscribe
                   };
                   jwt.sign(
                     payload,
@@ -286,7 +289,8 @@ export const appleSignin = async (req: Request, res: Response) => {
             category: user.categories,
             bioText: user.bioText,
             earnings: user.earnings,
-            currency: user.currency
+            currency: user.currency,
+            subscribe: user.subscribe
           }
 
           jwt.sign(
@@ -361,7 +365,9 @@ export const appleSignup = async (req: Request, res: Response) => {
                     language: updatedUser.language,
                     category: updatedUser.categories,
                     bioText: updatedUser.bioText,
-                    currency: updatedUser.currency
+                    earnings: updatedUser.earnings,
+                    currency: updatedUser.currency,
+                    subscribe: updatedUser.subscribe
                   }
                   jwt.sign(
                     payload,
@@ -410,7 +416,8 @@ export const getAuthData = async (req: Request, res: Response) => {
       category: user.categories,
       bioText: user.bioText,
       earnings: user.earnings,
-      currency: user.currency
+      currency: user.currency,
+      subscribe: user.subscribe
     }
     return res.status(200).json({ success: true, payload: { user: payload } })
   } catch (err) {
@@ -420,7 +427,7 @@ export const getAuthData = async (req: Request, res: Response) => {
 
 export const editProfile = async (req: Request, res: Response) => {
   try {
-    const { id, name, url, category, avatar, bioText } = req.body
+    const { id, name, url, category, avatar, bioText, subscribe } = req.body
     const user: any = await User.findById(id)
     if (avatar) {
       if (user.avatar.indexOf('uploads') !== -1) {
@@ -432,7 +439,15 @@ export const editProfile = async (req: Request, res: Response) => {
         }
       }
     }
-    const updatedUser: any = await User.findByIdAndUpdate(id, { name: name, personalisedUrl: url, categories: category, avatar: avatar ? avatar : user.avatar, bioText: bioText }, { new: true })
+    const updatedUser: any = await User.findByIdAndUpdate(id,
+      {
+        name: name,
+        personalisedUrl: url,
+        categories: category, avatar: avatar ? avatar : user.avatar,
+        bioText: bioText,
+        "subscribe.switch": subscribe
+      }, { new: true })
+
     const payload = {
       id: updatedUser._id,
       name: updatedUser.name,
@@ -444,7 +459,8 @@ export const editProfile = async (req: Request, res: Response) => {
       category: updatedUser.categories,
       bioText: updatedUser.bioText,
       earnings: user.earnings,
-      currency: user.currency
+      currency: user.currency,
+      subscribe: user.subscribe
     }
     return res.status(200).json({ success: true, payload: { user: payload } })
   } catch (err) {
