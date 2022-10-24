@@ -18,6 +18,7 @@ import {
     editAvatar,
     checkName,
     checkUrl,
+    setSubscribeByAdmin,
 
     getOwnersOfBites,
     getUserByPersonalisedUrl,
@@ -46,5 +47,6 @@ router.post('/setting/lang-currency', auth, setLanguageCurrency)
 
 router.post('/users', auth, getUsersList)
 router.put('/:id/setvisible', auth, setUserVisible)
+router.put('/subscribe/available', auth, setSubscribeByAdmin)
 
 export default router;

@@ -534,3 +534,13 @@ export const getCurrencyRate = async (req: any, res: any) => {
     console.log(err)
   }
 }
+
+export const setSubscribeByAdmin = async (req: any, res: any) => {
+  try {
+    const { user, available } = req.body
+    await User.findByIdAndUpdate(user, { "subscribe.available": available })
+    return res.status(200).json({ success: true })
+  } catch (err) {
+    console.log(err)
+  }
+}
