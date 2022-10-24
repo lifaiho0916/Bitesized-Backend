@@ -135,265 +135,221 @@ export const checkUrl = async (req: Request, res: Response) => {
   }
 }
 
-//-------------Google Signin---------------------------
-export const googleSignin = async (req: Request, res: Response) => {
+export const googleAuth = async (req: any, res: any) => {
   try {
-    const userData = req.body
-    const email = userData.email
-    const browser = userData.browser
+    const { name, email, avatar, authId, lang, browser } = req.body
     const user: any = await User.findOne({ email: email })
 
     if (user) {
-      const password = userData.email + userData.googleId
-      bcrypt.compare(password, user.password, (err, isMatch) => {
-        if (isMatch) {
-          const payload = {
-            id: user._id,
-            name: user.name,
-            avatar: user.avatar,
-            role: user.role,
-            email: user.email,
-            personalisedUrl: user.personalisedUrl,
-            language: user.language,
-            category: user.categories,
-            bioText: user.bioText,
-            earnings: user.earnings,
-            currency: user.currency,
-            subscribe: user.subscribe
-          };
+      if (user.authProvider.authId === authId && user.authProvider.authType === 'Google') {
+        const payload = {
+          id: user._id,
+          name: user.name,
+          avatar: user.avatar,
+          role: user.role,
+          email: user.email,
+          personalisedUrl: user.personalisedUrl,
+          language: user.language,
+          category: user.categories,
+          bioText: user.bioText,
+          earnings: user.earnings,
+          currency: user.currency,
+          subscribe: user.subscribe
+        }
 
-          jwt.sign(
-            payload,
-            `${process.env.KEY}`,
-            { expiresIn: CONSTANT.SESSION_EXPIRE_TIME_IN_SECONDS },
-            (err, token) => {
-              mixpanel.people.set_once(user._id, {
-                $name: user.name,
-                $email: user.email,
-              })
-              mixpanel.track("Sign In", {
-                'Login Method': 'Gmail',
-                'Browser Used': browser,
-                distinct_id: user._id,
-                $name: user.name,
-                $email: user.email,
-              })
-              return res.status(200).json({ success: true, payload: { user: payload, token: token } })
-            }
-          )
-        } else return res.status(400).json({ error: 'sing-up methods error' })
+        jwt.sign(
+          payload,
+          `${process.env.KEY}`,
+          { expiresIn: CONSTANT.SESSION_EXPIRE_TIME_IN_SECONDS },
+          (err, token) => {
+            if (err) return res.status(200).json({ success: false })
+
+            mixpanel.people.set_once(user._id, {
+              $name: user.name,
+              $email: user.email,
+            })
+
+            mixpanel.track("Sign In", {
+              'Login Method': 'Gmail',
+              'Browser Used': browser,
+              distinct_id: user._id,
+              $name: user.name,
+              $email: user.email,
+            })
+
+            return res.status(200).json({ success: true, payload: { user: payload, token: token } })
+          }
+        )
+      } else return res.status(200).json({ success: false })
+    } else {
+      const newUser = new User({
+        email: email,
+        avatar: avatar,
+        name: name,
+        authProvider: {
+          authId: authId,
+          authType: 'Google'
+        },
+        date: calcTime()
       })
-    } else googleSignup(req, res)
-  } catch (err) {
-    console.log(err)
-  }
-}
 
-//-------------Google Signup---------------------------
-export const googleSignup = async (req: Request, res: Response) => {
-  try {
-    const userData = req.body
-    const email = userData.email
-    const browser = userData.browser
-    let role = "USER"
-    const user: any = await User.findOne({ email: email })
+      const savedUser = await newUser.save()
+      const index = savedUser.email.indexOf("@")
+      const subEmail = savedUser.email.substring(0, index).replace(/\s/g, '').toLowerCase()
 
-    if (user) googleSignin(req, res)
-    else {
-      const password = userData.email + userData.googleId
-      bcrypt.genSalt(10, (err: any, salt: any) => {
-        bcrypt.hash(password, salt, (err: any, hash: any) => {
-          if (err) throw err;
-          const newUser = new User({
-            email: userData.email,
-            avatar: userData.avatar,
-            name: userData.name,
-            role: role,
-            password: hash,
-            date: calcTime()
-          });
-          newUser.save().then((user: any) => {
-            const index = user.email.indexOf("@")
-            const subEmail = user.email.substring(0, index).replace(/\s/g, '').toLowerCase()
-            User.find({ personalisedUrl: subEmail }).then((foundUsers: any) => {
-              let url = ""
-              if (foundUsers.length > 1) url = `${subEmail}${foundUsers.length - 1}`
-              else url = subEmail
-              User.findOneAndUpdate({ _id: user._id }, { $set: { personalisedUrl: url } }, { new: true })
-                .then((updatedUser: any) => {
-                  const payload = {
-                    id: updatedUser._id,
-                    name: updatedUser.name,
-                    avatar: updatedUser.avatar,
-                    role: updatedUser.role,
-                    email: updatedUser.email,
-                    personalisedUrl: updatedUser.personalisedUrl,
-                    language: updatedUser.language,
-                    category: updatedUser.categories,
-                    bioText: updatedUser.bioText,
-                    earnings: updatedUser.earnings,
-                    currency: updatedUser.currency,
-                    subscribe: updatedUser.subscribe
-                  };
-                  jwt.sign(
-                    payload,
-                    `${process.env.KEY}`,
-                    { expiresIn: CONSTANT.SESSION_EXPIRE_TIME_IN_SECONDS },
-                    (err, token) => {
-                      mixpanel.people.set_once(updatedUser._id, {
-                        $name: updatedUser.name,
-                        $email: updatedUser.email,
-                      });
+      const foundUsers = await User.find({ personalisedUrl: subEmail })
+      let url = ""
+      if (foundUsers.length !== 0) url = `${subEmail}${foundUsers.length}`
+      else url = subEmail
 
-                      mixpanel.track("Sign Up", {
-                        'Sign Up Method': 'Gmail',
-                        'Browser Used': browser,
-                        distinct_id: updatedUser._id,
-                        $name: updatedUser.name,
-                        $email: updatedUser.email,
-                      });
-                      return res.status(200).json({ success: true, payload: { user: payload, token: token } })
-                    }
-                  );
-                }).catch((err: any) => console.log(err))
-            }).catch((err: any) => console.log(err))
-          }).catch((err: any) => console.log(err))
+      const updatedUser: any = await User.findByIdAndUpdate(savedUser._id, { personalisedUrl: url }, { new: true })
+
+      const payload = {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        avatar: updatedUser.avatar,
+        role: updatedUser.role,
+        email: updatedUser.email,
+        personalisedUrl: updatedUser.personalisedUrl,
+        language: updatedUser.language,
+        category: updatedUser.categories,
+        bioText: updatedUser.bioText,
+        earnings: updatedUser.earnings,
+        currency: updatedUser.currency,
+        subscribe: updatedUser.subscribe
+      }
+
+      jwt.sign(
+        payload,
+        `${process.env.KEY}`,
+        { expiresIn: CONSTANT.SESSION_EXPIRE_TIME_IN_SECONDS },
+        (err, token) => {
+          if (err) return res.status(200).json({ success: false })
+
+          mixpanel.people.set_once(updatedUser._id, {
+            $name: updatedUser.name,
+            $email: updatedUser.email,
+          })
+
+          mixpanel.track("Sign Up", {
+            'Sign Up Method': 'Gmail',
+            'Browser Used': browser,
+            distinct_id: updatedUser._id,
+            $name: updatedUser.name,
+            $email: updatedUser.email,
+          })
+
+          return res.status(200).json({ success: true, payload: { user: payload, token: token, new: true } })
         })
-      })
     }
   } catch (err) {
     console.log(err)
   }
 }
 
-export const appleSignin = async (req: Request, res: Response) => {
+export const appleAuth = async (req: any, res: any) => {
   try {
-    const userData = req.body
-    const token = userData.token
-    const browser = userData.browser
+    const { token, userInfo, browser, lang } = req.body
 
     const decodeToken: any = jwt.decode(token)
     const user: any = await User.findOne({ email: decodeToken.email })
     if (user) {
-      const password = decodeToken.email + decodeToken.sub
-      bcrypt.compare(password, user.password, (err, isMatch) => {
-        if (isMatch) {
-          const payload = {
-            id: user._id,
-            name: user.name,
-            avatar: user.avatar,
-            role: user.role,
-            email: user.email,
-            personalisedUrl: user.personalisedUrl,
-            language: user.language,
-            category: user.categories,
-            bioText: user.bioText,
-            earnings: user.earnings,
-            currency: user.currency,
-            subscribe: user.subscribe
-          }
+      if (user.authProvider.authId === decodeToken.sub && user.authProvider.authType === 'Apple') {
+        const payload = {
+          id: user._id,
+          name: user.name,
+          avatar: user.avatar,
+          role: user.role,
+          email: user.email,
+          personalisedUrl: user.personalisedUrl,
+          language: user.language,
+          category: user.categories,
+          bioText: user.bioText,
+          earnings: user.earnings,
+          currency: user.currency,
+          subscribe: user.subscribe
+        }
 
-          jwt.sign(
-            payload,
-            `${process.env.KEY}`,
-            { expiresIn: CONSTANT.SESSION_EXPIRE_TIME_IN_SECONDS },
-            (err, token) => {
-              mixpanel.people.set_once(user._id, {
-                $name: user.name,
-                $email: user.email,
-              });
-              mixpanel.track("Sign In", {
-                'Login Method': 'Apple',
-                'Browser Used': browser,
-                distinct_id: user._id,
-                $name: user.name,
-                $email: user.email,
-              })
+        jwt.sign(
+          payload,
+          `${process.env.KEY}`,
+          { expiresIn: CONSTANT.SESSION_EXPIRE_TIME_IN_SECONDS },
+          (err, token) => {
+            if (err) return res.status(200).json({ success: false })
+            mixpanel.people.set_once(user._id, {
+              $name: user.name,
+              $email: user.email,
+            })
+            mixpanel.track("Sign In", {
+              'Login Method': 'Apple',
+              'Browser Used': browser,
+              distinct_id: user._id,
+              $name: user.name,
+              $email: user.email,
+            })
 
-              return res.status(200).json({ success: true, payload: { user: payload, token: token } })
-            }
-          );
-        } else return res.status(400).json({ error: 'sing-up methods error' })
-      });
-    } else appleSignup(req, res)
-  } catch (err) {
-    console.log(err)
-  }
-}
-
-export const appleSignup = async (req: Request, res: Response) => {
-  try {
-    const userData = req.body
-    const token = userData.token
-    const browser = userData.browser
-    const appleUser = userData.user
-
-    const decodeToken: any = jwt.decode(token)
-    const user: any = await User.findOne({ email: decodeToken.email })
-
-    if (user) appleSignin(req, res)
-    else {
-      const password = decodeToken.email + decodeToken.sub
-      bcrypt.genSalt(10, (err: any, salt: any) => {
-        bcrypt.hash(password, salt, (err: any, hash: any) => {
-          if (err) throw err;
-          const i = decodeToken.email.indexOf("@");
-          const alterName = decodeToken.email.substring(0, i)
-          const newUser = new User({
-            email: decodeToken.email,
-            name: appleUser ? appleUser.firstName + ' ' + appleUser.lastName : alterName,
-            role: 'USER',
-            password: hash,
-            date: calcTime()
+            return res.status(200).json({ success: true, payload: { user: payload, token: token } })
           })
-          newUser.save().then((user: any) => {
-            const index = user.email.indexOf("@")
-            const subEmail = user.email.substring(0, index).replace(/\s/g, '').toLowerCase()
-            User.find({ personalisedUrl: subEmail }).then((foundUsers: any) => {
-              let url = "";
-              if (foundUsers.length > 1) url = `${subEmail}${foundUsers.length - 1}`
-              else url = subEmail
-              User.findOneAndUpdate({ _id: user._id }, { $set: { personalisedUrl: url } }, { new: true })
-                .then((updatedUser: any) => {
-                  const payload = {
-                    id: updatedUser._id,
-                    name: updatedUser.name,
-                    avatar: updatedUser.avatar,
-                    role: updatedUser.role,
-                    email: updatedUser.email,
-                    personalisedUrl: updatedUser.personalisedUrl,
-                    language: updatedUser.language,
-                    category: updatedUser.categories,
-                    bioText: updatedUser.bioText,
-                    earnings: updatedUser.earnings,
-                    currency: updatedUser.currency,
-                    subscribe: updatedUser.subscribe
-                  }
-                  jwt.sign(
-                    payload,
-                    `${process.env.KEY}`,
-                    { expiresIn: CONSTANT.SESSION_EXPIRE_TIME_IN_SECONDS },
-                    (err, token) => {
-                      mixpanel.people.set_once(updatedUser._id, {
-                        $name: updatedUser.name,
-                        $email: updatedUser.email,
-                      })
-
-                      mixpanel.track("Sign Up", {
-                        'Sign Up Method': 'Apple',
-                        'Browser Used': browser,
-                        distinct_id: updatedUser._id,
-                        $name: updatedUser.name,
-                        $email: updatedUser.email,
-                      });
-                      return res.status(200).json({ success: true, payload: { user: payload, token: token } })
-                    }
-                  );
-                }).catch((err: any) => console.log(err))
-            }).catch((err: any) => console.log(err))
-          }).catch((err: any) => console.log(err))
-        })
+      }
+    } else {
+      const i = decodeToken.email.indexOf("@");
+      const alterName = decodeToken.email.substring(0, i)
+      const newUser = new User({
+        email: decodeToken.email,
+        name: userInfo ? userInfo.firstName + ' ' + userInfo.lastName : alterName,
+        authProvider: {
+          authId: decodeToken.sub,
+          authType: 'Apple'
+        },
+        date: calcTime()
       })
+
+      const savedUser = await newUser.save()
+      const index = savedUser.email.indexOf("@")
+      const subEmail = savedUser.email.substring(0, index).replace(/\s/g, '').toLowerCase()
+
+      const foundUsers = await User.find({ personalisedUrl: subEmail })
+      let url = ""
+      if (foundUsers.length !== 0) url = `${subEmail}${foundUsers.length}`
+      else url = subEmail
+
+      const updatedUser: any = await User.findByIdAndUpdate(savedUser._id, { personalisedUrl: url }, { new: true })
+
+      const payload = {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        avatar: updatedUser.avatar,
+        role: updatedUser.role,
+        email: updatedUser.email,
+        personalisedUrl: updatedUser.personalisedUrl,
+        language: updatedUser.language,
+        category: updatedUser.categories,
+        bioText: updatedUser.bioText,
+        earnings: updatedUser.earnings,
+        currency: updatedUser.currency,
+        subscribe: updatedUser.subscribe
+      }
+
+      jwt.sign(
+        payload,
+        `${process.env.KEY}`,
+        { expiresIn: CONSTANT.SESSION_EXPIRE_TIME_IN_SECONDS },
+        (err, token) => {
+          if (err) return res.status(200).json({ success: false })
+          mixpanel.people.set_once(updatedUser._id, {
+            $name: updatedUser.name,
+            $email: updatedUser.email,
+          })
+
+          mixpanel.track("Sign Up", {
+            'Sign Up Method': 'Apple',
+            'Browser Used': browser,
+            distinct_id: updatedUser._id,
+            $name: updatedUser.name,
+            $email: updatedUser.email,
+          })
+          return res.status(200).json({ success: true, payload: { user: payload, token: token, new: true } })
+        })
     }
   } catch (err) {
     console.log(err)
