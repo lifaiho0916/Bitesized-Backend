@@ -412,7 +412,7 @@ export const unLockBite = async (req: any, res: any) => {
         },
         user: userId,
         currency: currency,
-        localPrice: amount * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`]),
+        localPrice: (amount + amount * 0.034 + 0.3) * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`]),
         createdAt: time
       })
       newTransaction1.save()
