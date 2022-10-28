@@ -58,14 +58,30 @@ const biteVideoStorage = multer.diskStorage({
   filename: (req, file, cb) => { cb(null, "Bite-" + Date.now() + path.extname(file.originalname)) }
 })
 
-const uploadBiteFiles = multer({
+const uploadBiteVideo = multer({
   storage: biteVideoStorage,
   limits: { fileSize: 150 * 1024 * 1024 },
-}).array("files", 6)
+}).single("file")
 
-export const uploadFiles = async (req: any, res: any) => {
-  uploadBiteFiles(req, res, () => {
-    return res.status(200).json({ success: true, payload: { files: req.files } })
+export const uploadVideo = async (req: any, res: any) => {
+  uploadBiteVideo(req, res, () => {
+    return res.status(200).json({ success: true, payload: { path: "uploads/bite/" + req.file?.filename } })
+  })
+}
+
+const biteCoverStorage = multer.diskStorage({
+  destination: "./public/uploads/cover/",
+  filename: (req, file, cb) => { cb(null, "Cover-" + Date.now() + path.extname(file.originalname)) }
+})
+
+const uploadBiteCover = multer({
+  storage: biteCoverStorage,
+  limits: { fileSize: 150 * 1024 * 1024 },
+}).single("file")
+
+export const uploadCover = async (req: any, res: any) => {
+  uploadBiteCover(req, res, () => {
+    return res.status(200).json({ success: true, payload: { path: "uploads/cover/" + req.file?.filename } })
   })
 }
 
