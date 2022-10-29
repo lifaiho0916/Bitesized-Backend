@@ -6,6 +6,7 @@ import Bite from "../models/Bite"
 import User from "../models/User"
 import Transaction from "../models/Transaction"
 import Setting from "../models/Setting"
+import Payment from "../models/Payment"
 
 const stripe = new Stripe(
   `${process.env.STRIPE_SECRET_KEY}`,
@@ -375,7 +376,7 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
 export const unLockBite = async (req: any, res: any) => {
   try {
     const { id } = req.params
-    const { userId, currency, amount, token } = req.body
+    const { userId, currency, amount, token, saveCheck, holder, cardType } = req.body
     const bite: any = await Bite.findById(id)
     const user: any = await User.findById(bite.owner)
     const setting: any = await Setting.findOne()
@@ -387,14 +388,50 @@ export const unLockBite = async (req: any, res: any) => {
       let usdAmount = (amount + amount * 0.034 + 0.3) * 100
       let ratedAmount = usdAmount * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`])
 
-      await stripe.charges.create({
-        amount: Number(Math.round(ratedAmount)),
-        currency: currency,
-        source: token.id,
-        description: `Unlock Bite (${bite.title})`,
-      }).then(result => {
-        charge = result
-      }).catch(err => { return res.status(200).json({ success: false, payload: err.raw.message }) })
+      if (saveCheck) {
+        const user: any = await User.findById(userId)
+
+        const customer: any = await stripe.customers.create({
+          email: user.email,
+          name: holder,
+          source: token.id
+        })
+        
+        const customerId = customer.id
+        const card: any = await stripe.customers.retrieveSource(customerId, customer.default_source)
+        const cardNumber = card.last4
+
+        const newPayment = new Payment({
+          user: userId,
+          stripe: {
+            customerId: customerId,
+            cardType: cardType,
+            cardNumber: cardNumber,
+            cardHolder: holder
+          }
+        })
+
+        newPayment.save()
+
+        await stripe.charges.create({
+          amount: Number(Math.round(ratedAmount)),
+          currency: currency,
+          customer: customerId,
+          description: `Unlock Bite (${bite.title})`,
+        }).then(result => {
+          charge = result
+        }).catch(err => { return res.status(200).json({ success: false, payload: err.raw.message }) });
+
+      } else {
+        await stripe.charges.create({
+          amount: Number(Math.round(ratedAmount)),
+          currency: currency,
+          source: token.id,
+          description: `Unlock Bite (${bite.title})`,
+        }).then(result => {
+          charge = result
+        }).catch(err => { return res.status(200).json({ success: false, payload: err.raw.message }) })
+      }
 
       if (charge.status !== 'succeeded') {
         /// ERROR Message
