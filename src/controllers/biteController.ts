@@ -108,14 +108,6 @@ export const getAllBites = async (req: any, res: any) => {
       },
       { $unwind: "$owner" },
       {
-        $match: {
-          $and: [
-            { visible: true },
-            { 'owner.visible': { $eq: true } }
-          ]
-        }
-      },
-      {
         $project: {
           videos: {
             $filter: {
@@ -131,6 +123,15 @@ export const getAllBites = async (req: any, res: any) => {
           visible: 1,
           purchasedUsers: 1,
           date: 1,
+        }
+      },
+      {
+        $match: {
+          $and: [
+            { visible: true },
+            { 'owner.visible': { $eq: true } },
+            { "videos.0": { $exists: true } }
+          ]
         }
       }
     ])
@@ -276,15 +277,6 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
           },
           { $unwind: "$owner" },
           {
-            $match: {
-              $and: [
-                { "owner._id": user._id },
-                { visible: true },
-                { 'owner.visible': { $eq: true } }
-              ]
-            }
-          },
-          {
             $project: {
               videos: {
                 $filter: {
@@ -300,6 +292,16 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
               visible: 1,
               purchasedUsers: 1,
               date: 1,
+            }
+          },
+          {
+            $match: {
+              $and: [
+                { "owner._id": user._id },
+                { visible: true },
+                { 'owner.visible': { $eq: true } },
+                { "videos.0": { $exists: true } }
+              ]
             }
           }
         ])
@@ -324,20 +326,6 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
           },
           { $unwind: "$owner" },
           {
-            $match: {
-              $and: [
-                {
-                  $or: [
-                    { "owner._id": user._id },
-                    { "purchasedUsers.purchasedBy": user._id }
-                  ]
-                },
-                { visible: true },
-                { 'owner.visible': { $eq: true } }
-              ]
-            }
-          },
-          {
             $project: {
               videos: {
                 $filter: {
@@ -353,6 +341,21 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
               visible: 1,
               purchasedUsers: 1,
               date: 1,
+            }
+          },
+          {
+            $match: {
+              $and: [
+                {
+                  $or: [
+                    { "owner._id": user._id },
+                    { "purchasedUsers.purchasedBy": user._id }
+                  ]
+                },
+                { visible: true },
+                { 'owner.visible': { $eq: true } },
+                { "videos.0": { $exists: true } }
+              ]
             }
           }
         ])
@@ -396,7 +399,7 @@ export const unLockBite = async (req: any, res: any) => {
           name: holder,
           source: token.id
         })
-        
+
         const customerId = customer.id
         const card: any = await stripe.customers.retrieveSource(customerId, customer.default_source)
         const cardNumber = card.last4
@@ -520,14 +523,6 @@ export const getBitesList = async (req: any, res: any) => {
       },
       { $unwind: "$owner" },
       {
-        $match: {
-          $and: [
-            { visible: true },
-            { 'owner.visible': { $eq: true } }
-          ]
-        }
-      },
-      {
         $project: {
           videos: {
             $filter: {
@@ -544,7 +539,16 @@ export const getBitesList = async (req: any, res: any) => {
           purchasedUsers: 1,
           date: 1,
         }
-      }
+      },
+      {
+        $match: {
+          $and: [
+            { visible: true },
+            { 'owner.visible': { $eq: true } },
+            { "videos.0": { $exists: true } }
+          ]
+        }
+      },
     ])
 
     const resBites: any = []
