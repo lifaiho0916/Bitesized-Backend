@@ -385,116 +385,123 @@ export const unLockBite = async (req: any, res: any) => {
     const setting: any = await Setting.findOne()
 
     const currencyRate = setting.currencyRate
+    let resBite: any
 
-    if (currency) {
-      let charge = { status: 'requested' }
-      let usdAmount = (amount + amount * 0.034 + 0.3) * 100
-      let ratedAmount = usdAmount * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`])
+    if (bite.purchasedUsers.every((purchaseInfo: any) => purchaseInfo.purchasedBy !== userId)) {
+      if (currency) {
+        let charge = { status: 'requested' }
+        let usdAmount = (amount + amount * 0.034 + 0.3) * 100
+        let ratedAmount = usdAmount * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`])
 
-      if (saveCheck) {
-        const user: any = await User.findById(userId)
+        if (saveCheck) {
+          const user: any = await User.findById(userId)
 
-        const customer: any = await stripe.customers.create({
-          email: user.email,
-          name: holder,
-          source: token.id
-        })
+          const customer: any = await stripe.customers.create({
+            email: user.email,
+            name: holder,
+            source: token.id
+          })
 
-        const customerId = customer.id
-        const card: any = await stripe.customers.retrieveSource(customerId, customer.default_source)
-        const cardNumber = card.last4
+          const customerId = customer.id
+          const card: any = await stripe.customers.retrieveSource(customerId, customer.default_source)
+          const cardNumber = card.last4
 
-        const newPayment = new Payment({
+          const newPayment = new Payment({
+            user: userId,
+            stripe: {
+              customerId: customerId,
+              cardType: cardType,
+              cardNumber: cardNumber,
+              cardHolder: holder
+            }
+          })
+
+          newPayment.save()
+
+          await stripe.charges.create({
+            amount: Number(Math.round(ratedAmount)),
+            currency: currency,
+            customer: customerId,
+            description: `Unlock Bite (${bite.title})`,
+          }).then(result => {
+            charge = result
+          }).catch(err => { return res.status(200).json({ success: false, payload: err.raw.message }) });
+
+        } else {
+          await stripe.charges.create({
+            amount: Number(Math.round(ratedAmount)),
+            currency: currency,
+            source: token.id,
+            description: `Unlock Bite (${bite.title})`,
+          }).then(result => {
+            charge = result
+          }).catch(err => { return res.status(200).json({ success: false, payload: err.raw.message }) })
+        }
+
+        if (charge.status !== 'succeeded') {
+          /// ERROR Message
+          return res.status(200).json({ success: false, payload: charge })
+        }
+        const time = calcTime()
+
+        const newTransaction1 = new Transaction({
+          type: 2,
+          bite: {
+            id: bite._id,
+            title: bite.title,
+            currency: bite.currency,
+            price: bite.price
+          },
           user: userId,
-          stripe: {
-            customerId: customerId,
-            cardType: cardType,
-            cardNumber: cardNumber,
-            cardHolder: holder
-          }
+          currency: currency,
+          localPrice: (amount + amount * 0.034 + 0.3) * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`]),
+          createdAt: time
+        })
+        newTransaction1.save()
+
+        const newTransaction2 = new Transaction({
+          type: 3,
+          bite: {
+            id: bite._id,
+            title: bite.title,
+            currency: bite.currency,
+            price: bite.price
+          },
+          user: bite.owner,
+          createdAt: time
+        })
+        newTransaction2.save()
+        User.findByIdAndUpdate(user._id, { earnings: user.earnings + amount }).exec()
+      } else {
+        const newTransaction = new Transaction({
+          type: 1,
+          bite: {
+            id: bite._id,
+            title: bite.title
+          },
+          user: userId,
+          createdAt: calcTime()
         })
 
-        newPayment.save()
-
-        await stripe.charges.create({
-          amount: Number(Math.round(ratedAmount)),
-          currency: currency,
-          customer: customerId,
-          description: `Unlock Bite (${bite.title})`,
-        }).then(result => {
-          charge = result
-        }).catch(err => { return res.status(200).json({ success: false, payload: err.raw.message }) });
-
-      } else {
-        await stripe.charges.create({
-          amount: Number(Math.round(ratedAmount)),
-          currency: currency,
-          source: token.id,
-          description: `Unlock Bite (${bite.title})`,
-        }).then(result => {
-          charge = result
-        }).catch(err => { return res.status(200).json({ success: false, payload: err.raw.message }) })
+        newTransaction.save()
       }
 
-      if (charge.status !== 'succeeded') {
-        /// ERROR Message
-        return res.status(200).json({ success: false, payload: charge })
-      }
-      const time = calcTime()
-
-      const newTransaction1 = new Transaction({
-        type: 2,
-        bite: {
-          id: bite._id,
-          title: bite.title,
-          currency: bite.currency,
-          price: bite.price
-        },
-        user: userId,
-        currency: currency,
-        localPrice: (amount + amount * 0.034 + 0.3) * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`]),
-        createdAt: time
+      let purchasedUsers = bite.purchasedUsers
+      purchasedUsers.push({
+        purchasedBy: userId,
+        purchasedAt: calcTime()
       })
-      newTransaction1.save()
 
-      const newTransaction2 = new Transaction({
-        type: 3,
-        bite: {
-          id: bite._id,
-          title: bite.title,
-          currency: bite.currency,
-          price: bite.price
-        },
-        user: bite.owner,
-        createdAt: time
+      resBite = await Bite.findByIdAndUpdate(id, { purchasedUsers: purchasedUsers }, { new: true }).populate({
+        path: 'owner',
+        select: { name: 1, avatar: 1, personalisedUrl: 1 }
       })
-      newTransaction2.save()
-      User.findByIdAndUpdate(user._id, { earnings: user.earnings + amount }).exec()
     } else {
-      const newTransaction = new Transaction({
-        type: 1,
-        bite: {
-          id: bite._id,
-          title: bite.title
-        },
-        user: userId,
-        createdAt: calcTime()
+      resBite = await Bite.findById(id).populate({
+        path: 'owner',
+        select: { name: 1, avatar: 1, personalisedUrl: 1 }
       })
-
-      newTransaction.save()
     }
-
-    let purchasedUsers = bite.purchasedUsers
-    purchasedUsers.push({
-      purchasedBy: userId,
-      purchasedAt: calcTime()
-    })
-
-    const resBite = await Bite.findByIdAndUpdate(id, { purchasedUsers: purchasedUsers }, { new: true }).populate({
-      path: 'owner',
-      select: { name: 1, avatar: 1, personalisedUrl: 1 }
-    })
-
     return res.status(200).json({ success: true, payload: { bite: resBite } })
   } catch (err) {
     console.log(err)
