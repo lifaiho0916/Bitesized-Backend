@@ -36,6 +36,21 @@ export const CreateBite = async (req: any, res: any) => {
   }
 }
 
+export const EditBite = async (req: any, res: any) => {
+  try {
+    const { id } = req.params
+    const { bite } = req.body
+
+    await Bite.findByIdAndUpdate(id, {
+      title: bite.title,
+      videos: bite.videos
+    })
+    return res.status(200).json({ success: true })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 export const CreateBiteByUserId = async (req: any, res: any) => {
   try {
     const { bite } = req.body

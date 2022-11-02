@@ -7,6 +7,7 @@ import {
     getAllBites,
     CreateBite,
     CreateBiteByUserId,
+    EditBite,
     uploadVideo,
     uploadCover,
     unLockBite,
@@ -25,6 +26,7 @@ router.post('/create', auth, CreateBite)
 router.post('/create/:userId', auth, CreateBiteByUserId)
 router.post('/upload/video', auth, uploadVideo)
 router.post('/upload/cover', auth, uploadCover)
+router.put('/:id', auth, EditBite)
 router.put('/:id/unlock', auth, unLockBite)
 router.get('/personalurl/:url', getBitesByPersonalisedUrl)
 router.get('/list', getBitesList)
