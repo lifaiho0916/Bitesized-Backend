@@ -37,7 +37,15 @@ export const getOwnersOfBites = async (req: any, res: any) => {
       if (filterRes.length === 0 && bite.owner.visible === true && bite.owner.role === "USER") owners.push(bite.owner)
     })
 
-    return res.status(200).json({ success: true, payload: { users: owners } })
+    const newArr = owners.slice()
+    for (let i = newArr.length - 1; i > 0; i--) {
+      const rand = Math.floor(Math.random() * (i + 1))
+      const temp = newArr[i]
+      newArr[i] = newArr[rand]
+      newArr[rand] = temp
+    }
+
+    return res.status(200).json({ success: true, payload: { users: newArr } })
   } catch (err) {
     console.log(err)
   }
