@@ -710,7 +710,7 @@ export const getBitesByUserId = async (req: any, res: any) => {
   try {
     const { id } = req.params
     const { biteId } = req.query
-    const user = await User.findById(id)
+    const user: any = await User.findById(id)
 
     const ownerBites = await Bite.aggregate([
       {
@@ -762,6 +762,73 @@ export const getBitesByUserId = async (req: any, res: any) => {
       }
     ])
 
+    let categoryBites: any = []
+
+    if (user.categories.length > 0) {
+      categoryBites = await Bite.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            as: 'owner',
+            let: { owner: "$owner" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$$owner", "$_id"] }
+                }
+              },
+              {
+                $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1, categories: 1 }
+              }
+            ],
+          }
+        },
+        { $unwind: "$owner" },
+        {
+          $project: {
+            videos: {
+              $filter: {
+                input: "$videos",
+                as: "videos",
+                cond: { $eq: ["$$videos.visible", true] }
+              }
+            },
+            currency: 1,
+            owner: 1,
+            price: 1,
+            title: 1,
+            visible: 1,
+            purchasedUsers: 1,
+            date: 1,
+          }
+        },
+        {
+          $match: {
+            $and: [
+              { 'owner._id': { $ne: new mongoose.Types.ObjectId(id) } },
+              { visible: true },
+              { 'owner.visible': { $eq: true } },
+              { "videos.0": { $exists: true } }
+            ]
+          }
+        },
+        {
+          "$redact": {
+            "$cond": [
+              {
+                "$gte": [
+                  { "$size": { "$setIntersection": ["$owner.categories", user.categories] } },
+                  1
+                ]
+              },
+              "$$KEEP",
+              "$$PRUNE"
+            ]
+          }
+        }
+      ])
+    }
+
     const resBites: any = []
 
     ownerBites.forEach((bite: any) => {
@@ -771,8 +838,23 @@ export const getBitesByUserId = async (req: any, res: any) => {
         isCreator: true
       })
     })
+    categoryBites.forEach((bite: any) => {
+      resBites.push({
+        ...bite,
+        time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000),
+        isCreator: false
+      })
+    })
 
-    return res.status(200).json({ success: true, payload: { bites: resBites } })
+    const newArr1 = resBites.slice()
+    for (let i = newArr1.length - 1; i > 0; i--) {
+      const rand = Math.floor(Math.random() * (i + 1))
+      const temp = newArr1[i]
+      newArr1[i] = newArr1[rand]
+      newArr1[rand] = temp
+    }
+
+    return res.status(200).json({ success: true, payload: { bites: newArr1 } })
   } catch (err) {
     console.log(err)
   }
