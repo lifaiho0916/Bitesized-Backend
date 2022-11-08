@@ -1,6 +1,7 @@
 import path from "path"
 import multer from "multer"
 import fs from "fs"
+import mongoose from "mongoose"
 import Stripe from "stripe"
 import Bite from "../models/Bite"
 import User from "../models/User"
@@ -700,6 +701,78 @@ export const changeVideoVisible = async (req: any, res: any) => {
     videos[index].visible = visible
     await Bite.findByIdAndUpdate(id, { videos: videos })
     return res.status(200).json({ success: true })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const getBitesByUserId = async (req: any, res: any) => {
+  try {
+    const { id } = req.params
+    const { biteId } = req.query
+    const user = await User.findById(id)
+
+    const ownerBites = await Bite.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          as: 'owner',
+          let: { owner: "$owner" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$$owner", "$_id"] }
+              }
+            },
+            {
+              $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
+            }
+          ],
+        }
+      },
+      { $unwind: "$owner" },
+      {
+        $project: {
+          videos: {
+            $filter: {
+              input: "$videos",
+              as: "videos",
+              cond: { $eq: ["$$videos.visible", true] }
+            }
+          },
+          currency: 1,
+          owner: 1,
+          price: 1,
+          title: 1,
+          visible: 1,
+          purchasedUsers: 1,
+          date: 1,
+        }
+      },
+      {
+        $match: {
+          $and: [
+            { 'owner._id': { $eq: new mongoose.Types.ObjectId(id) } },
+            { "_id": { $ne: new mongoose.Types.ObjectId(biteId) } },
+            { visible: true },
+            { 'owner.visible': { $eq: true } },
+            { "videos.0": { $exists: true } }
+          ]
+        }
+      }
+    ])
+
+    const resBites: any = []
+
+    ownerBites.forEach((bite: any) => {
+      resBites.push({
+        ...bite,
+        time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000),
+        isCreator: true
+      })
+    })
+
+    return res.status(200).json({ success: true, payload: { bites: resBites } })
   } catch (err) {
     console.log(err)
   }

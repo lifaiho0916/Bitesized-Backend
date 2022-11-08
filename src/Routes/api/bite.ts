@@ -12,6 +12,7 @@ import {
     uploadCover,
     unLockBite,
     getBitesByPersonalisedUrl,
+    getBitesByUserId,
     getBitesList,
     getBiteById,
     setVisible,
@@ -29,6 +30,7 @@ router.post('/upload/cover', auth, uploadCover)
 router.put('/:id', auth, EditBite)
 router.put('/:id/unlock', auth, unLockBite)
 router.get('/personalurl/:url', getBitesByPersonalisedUrl)
+router.get('/user/:id', getBitesByUserId)
 router.get('/list', getBitesList)
 router.get('/adminlist', auth, getBitesAdmin)
 router.get('/:id', getBiteById)
