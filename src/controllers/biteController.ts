@@ -41,10 +41,18 @@ export const EditBite = async (req: any, res: any) => {
     const { id } = req.params
     const { bite } = req.body
 
+    const oldBite: any = await Bite.findById(id)
+
     await Bite.findByIdAndUpdate(id, {
       title: bite.title,
       videos: bite.videos
     })
+
+    if (oldBite.title !== bite.title) {
+      const trasactions: any = await Transaction.find({ "bite.id": id })
+      trasactions.forEach((transaction: any) => { Transaction.findByIdAndUpdate(transaction._id, { "bite.title": bite.title }).exec() })
+    }
+
     return res.status(200).json({ success: true })
   } catch (err) {
     console.log(err)
