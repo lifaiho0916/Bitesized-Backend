@@ -3,7 +3,6 @@ import path from "path"
 import fs from "fs"
 import multer from "multer"
 import User from "../models/User"
-import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import Mixpanel from "mixpanel"
 import Bite from "../models/Bite"
@@ -156,6 +155,7 @@ export const googleAuth = async (req: any, res: any) => {
           avatar: user.avatar,
           role: user.role,
           email: user.email,
+          authType: user.authProvider.authType,
           personalisedUrl: user.personalisedUrl,
           language: user.language,
           category: user.categories,
@@ -218,6 +218,7 @@ export const googleAuth = async (req: any, res: any) => {
         avatar: updatedUser.avatar,
         role: updatedUser.role,
         email: updatedUser.email,
+        authType: updatedUser.authProvider.authType,
         personalisedUrl: updatedUser.personalisedUrl,
         language: updatedUser.language,
         category: updatedUser.categories,
@@ -269,6 +270,7 @@ export const appleAuth = async (req: any, res: any) => {
           avatar: user.avatar,
           role: user.role,
           email: user.email,
+          authType: user.authProvider.authType,
           personalisedUrl: user.personalisedUrl,
           language: user.language,
           category: user.categories,
@@ -329,6 +331,7 @@ export const appleAuth = async (req: any, res: any) => {
         avatar: updatedUser.avatar,
         role: updatedUser.role,
         email: updatedUser.email,
+        authType: updatedUser.authProvider.authType,
         personalisedUrl: updatedUser.personalisedUrl,
         language: updatedUser.language,
         category: updatedUser.categories,
