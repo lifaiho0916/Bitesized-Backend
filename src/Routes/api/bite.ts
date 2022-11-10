@@ -19,7 +19,8 @@ import {
     getBitesAdmin,
     deleteBite,
     removeVideoFromBite,
-    changeVideoVisible
+    changeVideoVisible,
+    sendComment
 } from '../../controllers/biteController'
 
 router.get('/', getAllBites)
@@ -37,6 +38,7 @@ router.get('/:id', getBiteById)
 router.delete('/:id', auth, deleteBite)
 router.delete('/:id/:index', auth, removeVideoFromBite)
 router.put('/:id/setvisible', auth, setVisible)
+router.put('/:id/comment', auth, sendComment)
 router.put('/:id/:index/setvisible', auth, changeVideoVisible)
 
 export default router

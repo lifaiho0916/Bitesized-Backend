@@ -610,7 +610,7 @@ export const getBiteById = async (req: any, res: any) => {
     const { id } = req.params
     const bite: any = await Bite.findById(id).populate([
       { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
-      { path: 'comments.commentedBy' }
+      { path: 'comments.commentedBy', select: { name: 1, avatar: 1 } }
     ])
 
     const resBite = {
@@ -855,6 +855,31 @@ export const getBitesByUserId = async (req: any, res: any) => {
     }
 
     return res.status(200).json({ success: true, payload: { bites: newArr1 } })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const sendComment = async (req: any, res: any) => {
+  try {
+    const { id } = req.params
+    const { userId, comment } = req.body
+
+    const bite: any = await Bite.findById(id)
+    const comments = bite.comments
+
+    comments.push({
+      commentedBy: userId,
+      commentedAt: calcTime(),
+      text: comment
+    })
+
+    const updatedBite = await Bite.findByIdAndUpdate(id, { comments: comments }).populate([
+      { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+      { path: 'comments.commentedBy', select: { name: 1, avatar: 1 } }
+    ])
+
+    return res.status(200).json({ success: true, payload: { bite: updatedBite } })
   } catch (err) {
     console.log(err)
   }
