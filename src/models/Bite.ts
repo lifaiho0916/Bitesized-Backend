@@ -38,6 +38,19 @@ const BiteSchema = new mongoose.Schema({
             type: Date
         }
     }],
+    comments: [{
+        _id: false,
+        text: {
+            type: String
+        },
+        commentedBy: {
+            type: Schema.Types.ObjectId,
+            ref: User
+        },
+        commentedAt: {
+            type: Date
+        }
+    }],
     visible: {
         type: Boolean,
         default: true

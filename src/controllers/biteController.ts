@@ -608,10 +608,10 @@ export const getBitesList = async (req: any, res: any) => {
 export const getBiteById = async (req: any, res: any) => {
   try {
     const { id } = req.params
-    const bite: any = await Bite.findById(id).populate({
-      path: 'owner',
-      select: { name: 1, avatar: 1, personalisedUrl: 1 }
-    })
+    const bite: any = await Bite.findById(id).populate([
+      { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+      { path: 'comments.commentedBy' }
+    ])
 
     const resBite = {
       ...bite._doc,
