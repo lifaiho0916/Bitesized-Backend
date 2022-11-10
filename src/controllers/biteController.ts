@@ -516,15 +516,15 @@ export const unLockBite = async (req: any, res: any) => {
         purchasedAt: calcTime()
       })
 
-      resBite = await Bite.findByIdAndUpdate(id, { purchasedUsers: purchasedUsers }, { new: true }).populate({
-        path: 'owner',
-        select: { name: 1, avatar: 1, personalisedUrl: 1 }
-      })
+      resBite = await Bite.findByIdAndUpdate(id, { purchasedUsers: purchasedUsers }, { new: true }).populate([
+        { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+        { path: 'comments.commentedBy', select: { name: 1, avatar: 1, categories: 1, role: 1 } }
+      ])
     } else {
-      resBite = await Bite.findById(id).populate({
-        path: 'owner',
-        select: { name: 1, avatar: 1, personalisedUrl: 1 }
-      })
+      resBite = await Bite.findById(id).populate([
+        { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+        { path: 'comments.commentedBy', select: { name: 1, avatar: 1, categories: 1, role: 1 } }
+      ])
     }
     return res.status(200).json({ success: true, payload: { bite: resBite } })
   } catch (err) {
@@ -610,7 +610,7 @@ export const getBiteById = async (req: any, res: any) => {
     const { id } = req.params
     const bite: any = await Bite.findById(id).populate([
       { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
-      { path: 'comments.commentedBy', select: { name: 1, avatar: 1 } }
+      { path: 'comments.commentedBy', select: { name: 1, avatar: 1, categories: 1, role: 1 } }
     ])
 
     const resBite = {
@@ -876,7 +876,7 @@ export const sendComment = async (req: any, res: any) => {
 
     const updatedBite = await Bite.findByIdAndUpdate(id, { comments: comments }, { new: true }).populate([
       { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
-      { path: 'comments.commentedBy', select: { name: 1, avatar: 1 } }
+      { path: 'comments.commentedBy', select: { name: 1, avatar: 1, categories: 1, role: 1 } }
     ])
 
     return res.status(200).json({ success: true, payload: { bite: updatedBite } })
