@@ -874,7 +874,7 @@ export const sendComment = async (req: any, res: any) => {
       text: comment
     })
 
-    const updatedBite = await Bite.findByIdAndUpdate(id, { comments: comments }).populate([
+    const updatedBite = await Bite.findByIdAndUpdate(id, { comments: comments }, { new: true }).populate([
       { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
       { path: 'comments.commentedBy', select: { name: 1, avatar: 1 } }
     ])
