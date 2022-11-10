@@ -8,6 +8,7 @@ import User from "../models/User"
 import Transaction from "../models/Transaction"
 import Setting from "../models/Setting"
 import Payment from "../models/Payment"
+import { responseEncoding } from "axios"
 
 const stripe = new Stripe(
   `${process.env.STRIPE_SECRET_KEY}`,
@@ -874,6 +875,22 @@ export const sendComment = async (req: any, res: any) => {
       text: comment
     })
 
+    const updatedBite = await Bite.findByIdAndUpdate(id, { comments: comments }, { new: true }).populate([
+      { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+      { path: 'comments.commentedBy', select: { name: 1, avatar: 1, categories: 1, role: 1 } }
+    ])
+
+    return res.status(200).json({ success: true, payload: { bite: updatedBite } })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export const deleteComment = async (req: any, res: any) => {
+  try {
+    const { id, index } = req.params
+    const bite: any = await Bite.findById(id)
+    const comments = bite.comments.filter((comment: any, i: any) => i !== Number(index))
     const updatedBite = await Bite.findByIdAndUpdate(id, { comments: comments }, { new: true }).populate([
       { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
       { path: 'comments.commentedBy', select: { name: 1, avatar: 1, categories: 1, role: 1 } }
