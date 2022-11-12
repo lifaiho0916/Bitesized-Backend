@@ -8,7 +8,6 @@ import User from "../models/User"
 import Transaction from "../models/Transaction"
 import Setting from "../models/Setting"
 import Payment from "../models/Payment"
-import { responseEncoding } from "axios"
 
 const stripe = new Stripe(
   `${process.env.STRIPE_SECRET_KEY}`,
@@ -189,80 +188,26 @@ export const getBitesAdmin = async (req: any, res: any) => {
     const sortOrder: any = Number(sort)
     let bites: any = []
     if (type === 'all') {
-      bites = await Bite.aggregate([
-        {
-          $lookup: {
-            from: "users",
-            as: "owner",
-            let: { owner: '$owner' },
-            pipeline: [
-              { $match: { $expr: { $eq: ["$$owner", "$_id"] } } },
-              { $project: { name: 1, avatar: 1, personalisedUrl: 1 } }
-            ]
-          }
-        },
-        { $unwind: "$owner" },
-        { $sort: { date: sortOrder } },
-        {
-          $match: {
-            title: { $regex: search, $options: "i" }
-          }
-        }
-      ])
+      bites = await Bite.find({ title: { $regex: search, $options: "i" } }).populate([
+        { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+        { path: 'comments.commentedBy', select: { name: 1, avatar: 1, role: 1, categories: 1 } }
+      ]).sort({ date: sortOrder })
     } else if (type === 'paid') {
-      bites = await Bite.aggregate([
-        {
-          $lookup: {
-            from: "users",
-            as: "owner",
-            let: { owner: '$owner' },
-            pipeline: [
-              { $match: { $expr: { $eq: ["$$owner", "$_id"] } } },
-              { $project: { name: 1, avatar: 1, personalisedUrl: 1 } }
-            ]
-          }
-        },
-        { $unwind: "$owner" },
-        { $sort: { date: sortOrder } },
-        {
-          $match: {
-            $and: [
-              { title: { $regex: search, $options: "i" } },
-              { currency: { $ne: null } }
-            ]
-          }
-        }
-      ])
+      bites = await Bite.find({ title: { $regex: search, $options: "i" }, currency: { $ne: null } }).populate([
+        { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+        { path: 'comments.commentedBy', select: { name: 1, avatar: 1, role: 1, categories: 1 } }
+      ]).sort({ date: sortOrder })
     } else {
-      bites = await Bite.aggregate([
-        {
-          $lookup: {
-            from: "users",
-            as: "owner",
-            let: { owner: '$owner' },
-            pipeline: [
-              { $match: { $expr: { $eq: ["$$owner", "$_id"] } } },
-              { $project: { name: 1, avatar: 1, personalisedUrl: 1 } }
-            ]
-          }
-        },
-        { $unwind: "$owner" },
-        { $sort: { date: sortOrder } },
-        {
-          $match: {
-            $and: [
-              { title: { $regex: search, $options: "i" } },
-              { currency: { $eq: null } }
-            ]
-          }
-        }
-      ])
+      bites = await Bite.find({ title: { $regex: search, $options: "i" }, currency: { $eq: null } }).populate([
+        { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+        { path: 'comments.commentedBy', select: { name: 1, avatar: 1, role: 1, categories: 1 } }
+      ]).sort({ date: sortOrder })
     }
 
     const resBites: any = []
     bites.forEach((bite: any) => {
       resBites.push({
-        ...bite,
+        ...bite._doc,
         time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
       })
     })
