@@ -7,7 +7,6 @@ import SocketServer from "./socket"
 import { Request, Response } from "express"
 import 'dotenv/config'
 
-import Bite from "./models/Bite"
 //schedule functions
 import { getCurrencyRate } from "./controllers/transactionController"
 
@@ -53,10 +52,6 @@ app.use("/api/payment", payment)
 app.use(express.static("public"))
 server.listen(PORT, async () => {
   console.log(`The Server is up and running on PORT ${PORT}`)
-  const bites = await Bite.find()
-  bites.forEach(async (bite: any) => {
-    await Bite.findByIdAndUpdate(bite._id, { comments: [] })
-  })
 })
 
 // cron.schedule("*/10 * * * * *", () => checkOngoingfundmes(io))
