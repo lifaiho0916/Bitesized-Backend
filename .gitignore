@@ -3,13 +3,12 @@
 # dependencies
 /node_modules
 /public/uploads
-/client/build
-/client/node_modules
-/client/.env
 /.pnp
 .pnp.js
 .env
 yarn.lock
+
+package-lock.json
 # testing
 /coverage
 
