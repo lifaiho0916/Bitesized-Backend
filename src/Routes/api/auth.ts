@@ -11,7 +11,6 @@ import {
     getUsersList,
 
     getAuthData,
-    getCurrencyRate,
     editProfile,
     editAvatar,
     checkName,
@@ -26,7 +25,6 @@ import {
 } from '../../controllers/authController'
 
 router.get("/", auth, getAuthData)
-router.get("/currencyrate", getCurrencyRate)
 router.post('/profile/save', auth ,editProfile)
 router.post("/avatar/upload", auth, editAvatar)
 router.post('/checkname', auth ,checkName)

@@ -509,15 +509,6 @@ export const setUserVisible = async (req: any, res: any) => {
   }
 }
 
-export const getCurrencyRate = async (req: any, res: any) => {
-  try {
-    const setting: any = await Setting.findOne()
-    return res.status(200).json({ success: true, payload: { currencyRate: setting.currencyRate } })
-  } catch (err) {
-    console.log(err)
-  }
-}
-
 export const setSubscribeByAdmin = async (req: any, res: any) => {
   try {
     const { user, available } = req.body

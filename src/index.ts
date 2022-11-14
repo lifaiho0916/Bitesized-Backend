@@ -16,6 +16,7 @@ import bite from "./Routes/api/bite"
 import social from "./Routes/api/socialAccounts"
 import transaction from "./Routes/api/transaction"
 import payment from "./Routes/api/payment"
+import setting from "./Routes/api/setting"
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -48,6 +49,7 @@ app.use("/api/bite", bite)
 app.use("/api/social-accounts", social)
 app.use("/api/transaction", transaction)
 app.use("/api/payment", payment)
+app.use("/api/setting", setting)
 
 app.use(express.static("public"))
 server.listen(PORT, async () => {
