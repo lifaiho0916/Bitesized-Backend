@@ -32,8 +32,8 @@ router.post('/checkurl', auth ,checkUrl)
 
 router.get('/owners', getOwnersOfBites)
 router.get('/personalurl/:url', getUserByPersonalisedUrl)
-router.post('/creators', getCreatorsByCategory)
-router.post('/list', getUsersByCategory)
+router.get('/creators', getCreatorsByCategory)
+router.get('/list', getUsersByCategory)
 
 router.post('/google', googleAuth)
 router.post('/apple', appleAuth)

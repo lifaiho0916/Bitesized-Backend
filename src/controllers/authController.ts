@@ -65,7 +65,8 @@ export const getUserByPersonalisedUrl = async (req: any, res: any) => {
 
 export const getCreatorsByCategory = async (req: Request, res: Response) => {
   try {
-    const { categories } = req.body
+    const { categories } = req.query
+    const category = categories === "" ? [] : String(categories).split(",")
     const bites = await Bite.find({ visible: true })
       .populate({ path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1, visible: 1 } })
 
@@ -78,9 +79,9 @@ export const getCreatorsByCategory = async (req: Request, res: Response) => {
 
     let resUsers: any = []
 
-    if (categories.length !== 0) {
+    if (category.length !== 0) {
       const filterUsers = users.filter((user: any) => {
-        for (let i = 0; i < categories.length; i++) if (user.categories.indexOf(categories[i]) !== -1) return true
+        for (let i = 0; i < category.length; i++) if (user.categories.indexOf(category[i]) !== -1) return true
         return false
       })
       resUsers = filterUsers
@@ -102,14 +103,14 @@ export const getCreatorsByCategory = async (req: Request, res: Response) => {
 
 export const getUsersByCategory = async (req: Request, res: Response) => {
   try {
-    const { categories } = req.body
-
-    const users = await User.aggregate([{ $match: { role: 'USER' } }])
+    const { categories, search } = req.query
+    const category = categories === "" ? [] : String(categories).split(",")
+    const users = await User.find({ role: 'USER', name: { $regex: search, $options: "i" } })
     let resUsers: any = []
 
-    if (categories.length !== 0) {
+    if (category.length !== 0) {
       const filterUsers = users.filter((user: any) => {
-        for (let i = 0; i < categories.length; i++) if (user.categories.indexOf(categories[i]) !== -1) return true
+        for (let i = 0; i < category.length; i++) if (user.categories.indexOf(category[i]) !== -1) return true
         return false
       })
       resUsers = filterUsers
