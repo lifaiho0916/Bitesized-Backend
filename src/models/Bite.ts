@@ -55,6 +55,10 @@ const BiteSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    commentNotification: {
+        type: Boolean,
+        default: false
+    },
     date: {
         type: Date
     }
