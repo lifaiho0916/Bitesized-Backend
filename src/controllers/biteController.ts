@@ -224,17 +224,17 @@ export const getBitesSortByCommentAdmin = async (req: any, res: any) => {
     const sortOrder: any = Number(sort)
     let bites: any = []
     if (type === 'all') {
-      bites = await Bite.find({ title: { $regex: search, $options: "i" } }).populate([
+      bites = await Bite.find({ title: { $regex: search, $options: "i" }, "comments.0": { $exists: true } }).populate([
         { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
         { path: 'comments.commentedBy', select: { name: 1, avatar: 1, role: 1, categories: 1 } }
       ])
     } else if (type === 'paid') {
-      bites = await Bite.find({ title: { $regex: search, $options: "i" }, currency: { $ne: null } }).populate([
+      bites = await Bite.find({ title: { $regex: search, $options: "i" }, currency: { $ne: null }, "comments.0": { $exists: true } }).populate([
         { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
         { path: 'comments.commentedBy', select: { name: 1, avatar: 1, role: 1, categories: 1 } }
       ])
     } else {
-      bites = await Bite.find({ title: { $regex: search, $options: "i" }, currency: { $eq: null } }).populate([
+      bites = await Bite.find({ title: { $regex: search, $options: "i" }, currency: { $eq: null }, "comments.0": { $exists: true } }).populate([
         { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
         { path: 'comments.commentedBy', select: { name: 1, avatar: 1, role: 1, categories: 1 } }
       ])
@@ -245,7 +245,7 @@ export const getBitesSortByCommentAdmin = async (req: any, res: any) => {
       resBites.push({
         ...bite._doc,
         time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000),
-        commentDate: bite.comments.length > 0 ? bite.comments[bite.comments.length - 1].commentedAt : bite.date
+        commentDate: bite.comments[bite.comments.length - 1].commentedAt
       })
     })
 
