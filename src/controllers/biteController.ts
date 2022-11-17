@@ -218,6 +218,52 @@ export const getBitesAdmin = async (req: any, res: any) => {
   }
 }
 
+export const getBitesSortByCommentAdmin = async (req: any, res: any) => {
+  try {
+    const { search, type, sort } = req.query
+    const sortOrder: any = Number(sort)
+    let bites: any = []
+    if (type === 'all') {
+      bites = await Bite.find({ title: { $regex: search, $options: "i" } }).populate([
+        { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+        { path: 'comments.commentedBy', select: { name: 1, avatar: 1, role: 1, categories: 1 } }
+      ])
+    } else if (type === 'paid') {
+      bites = await Bite.find({ title: { $regex: search, $options: "i" }, currency: { $ne: null } }).populate([
+        { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+        { path: 'comments.commentedBy', select: { name: 1, avatar: 1, role: 1, categories: 1 } }
+      ])
+    } else {
+      bites = await Bite.find({ title: { $regex: search, $options: "i" }, currency: { $eq: null } }).populate([
+        { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+        { path: 'comments.commentedBy', select: { name: 1, avatar: 1, role: 1, categories: 1 } }
+      ])
+    }
+
+    const resBites: any = []
+    bites.forEach((bite: any) => {
+      resBites.push({
+        ...bite._doc,
+        time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000),
+        commentDate: bite.comments.length > 0 ? bite.comments[bite.comments.length - 1].commentedAt : bite.date
+      })
+    })
+
+    return res.status(200).json({ 
+      success: true, 
+      payload: { 
+          bites: resBites.sort((first: any, second: any) => {
+            if(first.commentDate > second.commentDate) return sortOrder
+            else if(first.commentDate < second.commentDate) return -sortOrder
+            return 0
+        }) 
+      } 
+    })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
   try {
     const { url } = req.params

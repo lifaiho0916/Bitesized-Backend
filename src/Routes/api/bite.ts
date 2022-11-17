@@ -14,6 +14,7 @@ import {
     getBitesByPersonalisedUrl,
     getBitesByUserId,
     getBitesList,
+    getBitesSortByCommentAdmin,
     getBiteById,
     setVisible,
     getBitesAdmin,
@@ -36,6 +37,7 @@ router.get('/personalurl/:url', getBitesByPersonalisedUrl)
 router.get('/user/:id', getBitesByUserId)
 router.get('/list', getBitesList)
 router.get('/adminlist', auth, getBitesAdmin)
+router.get('/list_comment', auth, getBitesSortByCommentAdmin)
 router.get('/:id', getBiteById)
 router.delete('/:id', auth, deleteBite)
 router.delete('/:id/:index', auth, removeVideoFromBite)
