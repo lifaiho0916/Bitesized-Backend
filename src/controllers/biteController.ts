@@ -249,15 +249,15 @@ export const getBitesSortByCommentAdmin = async (req: any, res: any) => {
       })
     })
 
-    return res.status(200).json({ 
-      success: true, 
-      payload: { 
-          bites: resBites.sort((first: any, second: any) => {
-            if(first.commentDate > second.commentDate) return sortOrder
-            else if(first.commentDate < second.commentDate) return -sortOrder
-            return 0
-        }) 
-      } 
+    return res.status(200).json({
+      success: true,
+      payload: {
+        bites: resBites.sort((first: any, second: any) => {
+          if (first.commentDate > second.commentDate) return sortOrder
+          else if (first.commentDate < second.commentDate) return -sortOrder
+          return 0
+        })
+      }
     })
   } catch (err) {
     console.log(err)
@@ -267,12 +267,12 @@ export const getBitesSortByCommentAdmin = async (req: any, res: any) => {
 export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
   try {
     const { url } = req.params
-    const { userId } = req.query
+    const { userId, tab } = req.query
     const user: any = await User.findOne({ personalisedUrl: url })
 
     if (user) {
       let bites: any = []
-      if (userId !== String(user._id)) {
+      if (userId === String(user._id) && tab === 'null') {
         bites = await Bite.aggregate([
           {
             $lookup: {
@@ -313,7 +313,7 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
           {
             $match: {
               $and: [
-                { "owner._id": user._id },
+                { "purchasedUsers.purchasedBy": user._id },
                 { visible: true },
                 { 'owner.visible': { $eq: true } },
                 { "videos.0": { $exists: true } }
@@ -362,12 +362,7 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
           {
             $match: {
               $and: [
-                {
-                  $or: [
-                    { "owner._id": user._id },
-                    { "purchasedUsers.purchasedBy": user._id }
-                  ]
-                },
+                { "owner._id": user._id },
                 { visible: true },
                 { 'owner.visible': { $eq: true } },
                 { "videos.0": { $exists: true } }
@@ -375,7 +370,7 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
             }
           }
         ])
-      }
+      } 
 
       const resBites: any = []
 
@@ -897,7 +892,7 @@ export const clearCommentNotification = async (req: any, res: any) => {
   try {
     const { id } = req.params
     await Bite.findByIdAndUpdate(id, { commentNotification: false })
-    return res.status(200).json({ success: true})
+    return res.status(200).json({ success: true })
   } catch (err) {
     console.log(err)
   }

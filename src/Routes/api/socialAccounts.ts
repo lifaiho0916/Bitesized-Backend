@@ -9,7 +9,7 @@ import {
 
 const router = express.Router()
 
-router.get('/:userId', auth, getAccount)
+router.get('/:userId', getAccount)
 router.post('/', auth, addAccount)
 router.delete('/:id', auth, deleteAccount)
 
