@@ -3,17 +3,17 @@ import SocialAccounts from '../models/SocialAccounts';
 
 export const getAccount = async (req: any, res: any) => {
   try {
-    const { userId } = req.body;
+    const { userId } = req.params;
     const account = await SocialAccounts.findOne({ user: userId });
-    return res.status(200).json({ success: true, payload: { socialAccout: account } });
+    return res.status(200).json({ success: true, payload: { socialAccount: account } });
   } catch (error) {
     console.log(error)
   }
 };
 export const addAccount = async (req: any, res: any) => {
   try {
-    const { type, userId, socialId } = req.body;
-    const account = await SocialAccounts.findOne({ user: userId })
+    const { type, user, socialId } = req.body;
+    const account = await SocialAccounts.findOne({ user: user })
 
     if (type === 'youtube') {
       let resData: any
@@ -21,11 +21,11 @@ export const addAccount = async (req: any, res: any) => {
       else {
         const newData = new SocialAccounts({
           social: { youtube: socialId },
-          user: userId
+          user: user
         })
         resData = await newData.save()
       }
-      return res.status(200).json({ success: true, payload: { socialAccout: resData }})
+      return res.status(200).json({ success: true, payload: { socialAccount: resData }})
     } else if ( type === 'instagram' ) {
 
     }
@@ -102,7 +102,7 @@ export const deleteAccount = async (req: any, res: any) => {
     if(social === 'youtube') resData = await SocialAccounts.findByIdAndUpdate(id, { "social.youtube": null }, { new: true })
     else if(social === "instagram") resData = await SocialAccounts.findByIdAndUpdate(id, { "social.instagram": null }, { new: true })
 
-    return res.status(200).json({ success: true, payload: { socialAccout: resData } })
+    return res.status(200).json({ success: true, payload: { socialAccount: resData } })
   } catch (error) {
     console.log(error)
   }
