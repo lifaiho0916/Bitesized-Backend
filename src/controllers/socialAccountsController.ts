@@ -1,50 +1,36 @@
 import axios from 'axios';
 import SocialAccounts from '../models/SocialAccounts';
 
-export const getAccounts = async (req: any, res: any) => {
+export const getAccount = async (req: any, res: any) => {
   try {
-    const { userId } = req.params;
-    const accounts = await SocialAccounts.find({ user: userId });
-    return res.status(200).json({ message: 'Success', data: accounts });
+    const { userId } = req.body;
+    const account = await SocialAccounts.findOne({ user: userId });
+    return res.status(200).json({ success: true, payload: { socialAccout: account } });
   } catch (error) {
-    return res.status(500).json({ message: 'Internal Server error!' });
+    console.log(error)
   }
 };
 export const addAccount = async (req: any, res: any) => {
   try {
-    const { id, metadata, userId: user, name } = req.body;
-    const accounts = await SocialAccounts.find({ user, name });
+    const { type, userId, socialId } = req.body;
+    const account = await SocialAccounts.findOne({ user: userId })
 
-    if (accounts.length > 0) {
-      const updatedData = await SocialAccounts.findByIdAndUpdate(
-        accounts[0]._id,
-        {
-          $set: {
-            id,
-            metadata,
-          },
-        },
-        { new: true }
-      );
-      return res
-        .status(200)
-        .json({ message: 'Account saved!', data: updatedData });
+    if (type === 'youtube') {
+      let resData: any
+      if (account) resData = await SocialAccounts.findByIdAndUpdate(account._id, { "social.youtube": socialId }, { new: true })
+      else {
+        const newData = new SocialAccounts({
+          social: { youtube: socialId },
+          user: userId
+        })
+        resData = await newData.save()
+      }
+      return res.status(200).json({ success: true, payload: { socialAccout: resData }})
+    } else if ( type === 'instagram' ) {
+
     }
-
-    const accountInstance = new SocialAccounts({
-      id,
-      metadata,
-      user,
-      name,
-    });
-
-    const savedAccount = await accountInstance.save();
-
-    return res
-      .status(201)
-      .json({ message: 'Account connected', data: savedAccount });
-  } catch (error) {
-    return res.status(500).json({ message: 'Internal Server error!' });
+  } catch (err) {
+    console.log(err)
   }
 };
 
@@ -109,10 +95,15 @@ const getInstagramAccessToken = async (code: any, redirect_uri: any) => {
 
 export const deleteAccount = async (req: any, res: any) => {
   try {
-    await SocialAccounts.findByIdAndRemove(req.params.id);
+    const { id } = req.params;
+    const { social } = req.query;
 
-    return res.status(204).json({ message: 'Account removed' });
+    let resData: any
+    if(social === 'youtube') resData = await SocialAccounts.findByIdAndUpdate(id, { "social.youtube": null }, { new: true })
+    else if(social === "instagram") resData = await SocialAccounts.findByIdAndUpdate(id, { "social.instagram": null }, { new: true })
+
+    return res.status(200).json({ success: true, payload: { socialAccout: resData } })
   } catch (error) {
-    return res.status(500).json({ message: 'Internal Server error!' });
+    console.log(error)
   }
 };

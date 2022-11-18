@@ -3,14 +3,14 @@ import auth from '../../middleware/auth'
 import {
     addAccount,
     deleteAccount,
-    getAccounts,
+    getAccount,
     setInstagramUsername,
 } from '../../controllers/socialAccountsController'
 
 const router = express.Router()
 
-router.get('/:userId', auth, getAccounts)
-router.post('/add', auth, setInstagramUsername, addAccount)
-router.delete('/delete/:id', auth, deleteAccount)
+router.get('/', auth, getAccount)
+router.post('/', auth, addAccount)
+router.delete('/:id', auth, deleteAccount)
 
 export default router

@@ -3,24 +3,20 @@ import User from './User'
 
 const SocialAccounts = new mongoose.Schema(
     {
-        id: {
-            type: String,
-        },
-        name: {
-            type: String,
-            required: true,
-        },
-        metadata: {
-            type: String,
-            default: null,
-        },
+        social: {
+            youtube: {
+                type: String
+            },
+            instagram: {
+                type: String
+            }
+        },   
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: User,
             required: true,
-        },
+        }
     },
-    { timestamps: true }
 )
 
 export default mongoose.model('socialaccounts', SocialAccounts)
