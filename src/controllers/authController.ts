@@ -15,7 +15,6 @@ var mixpanel_importer = Mixpanel.init(`${process.env.MIXPANEL_TOKEN}`, {
   secret: `${process.env.MIXPANEL_API_SECRET}`
 });
 
-
 const calcTime = () => {
   var d = new Date()
   var utc = d.getTime()
