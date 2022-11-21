@@ -20,7 +20,7 @@ const SubScriptionSchema = new mongoose.Schema({
         required: true
     },
     description: {
-        type: String
+        type: Object
     },
     benefits: [{
         type: String        
@@ -38,6 +38,10 @@ const SubScriptionSchema = new mongoose.Schema({
             type: Date
         }
     }],
+    visible: {
+        type: Boolean,
+        default: true
+    },
     createdAt: {
         type: Date
     }

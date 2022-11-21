@@ -33,3 +33,13 @@ export const saveSubScription = async (req: any, res: any) => {
         console.log(err)
     }
 }
+
+export const deleteSubScription = async (req: any, res: any) => {
+    try {
+        const { id } = req.params
+        await Subscription.findByIdAndDelete(id)
+        return res.status(200).json({ success: true })
+    } catch (err) {
+        console.log(err)
+    }
+}
