@@ -20,7 +20,7 @@ const SubScriptionSchema = new mongoose.Schema({
         required: true
     },
     description: {
-        type: Object
+        type: String
     },
     benefits: [{
         type: String        
