@@ -31,6 +31,9 @@ const SubScriptionSchema = new mongoose.Schema({
             type: Schema.Types.ObjectId,
             ref: User,
         },
+        currency: {
+            type: String
+        },
         nextPaymentAt: {
             type: Date
         },
