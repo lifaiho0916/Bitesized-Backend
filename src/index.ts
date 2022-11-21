@@ -17,6 +17,7 @@ import social from "./Routes/api/socialAccounts"
 import transaction from "./Routes/api/transaction"
 import payment from "./Routes/api/payment"
 import setting from "./Routes/api/setting"
+import subScription from "./Routes/api/subscription"
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -50,6 +51,7 @@ app.use("/api/social-accounts", social)
 app.use("/api/transaction", transaction)
 app.use("/api/payment", payment)
 app.use("/api/setting", setting)
+app.use("/api/subscription", subScription)
 
 app.use(express.static("public"))
 server.listen(PORT, async () => {
