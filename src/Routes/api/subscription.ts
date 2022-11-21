@@ -4,9 +4,11 @@ const router = express.Router()
 
 //import Controller
 import {
-    getSubScription
+    getSubScription,
+    saveSubScription
 } from '../../controllers/subScriptionController'
 
 router.get('/:userId', auth, getSubScription)
+router.post('/', auth, saveSubScription)
 
 export default router

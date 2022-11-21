@@ -17,3 +17,19 @@ export const getSubScription = async (req: any, res: any) => {
         console.log(err)
     }
 }
+
+export const saveSubScription = async (req: any, res: any) => {
+    try {
+        const { userId, subScription } = req.body
+        const newSubScription = new Subscription({
+            ...subScription,
+            user: userId,
+            createdAt: calcTime()
+        })
+
+        await newSubScription.save()
+        return res.status(200).json({ success: true })
+    } catch (err) {
+        console.log(err)
+    }
+}
