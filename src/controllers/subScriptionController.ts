@@ -1,4 +1,3 @@
-import mongoose from "mongoose"
 import Subscription from "../models/Subscription"
 
 const calcTime = () => {
@@ -39,6 +38,17 @@ export const deleteSubScription = async (req: any, res: any) => {
         const { id } = req.params
         await Subscription.findByIdAndDelete(id)
         return res.status(200).json({ success: true })
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+export const setSubScriptionVisible = async (req: any, res: any) => {
+    try {
+        const { id } = req.params
+        const { visible } = req.body
+        const updatedPlan = await Subscription.findByIdAndUpdate(id, { visible: visible }, { new: true })
+        return res.status(200).json({ success: true, payload: { subScription: updatedPlan } })
     } catch (err) {
         console.log(err)
     }
