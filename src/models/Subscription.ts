@@ -31,15 +31,22 @@ const SubScriptionSchema = new mongoose.Schema({
             type: Schema.Types.ObjectId,
             ref: User,
         },
-        currency: {
-            type: String
-        },
-        nextPaymentAt: {
-            type: Date
-        },
-        subscribedAt: {
-            type: Date
-        }
+        plans: [{
+            _id: false,
+            subscribed: {
+                type: Boolean,
+                default: true
+            },
+            currency: {
+                type: String
+            },
+            nextPaymentAt: {
+                type: Date
+            },
+            subscribedAt: {
+                type: Date
+            }
+        }]
     }],
     visible: {
         type: Boolean,
