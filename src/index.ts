@@ -58,13 +58,7 @@ server.listen(PORT, async () => {
   console.log(`The Server is up and running on PORT ${PORT}`)
 })
 
-// cron.schedule("*/10 * * * * *", () => checkOngoingfundmes(io))
-cron.schedule("59 23 * * *", () => getCurrencyRate(), {
-  scheduled: true,
-  timezone: "Asia/Hong_Kong",
-})
-
-cron.schedule("59 11 * * *", () => getCurrencyRate(), {
+cron.schedule("0 3 * * *", () => getCurrencyRate(), {
   scheduled: true,
   timezone: "Asia/Hong_Kong",
 })

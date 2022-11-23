@@ -25,6 +25,12 @@ const SubScriptionSchema = new mongoose.Schema({
     benefits: [{
         type: String        
     }],
+    productId: {
+        type: String
+    },
+    priceIds: [{
+        type: String
+    }],
     subscribers: [{
         _id: false,
         subscriber: {

@@ -401,7 +401,7 @@ export const unLockBite = async (req: any, res: any) => {
     if (bite.purchasedUsers.every((purchaseInfo: any) => purchaseInfo.purchasedBy !== userId)) {
       if (currency) {
         let charge = { status: 'requested' }
-        let usdAmount = (amount + amount * 0.034 + 0.3) * 100
+        let usdAmount = (amount + amount * 0.034 + 0.3) * (currency === 'jpy' ? 1 : 100)
         let ratedAmount = usdAmount * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`])
 
         if (saveCheck) {

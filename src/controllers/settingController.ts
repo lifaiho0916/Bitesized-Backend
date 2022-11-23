@@ -3,7 +3,7 @@ import Setting from "../models/Setting"
 export const getCurrencyRate = async (req: any, res: any) => {
     try {
         const setting: any = await Setting.findOne()
-        return res.status(200).json({ success: true, payload: { currencyRate: setting.currencyRate } })
+        return res.status(200).json({ success: true, payload: { currencyRate: JSON.parse(setting.currencyRate) } })
     } catch (err) {
         console.log(err)
     }

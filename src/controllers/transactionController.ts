@@ -21,10 +21,10 @@ export const getCurrencyRate = async () => {
         const { data } = response
         const currencyRate = data.data[0].rates
         const setting: any = await Setting.findOne()
-        if (setting) await Setting.findByIdAndUpdate(setting._id, { currencyRate: currencyRate })
+        if (setting) await Setting.findByIdAndUpdate(setting._id, { currencyRate: JSON.stringify(currencyRate) })
         else {
             const newSetting = new Setting({
-                currencyRate: currencyRate
+                currencyRate: JSON.stringify(currencyRate)
             })
             await newSetting.save()
         }
