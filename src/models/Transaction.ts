@@ -7,6 +7,7 @@ import User from './User'
 // type === 3 // Earnings from
 // type === 4 // Refund
 // type === 5 // Cash out
+// type === 6 // Subscripition
 
 const TransactionSchema = new mongoose.Schema({
     type: {

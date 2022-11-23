@@ -28,9 +28,15 @@ export const getCurrencyRate = async () => {
 
 export const getTransactions = async (req: any, res: any) => {
     try {
-        const { type, search } = req.query
+        const { type, search, sort } = req.query
         let transactions: any = []
-        const typeVal = type === 'free' ? 1 : type === 'paid' ? 2 : type === 'earn' ? 3 : type === 'cash' ? 5 : 0
+        const typeVal = 
+            type === 'free' ? 1 : 
+                type === 'paid' ? 2 : 
+                    type === 'earn' ? 3 : 
+                        type === 'cash' ? 5 : 
+                            type === "subscription" ? 6 : 0
+        const sortValue: any = Number(sort)
         if (typeVal === 0) {
             transactions = await Transaction.aggregate([
                 {
@@ -55,7 +61,8 @@ export const getTransactions = async (req: any, res: any) => {
                     $match: {
                         "user.name": { $regex: search, $options: "i" }
                     }
-                }
+                },
+                { $sort: { createdAt: sortValue } }
             ])
         } else {
             transactions = await Transaction.aggregate([
@@ -85,6 +92,7 @@ export const getTransactions = async (req: any, res: any) => {
                         ]
                     }
                 },
+                { $sort: { createdAt: sortValue } }
             ])
         }
 
