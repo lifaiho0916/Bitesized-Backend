@@ -44,7 +44,6 @@ export const getTransactions = async (req: any, res: any) => {
                         type === 'cash' ? 5 : 
                             type === "subscription" ? 6 : 0
         const sortValue: any = Number(sort)
-        const periodValue = Number(period)
         if (typeVal === 0) {
             transactions = await Transaction.aggregate([
                 {
@@ -120,7 +119,7 @@ export const getTransactions = async (req: any, res: any) => {
 export const getTransactionsByUserId = async (req: any, res: any) => {
     try {
         const { userId } = req.params
-        const { type, sort } = req.query
+        const { type, sort, period } = req.query
         const sortValue: any = Number(sort)
         let transactions: any = []
         if (type === '0')
@@ -161,8 +160,15 @@ export const getTransactionsByUserId = async (req: any, res: any) => {
                 { $sort: { createdAt: sortValue } }
             ])
         }
+        const timestamp = calcTime().getTime() - (period * 24 * 3600 * 1000)
 
-        return res.status(200).json({ success: true, payload: { transactions: transactions } })
+        let resTrans: any = []
+        resTrans = transactions.filter((transaction: any) => {
+            if(period > 0) return (new Date(transaction.createdAt)).getTime() > timestamp
+            else return true
+        })
+
+        return res.status(200).json({ success: true, payload: { transactions: resTrans } })
     } catch (err) {
         console.log(err)
     }
