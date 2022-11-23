@@ -3,6 +3,13 @@ import Transaction from "../models/Transaction"
 import Setting from "../models/Setting"
 import axios from "axios"
 
+const calcTime = () => {
+    var d = new Date()
+    var utc = d.getTime()
+    var nd = new Date(utc + (3600000 * 8))
+    return nd
+  }
+
 export const getCurrencyRate = async () => {
     try {
         const response = await axios.get('https://api.striperates.com/rates/usd', {
@@ -28,7 +35,7 @@ export const getCurrencyRate = async () => {
 
 export const getTransactions = async (req: any, res: any) => {
     try {
-        const { type, search, sort } = req.query
+        const { type, search, sort, period } = req.query
         let transactions: any = []
         const typeVal = 
             type === 'free' ? 1 : 
@@ -37,6 +44,7 @@ export const getTransactions = async (req: any, res: any) => {
                         type === 'cash' ? 5 : 
                             type === "subscription" ? 6 : 0
         const sortValue: any = Number(sort)
+        const periodValue = Number(period)
         if (typeVal === 0) {
             transactions = await Transaction.aggregate([
                 {
@@ -95,8 +103,15 @@ export const getTransactions = async (req: any, res: any) => {
                 { $sort: { createdAt: sortValue } }
             ])
         }
+        const timestamp = calcTime().getTime() - (period * 24 * 3600 * 1000)
 
-        return res.status(200).json({ success: true, payload: { transactions: transactions } })
+        let resTrans: any = []
+        resTrans = transactions.filter((transaction: any) => {
+            if(period > 0) return (new Date(transaction.createdAt)).getTime() > timestamp
+            else return true
+        })
+
+        return res.status(200).json({ success: true, payload: { transactions: resTrans } })
     } catch (err) {
         console.log(err)
     }

@@ -6,7 +6,6 @@ import User from "../models/User"
 import jwt from "jsonwebtoken"
 import Mixpanel from "mixpanel"
 import Bite from "../models/Bite"
-import Setting from "../models/Setting"
 import 'dotenv/config'
 import CONSTANT from "../utils/constant"
 
