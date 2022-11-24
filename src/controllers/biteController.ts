@@ -11,7 +11,7 @@ import Payment from "../models/Payment"
 
 const stripe = new Stripe(
   `${process.env.STRIPE_SECRET_KEY}`,
-  { apiVersion: '2020-08-27', typescript: true }
+  { apiVersion: '2022-11-15', typescript: true }
 )
 
 const calcTime = () => {

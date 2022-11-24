@@ -28,31 +28,31 @@ const SubScriptionSchema = new mongoose.Schema({
     productId: {
         type: String
     },
-    priceIds: [{
+    priceId: {
         type: String
-    }],
+    },
+    multiPrices: {
+        type: String
+    },
     subscribers: [{
         _id: false,
         subscriber: {
             type: Schema.Types.ObjectId,
             ref: User,
         },
-        plans: [{
-            _id: false,
-            subscribed: {
-                type: Boolean,
-                default: true
-            },
-            currency: {
-                type: String
-            },
-            nextPaymentAt: {
-                type: Date
-            },
-            subscribedAt: {
-                type: Date
-            }
-        }]
+        subscribed: {
+            type: Boolean,
+            default: true
+        },
+        currency: {
+            type: String
+        },
+        nextPaymentAt: {
+            type: Date
+        },
+        subscribedAt: {
+            type: Date
+        }
     }],
     visible: {
         type: Boolean,

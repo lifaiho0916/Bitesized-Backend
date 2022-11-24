@@ -5,7 +5,7 @@ import Payment from '../models/Payment'
 
 const stripe = new Stripe(
     `${process.env.STRIPE_SECRET_KEY}`,
-    { apiVersion: '2020-08-27', typescript: true }
+    { apiVersion: '2022-11-15', typescript: true }
 )
 
 export const getPayment = async (req: any, res: any) => {
@@ -25,6 +25,7 @@ export const getPayment = async (req: any, res: any) => {
 export const addCard = async (req: any, res: any) => {
     try {
         const { token, userId, holder, cardType } = req.body
+        
         const user: any = await User.findById(userId)
         const customer: any = await stripe.customers.create({
             email: user.email,
