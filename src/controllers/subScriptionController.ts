@@ -3,8 +3,6 @@ import User from "../models/User"
 import Setting from "../models/Setting"
 import Stripe from "stripe"
 
-const currencies = [ 'inr', 'twd', 'hkd', 'myr', 'aud', 'eur', 'gbp', 'cad', 'zar', 'jpy', 'chf', 'nzd', 'cny', 'sgd', 'thb', 'php', 'idr' ]
-
 const stripe = new Stripe(
     `${process.env.STRIPE_SECRET_KEY}`,
     { apiVersion: '2022-11-15', typescript: true }
@@ -40,7 +38,7 @@ const currenyOptions = (type: any /* 0: usdAmount, 1: usdAFeemount*/ , currencyR
             idr: Math.round(usdAmount * currencyRate['idr'] * 100) / 100,
         }
     } else {
-        const useAmountwithFee = usdAmount + usdAmount * 0.043 + 0.3
+        const useAmountwithFee = usdAmount * 1.034 + 0.3
         return {
             inr: { unit_amount: Math.round(useAmountwithFee * currencyRate['inr'] * 100) },
             twd: { unit_amount: Math.round(useAmountwithFee * currencyRate['twd'] * 100) },
@@ -81,7 +79,7 @@ export const saveSubScription = async (req: any, res: any) => {
         const currencyRate = JSON.parse(setting.currencyRate)
 
         const usdAmount = subScription.price / (subScription.currency === 'usd' ? 1 : currencyRate[`${subScription.currency}`])
-        const useAmountwithFee = usdAmount + usdAmount * 0.034 + 0.3
+        const useAmountwithFee = usdAmount * 1.034 + 0.3
 
         const product = await stripe.products.create({ name: `Plan(${user.email})` })
 
@@ -119,7 +117,7 @@ export const editSubScription = async (req: any, res: any) => {
             const setting: any = await Setting.findOne()
             const currencyRate = JSON.parse(setting.currencyRate)
             const usdAmount = subScription.price / (subScription.currency === 'usd' ? 1 : currencyRate[`${subScription.currency}`])
-            const useAmountwithFee = usdAmount + usdAmount * 0.034 + 0.3
+            const useAmountwithFee = usdAmount * 1.034 + 0.3
 
             const options: any = currenyOptions(1, currencyRate, usdAmount)
             const price = await stripe.prices.create({
@@ -153,7 +151,6 @@ export const deleteSubScription = async (req: any, res: any) => {
         const { id } = req.params
         const subscription: any = await Subscription.findById(id)
         await stripe.products.update(subscription.productId, { active: false })
-        await Subscription.findByIdAndDelete(id)
         return res.status(200).json({ success: true })
     } catch (err) {
         console.log(err)

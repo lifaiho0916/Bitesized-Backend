@@ -25,6 +25,10 @@ const SubScriptionSchema = new mongoose.Schema({
     benefits: [{
         type: String        
     }],
+    active: {
+        type: Boolean,
+        default: true,
+    },
     productId: {
         type: String
     },
@@ -40,15 +44,15 @@ const SubScriptionSchema = new mongoose.Schema({
             type: Schema.Types.ObjectId,
             ref: User,
         },
+        subscriptionId: {
+            type: String
+        },
         subscribed: {
             type: Boolean,
             default: true
         },
         currency: {
             type: String
-        },
-        nextPaymentAt: {
-            type: Date
         },
         subscribedAt: {
             type: Date
