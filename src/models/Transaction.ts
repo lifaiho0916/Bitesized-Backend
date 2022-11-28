@@ -35,6 +35,10 @@ const TransactionSchema = new mongoose.Schema({
             type: Schema.Types.ObjectId,
             ref: User    
         },
+        subscriber: {
+            type: Schema.Types.ObjectId,
+            ref: User    
+        },
         planName: {
             type: String
         },

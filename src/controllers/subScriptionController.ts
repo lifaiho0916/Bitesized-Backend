@@ -39,11 +39,12 @@ export const webhook = async (req: any, res: any) => {
                 type: 6,
                 subscription: {
                     owner: owner,
+                    subscriber: user,
                     planName: subscription.name,
                     currency: subscription.currency,
                     price: subscription.price
                 },
-                user: user,
+                user: owner,
                 createdAt: currentTime
             })
 
@@ -54,16 +55,17 @@ export const webhook = async (req: any, res: any) => {
 
             const multiPrices = JSON.parse(subscription.multiPrices)
             const newUserTrans = new Transaction({
-                type: 7,
+                type: 6,
                 subscription: {
                     owner: owner,
+                    subscriber: user,
                     planName: subscription.name,
                     currency: subscription.currency,
                     price: subscription.price
                 },
                 user: user,
                 currency: updatedSubscriber.currency,
-                localPrice: multiPrices[`${updatedSubscriber.currency}`] + 0.3 * (updatedSubscriber.currency === 'usd' ? 1.0 : currencyRate[`${updatedSubscriber.currency}`] ),
+                localPrice: multiPrices[`${updatedSubscriber.currency}`] * 1.034 + 0.3 * (updatedSubscriber.currency === 'usd' ? 1.0 : currencyRate[`${updatedSubscriber.currency}`] ),
                 createdAt: currentTime
             })
 
@@ -239,7 +241,7 @@ export const subscribePlan = async (req: any, res: any) => {
 
         const payment: any = await Payment.findOne({ user: userId })
         const subscription: any = await Subscription.findById(id)
-        const invoiceAt = Math.round((new Date().getTime()) / 1000) + 120
+        const invoiceAt = Math.round((new Date().getTime()) / 1000) + 30 * 24 * 3600
 
         const stripeSubscription = await stripe.subscriptions.create({
             customer: payment.stripe.customerId,
@@ -253,6 +255,7 @@ export const subscribePlan = async (req: any, res: any) => {
         const newSubscriber = new Subscriber({
             user: userId,
             subscriptionId: stripeSubscription.id,
+            productId: subscription.productId,
             currency: currency,
             createdAt: calcTime(),
             // nextInvoiceAt: new Date((invoiceAt + 8 * 3600) * 1000)

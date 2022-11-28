@@ -15,6 +15,9 @@ const SubscriberSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    productId: {
+        type: String
+    },
     planName: {
         type: String
     },
