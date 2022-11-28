@@ -395,13 +395,12 @@ export const unLockBite = async (req: any, res: any) => {
     const user: any = await User.findById(bite.owner)
     const setting: any = await Setting.findOne()
 
-    const currencyRate = setting.currencyRate
+    const currencyRate = JSON.parse(setting.currencyRate)
     let resBite: any
 
     if (bite.purchasedUsers.every((purchaseInfo: any) => purchaseInfo.purchasedBy !== userId)) {
       if (currency) {
-        let charge = { status: 'requested' }
-        let usdAmount = (amount + amount * 0.034 + 0.3) * (currency === 'jpy' ? 1 : 100)
+        let usdAmount = (amount * 1.034 + 0.3) * (currency === 'jpy' ? 1 : 100)
         let ratedAmount = usdAmount * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`])
 
         if (saveCheck) {
@@ -429,30 +428,29 @@ export const unLockBite = async (req: any, res: any) => {
 
           newPayment.save()
 
-          await stripe.charges.create({
+          const charge = await stripe.charges.create({
             amount: Number(Math.round(ratedAmount)),
             currency: currency,
             customer: customerId,
             description: `Unlock Bite (${bite.title})`,
-          }).then(result => {
-            charge = result
-          }).catch(err => { return res.status(200).json({ success: false, payload: err.raw.message }) });
+          })
+
+          if (charge.status !== 'succeeded') {
+            return res.status(200).json({ success: false, payload: charge })
+          }
 
         } else {
-          await stripe.charges.create({
+          const charge = await stripe.charges.create({
             amount: Number(Math.round(ratedAmount)),
             currency: currency,
             source: token.id,
             description: `Unlock Bite (${bite.title})`,
-          }).then(result => {
-            charge = result
-          }).catch(err => { return res.status(200).json({ success: false, payload: err.raw.message }) })
+          })
+          if (charge.status !== 'succeeded') {
+            return res.status(200).json({ success: false, payload: charge })
+          }
         }
 
-        if (charge.status !== 'succeeded') {
-          /// ERROR Message
-          return res.status(200).json({ success: false, payload: charge })
-        }
         const time = calcTime()
 
         const newTransaction1 = new Transaction({
@@ -465,7 +463,7 @@ export const unLockBite = async (req: any, res: any) => {
           },
           user: userId,
           currency: currency,
-          localPrice: (amount + amount * 0.034 + 0.3) * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`]),
+          localPrice: (amount * 1.034 + 0.3) * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`]),
           createdAt: time
         })
         newTransaction1.save()

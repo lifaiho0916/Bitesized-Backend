@@ -4,6 +4,7 @@ const router = express.Router()
 
 //import Controller
 import {
+    webhook,
     getSubScription,
     saveSubScription,
     deleteSubScription,
@@ -12,6 +13,7 @@ import {
     subscribePlan
 } from '../../controllers/subScriptionController'
 
+router.post('/webhook', express.raw({ type: 'application/json' }), webhook)
 router.get('/:userId', getSubScription)
 router.post('/', auth, saveSubScription)
 router.delete('/:id', auth, deleteSubScription)

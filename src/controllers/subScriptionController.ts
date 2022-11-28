@@ -16,6 +16,24 @@ const calcTime = () => {
     return nd
 }
 
+const webhookkey = 'whsec_280777f453bef62d9801065e54ae17dab43475ef78983591e74558d4d1af7b3a'
+
+export const webhook = async (req: any, res: any) => {
+    const event = req.body
+    switch (event.type) {
+        case 'payment_intent.succeeded':
+            const invoice = await stripe.invoices.retrieveUpcoming({
+                customer: event.data.object.customer,
+            });
+              console.log(invoice.period_end, invoice.subscription)
+            break;
+        default: {
+
+        }
+    }
+    return res.status(200).end() 
+}
+
 const currenyOptions = (type: any /* 0: usdAmount, 1: usdAFeemount*/ , currencyRate: any, usdAmount: any) => {
     if(type === 0 ) {
         return {
@@ -184,15 +202,7 @@ export const subscribePlan = async (req: any, res: any) => {
             currency: currency
         });
 
-        let subscribers = subscription.subscribers
-        subscribers.push({
-            subscriber: userId,
-            subscriptionId: stripeSubscription.id
-        })
-
-        const updatedSubscription = await Subscription.findByIdAndUpdate(id, { subscribers: subscribers }, { new: true })
-
-        return res.status(200).json({ success: true, payload: { subScription: updatedSubscription } })
+        return res.status(200).json({ success: true, payload: { subScription: subscription } })
     } catch (err) {
         console.log(err)
     }
