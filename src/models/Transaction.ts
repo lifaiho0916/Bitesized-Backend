@@ -7,7 +7,8 @@ import User from './User'
 // type === 3 // Earnings from
 // type === 4 // Refund
 // type === 5 // Cash out
-// type === 6 // Subscripition
+// type === 6 // Subscription from
+// type === 7 // Subscription fee
 
 const TransactionSchema = new mongoose.Schema({
     type: {
@@ -28,6 +29,21 @@ const TransactionSchema = new mongoose.Schema({
         price: {
             type: Number
         }
+    },
+    subscription: {
+        owner: {
+            type: Schema.Types.ObjectId,
+            ref: User    
+        },
+        planName: {
+            type: String
+        },
+        currency: {
+            type: String
+        },
+        price: {
+            type: Number
+        },
     },
     user: {
         type: Schema.Types.ObjectId,

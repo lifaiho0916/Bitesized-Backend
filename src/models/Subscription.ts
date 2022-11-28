@@ -1,5 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 import User from './User'
+import Subscriber from "./Subscriber"
 
 const SubScriptionSchema = new mongoose.Schema({
     user: {
@@ -39,11 +40,16 @@ const SubScriptionSchema = new mongoose.Schema({
         type: String
     },
     subscribers: [{
-        type: Schema.Types.ObjectId
+        type: Schema.Types.ObjectId,
+        ref: Subscriber
     }],
     visible: {
         type: Boolean,
         default: true
+    },
+    earnings: {
+        type: Number,
+        default: 0
     },
     createdAt: {
         type: Date

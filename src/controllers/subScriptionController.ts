@@ -1,8 +1,10 @@
 import Subscription from "../models/Subscription"
 import User from "../models/User"
 import Setting from "../models/Setting"
-import Stripe from "stripe"
 import Payment from "../models/Payment"
+import Subscriber from "../models/Subscriber"
+import Transaction from "../models/Transaction"
+import Stripe from "stripe"
 
 const stripe = new Stripe(
     `${process.env.STRIPE_SECRET_KEY}`,
@@ -16,16 +18,59 @@ const calcTime = () => {
     return nd
 }
 
-const webhookkey = 'whsec_280777f453bef62d9801065e54ae17dab43475ef78983591e74558d4d1af7b3a'
-
 export const webhook = async (req: any, res: any) => {
     const event = req.body
     switch (event.type) {
         case 'payment_intent.succeeded':
-            const invoice = await stripe.invoices.retrieveUpcoming({
+            const invoice: any = await stripe.invoices.retrieveUpcoming({
                 customer: event.data.object.customer,
             });
-              console.log(invoice.period_end, invoice.subscription)
+            const updatedSubscriber: any = await Subscriber.findOneAndUpdate({ subscriptionId: invoice.subscription }, {
+                nextInvoiceAt: new Date((invoice.period_end + 8 * 3600) * 1000)
+            }, { new: true })
+
+            const user = updatedSubscriber.user
+            const subscription: any = await Subscription.findOne({ priceId: invoice.lines.data[0].price.id })
+            const owner = subscription.user
+
+            const currentTime = calcTime()
+
+            const newOwnerTrans = new Transaction({
+                type: 6,
+                subscription: {
+                    owner: owner,
+                    planName: subscription.name,
+                    currency: subscription.currency,
+                    price: subscription.price
+                },
+                user: user,
+                createdAt: currentTime
+            })
+
+            newOwnerTrans.save()
+
+            const setting: any = await Setting.findOne()
+            const currencyRate = JSON.parse(setting.currencyRate)
+
+            const multiPrices = JSON.parse(subscription.multiPrices)
+            const newUserTrans = new Transaction({
+                type: 7,
+                subscription: {
+                    owner: owner,
+                    planName: subscription.name,
+                    currency: subscription.currency,
+                    price: subscription.price
+                },
+                user: user,
+                currency: updatedSubscriber.currency,
+                localPrice: multiPrices[`${updatedSubscriber.currency}`] + 0.3 * (updatedSubscriber.currency === 'usd' ? 1.0 : currencyRate[`${updatedSubscriber.currency}`] ),
+                createdAt: currentTime
+            })
+
+            newUserTrans.save()
+
+            const ownerData: any = await User.findById(owner)
+            await User.findByIdAndUpdate(owner, { earnings: ownerData.earnings + multiPrices['usd'], })
             break;
         default: {
 
@@ -83,7 +128,7 @@ const currenyOptions = (type: any /* 0: usdAmount, 1: usdAFeemount*/ , currencyR
 export const getSubScription = async (req: any, res: any) => {
     try {
         const { userId } = req.params
-        const subscription = await Subscription.findOne({ user: userId })
+        const subscription = await Subscription.findOne({ user: userId }).populate({ path: 'subscribers' }) 
         return res.status(200).json({ success: true, payload: { subScription: subscription } })
     } catch (err) {
         console.log(err)
@@ -157,8 +202,8 @@ export const editSubScription = async (req: any, res: any) => {
                 priceId: price.id,
                 multiPrices: JSON.stringify(currenyOptions(0, currencyRate, usdAmount)),
             }
-            await Subscription.findByIdAndUpdate(id, newSub)
-        } else await Subscription.findByIdAndUpdate(id, subScription)
+            await Subscription.findByIdAndUpdate(id, newSub).populate({ path: 'subscribers' }) 
+        } else await Subscription.findByIdAndUpdate(id, subScription).populate({ path: 'subscribers' }) 
         return res.status(200).json({ success: true })
     } catch (err) {
         console.log(err)
@@ -194,15 +239,33 @@ export const subscribePlan = async (req: any, res: any) => {
 
         const payment: any = await Payment.findOne({ user: userId })
         const subscription: any = await Subscription.findById(id)
+        const invoiceAt = Math.round((new Date().getTime()) / 1000) + 120
+
         const stripeSubscription = await stripe.subscriptions.create({
             customer: payment.stripe.customerId,
             items: [{
               price: subscription.priceId,
             }],
-            currency: currency
+            currency: currency,
+            // trial_end: invoiceAt
         });
 
-        return res.status(200).json({ success: true, payload: { subScription: subscription } })
+        const newSubscriber = new Subscriber({
+            user: userId,
+            subscriptionId: stripeSubscription.id,
+            currency: currency,
+            createdAt: calcTime(),
+            // nextInvoiceAt: new Date((invoiceAt + 8 * 3600) * 1000)
+        })
+
+        const savedSubscriber: any = await newSubscriber.save()
+
+        let subscribers = subscription.subscribers
+        subscribers.push(savedSubscriber._id)
+
+        const updatedSubscription = await Subscription.findByIdAndUpdate(subscription._id, { subscribers: subscribers }, { new: true }).populate({ path: 'subscribers' }) 
+
+        return res.status(200).json({ success: true, payload: { subScription: updatedSubscription } })
     } catch (err) {
         console.log(err)
     }
