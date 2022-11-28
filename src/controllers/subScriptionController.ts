@@ -2,6 +2,7 @@ import Subscription from "../models/Subscription"
 import User from "../models/User"
 import Setting from "../models/Setting"
 import Stripe from "stripe"
+import Payment from "../models/Payment"
 
 const stripe = new Stripe(
     `${process.env.STRIPE_SECRET_KEY}`,
@@ -163,6 +164,35 @@ export const setSubScriptionVisible = async (req: any, res: any) => {
         const { visible } = req.body
         const updatedPlan = await Subscription.findByIdAndUpdate(id, { visible: visible }, { new: true })
         return res.status(200).json({ success: true, payload: { subScription: updatedPlan } })
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+export const subscribePlan = async (req: any, res: any) => {
+    try {
+        const { userId, currency } = req.body
+        const { id } = req.params
+
+        const payment: any = await Payment.findOne({ user: userId })
+        const subscription: any = await Subscription.findById(id)
+        const stripeSubscription = await stripe.subscriptions.create({
+            customer: payment.stripe.customerId,
+            items: [{
+              price: subscription.priceId,
+            }],
+            currency: currency
+        });
+
+        let subscribers = subscription.subscribers
+        subscribers.push({
+            subscriber: userId,
+            subscriptionId: stripeSubscription.id
+        })
+
+        const updatedSubscription = await Subscription.findByIdAndUpdate(id, { subscribers: subscribers }, { new: true })
+
+        return res.status(200).json({ success: true, payload: { subScription: updatedSubscription } })
     } catch (err) {
         console.log(err)
     }

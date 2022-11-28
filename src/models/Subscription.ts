@@ -47,16 +47,16 @@ const SubScriptionSchema = new mongoose.Schema({
         subscriptionId: {
             type: String
         },
-        subscribed: {
-            type: Boolean,
-            default: true
-        },
-        currency: {
-            type: String
-        },
-        subscribedAt: {
-            type: Date
-        }
+        // subscribed: {
+        //     type: Boolean,
+        //     default: true
+        // },
+        // currency: {
+        //     type: String
+        // },
+        // subscribedAt: {
+        //     type: Date
+        // }
     }],
     visible: {
         type: Boolean,
