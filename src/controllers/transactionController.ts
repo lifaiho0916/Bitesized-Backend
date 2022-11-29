@@ -45,69 +45,24 @@ export const getTransactions = async (req: any, res: any) => {
                             type === "subscription" ? 6 : 0
         const sortValue: any = Number(sort)
         if (typeVal === 0) {
-            transactions = await Transaction.aggregate([
-                {
-                    $lookup: {
-                        from: "users",
-                        as: 'user',
-                        let: { user: "$user" },
-                        pipeline: [
-                            {
-                                $match: {
-                                    $expr: { $eq: ["$$user", "$_id"] }
-                                }
-                            },
-                            {
-                                $project: { name: 1 }
-                            }
-                        ],
-                    }
-                },
-                { $unwind: "$user" },
-                {
-                    $match: {
-                        "user.name": { $regex: search, $options: "i" }
-                    }
-                },
-                { $sort: { createdAt: sortValue } }
-            ])
+            transactions = await Transaction.find().populate([
+                { path: "subscription.owner", select: { name: 1 }},
+                { path: "subscription.subscriber", select: { name: 1 }},
+                { path: "user", select: { name: 1 }}
+            ]).sort({ createdAt: sortValue })
         } else {
-            transactions = await Transaction.aggregate([
-                {
-                    $lookup: {
-                        from: "users",
-                        as: 'user',
-                        let: { user: "$user" },
-                        pipeline: [
-                            {
-                                $match: {
-                                    $expr: { $eq: ["$$user", "$_id"] }
-                                }
-                            },
-                            {
-                                $project: { name: 1 }
-                            }
-                        ],
-                    }
-                },
-                { $unwind: "$user" },
-                {
-                    $match: {
-                        $and: [
-                            { type: { $eq: typeVal } },
-                            { "user.name": { $regex: search, $options: "i" } }
-                        ]
-                    }
-                },
-                { $sort: { createdAt: sortValue } }
-            ])
+            transactions = await Transaction.find({ type: typeVal }).populate([
+                { path: "subscription.owner", select: { name: 1 }},
+                { path: "subscription.subscriber", select: { name: 1 }},
+                { path: "user", select: { name: 1 }}
+            ]).sort({ createdAt: sortValue })
         }
         const timestamp = calcTime().getTime() - (period * 24 * 3600 * 1000)
 
         let resTrans: any = []
         resTrans = transactions.filter((transaction: any) => {
-            if(period > 0) return (new Date(transaction.createdAt)).getTime() > timestamp
-            else return true
+            if(period > 0) return ((new Date(transaction.createdAt)).getTime() > timestamp && transaction.user.name.toLowerCase().indexOf(search.toLowerCase()) !== -1)
+            else return transaction.user.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
         })
 
         return res.status(200).json({ success: true, payload: { transactions: resTrans } })
