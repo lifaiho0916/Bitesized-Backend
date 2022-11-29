@@ -25,7 +25,6 @@ export const getPayment = async (req: any, res: any) => {
 export const addCard = async (req: any, res: any) => {
     try {
         const { token, userId, holder, cardType } = req.body
-        
         const user: any = await User.findById(userId)
         const customer: any = await stripe.customers.create({
             email: user.email,
@@ -51,6 +50,7 @@ export const addCard = async (req: any, res: any) => {
         return res.status(200).json({ success: true, payload: { payment: payment } })
     } catch (err) {
         console.log(err)
+        return res.status(400).json({ msg: err })
     }
 }
 
