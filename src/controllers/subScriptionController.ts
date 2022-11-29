@@ -242,7 +242,7 @@ export const subscribePlan = async (req: any, res: any) => {
 
         const payment: any = await Payment.findOne({ user: userId })
         const subscription: any = await Subscription.findById(id)
-        const invoiceAt = Math.round((new Date().getTime()) / 1000) + 1 * 1 * 3600
+        const invoiceAt = Math.round((new Date().getTime()) / 1000) + 1 * 1 * 300
 
         const stripeSubscription = await stripe.subscriptions.create({
             customer: payment.stripe.customerId,
@@ -300,3 +300,31 @@ export const getSubscribersByUserId = async (req: any, res: any) => {
         console.log(err)
     }
 }
+
+export const unSubscribe = async (req: any, res: any) => {
+    try {
+        const { id } = req.body
+        const subscriber: any = await Subscriber.findById(id)
+        const setting: any = await Setting.findOne()
+        const currencyRate = JSON.parse(setting.currencyRate)
+        
+        stripe.subscriptions.del(subscriber.subscriptionId)
+        const plan: any = await Subscription.findOne({ productId: subscriber.productId }).populate({ path: 'user', select: { name: 1, categories: 1, avatar: 1 } })
+
+        const updatedSubscriber: any = await Subscriber.findByIdAndUpdate(id, {
+            benefits: plan.benefits,
+            planName: plan.name,
+            price: JSON.parse(plan.multiPrices)[`${subscriber.currency}`] * 1.034 + 0.3 * (subscriber.currency === 'usd' ? 1.0 : currencyRate[`${subscriber.currency}`]),
+            status: false,
+        }, { new: true })
+
+        const resData = {
+            ...updatedSubscriber._doc,
+            plan: plan,
+        }
+
+        return res.status(200).json({ success: true, payload: { subscriber: resData  } })
+    } catch (err) {
+        console.log(err)
+    }
+} 
