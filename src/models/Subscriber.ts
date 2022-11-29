@@ -21,6 +21,9 @@ const SubscriberSchema = new mongoose.Schema({
     planName: {
         type: String
     },
+    price: {
+        type: Number
+    },
     benefits: [{
         type: String
     }],

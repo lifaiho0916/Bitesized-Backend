@@ -1,3 +1,4 @@
+import mongoose from "mongoose"
 import Subscription from "../models/Subscription"
 import User from "../models/User"
 import Setting from "../models/Setting"
@@ -241,7 +242,7 @@ export const subscribePlan = async (req: any, res: any) => {
 
         const payment: any = await Payment.findOne({ user: userId })
         const subscription: any = await Subscription.findById(id)
-        const invoiceAt = Math.round((new Date().getTime()) / 1000) + 1 * 24 * 3600
+        const invoiceAt = Math.round((new Date().getTime()) / 1000) + 1 * 1 * 3600
 
         const stripeSubscription = await stripe.subscriptions.create({
             customer: payment.stripe.customerId,
@@ -269,6 +270,32 @@ export const subscribePlan = async (req: any, res: any) => {
         const updatedSubscription = await Subscription.findByIdAndUpdate(subscription._id, { subscribers: subscribers }, { new: true }).populate({ path: 'subscribers' }) 
 
         return res.status(200).json({ success: true, payload: { subScription: updatedSubscription } })
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+export const getSubscribersByUserId = async (req: any, res: any) => {
+    try {
+        const { userId } = req.body
+        const subscribers = await Subscriber.find({ user: userId })
+
+        let planFuncs: any = []
+        subscribers.forEach((subscriber: any) => {
+            planFuncs.push(Subscription.findOne({ productId: subscriber.productId }).populate({ path: 'user', select: { name: 1, categories: 1, avatar: 1 } }))
+        })
+
+        const responses = await Promise.all(planFuncs)
+
+        let results: any = []
+
+        subscribers.forEach((subscriber: any, index: any) => {
+            results.push({
+                ...subscriber._doc,
+                plan: responses[index]
+            })
+        })
+        return res.status(200).json({ success: true, payload: { subscribers: results } })
     } catch (err) {
         console.log(err)
     }

@@ -10,10 +10,12 @@ import {
     deleteSubScription,
     setSubScriptionVisible,
     editSubScription,
-    subscribePlan
+    subscribePlan,
+    getSubscribersByUserId
 } from '../../controllers/subScriptionController'
 
 router.post('/webhook', express.raw({ type: 'application/json' }), webhook)
+router.get('/user-subscribers', auth, getSubscribersByUserId)
 router.get('/:userId', getSubScription)
 router.post('/', auth, saveSubScription)
 router.delete('/:id', auth, deleteSubScription)
