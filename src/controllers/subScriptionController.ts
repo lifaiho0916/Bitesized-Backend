@@ -241,7 +241,7 @@ export const subscribePlan = async (req: any, res: any) => {
 
         const payment: any = await Payment.findOne({ user: userId })
         const subscription: any = await Subscription.findById(id)
-        const invoiceAt = Math.round((new Date().getTime()) / 1000) + 30 * 24 * 3600
+        const invoiceAt = Math.round((new Date().getTime()) / 1000) + 1 * 24 * 3600
 
         const stripeSubscription = await stripe.subscriptions.create({
             customer: payment.stripe.customerId,
@@ -249,7 +249,7 @@ export const subscribePlan = async (req: any, res: any) => {
               price: subscription.priceId,
             }],
             currency: currency,
-            // trial_end: invoiceAt
+            trial_end: invoiceAt
         });
 
         const newSubscriber = new Subscriber({
@@ -258,7 +258,7 @@ export const subscribePlan = async (req: any, res: any) => {
             productId: subscription.productId,
             currency: currency,
             createdAt: calcTime(),
-            // nextInvoiceAt: new Date((invoiceAt + 8 * 3600) * 1000)
+            nextInvoiceAt: new Date((invoiceAt + 8 * 3600) * 1000)
         })
 
         const savedSubscriber: any = await newSubscriber.save()
