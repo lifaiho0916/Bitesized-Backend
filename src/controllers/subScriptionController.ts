@@ -30,9 +30,10 @@ export const webhook = async (req: any, res: any) => {
                 const currencyRate = JSON.parse(setting.currencyRate)
                 const multiPrices = JSON.parse(subscription.multiPrices)
                 const subscriber: any = await Subscriber.findOne({ subscriptionId: invoice.subscription })
+                const stripeSubscription = await stripe.subscriptions.retrieve(invoice.subscription)
 
                 await Subscriber.findByIdAndUpdate(subscriber._id, {
-                    nextInvoiceAt: new Date((invoice.period_end + 8 * 3600) * 1000),
+                    nextInvoiceAt: new Date((stripeSubscription.current_period_end + 8 * 3600) * 1000),
                     earnings: subscriber.earnings + multiPrices[subscriber.currency]
                 }, { new: true })
     
