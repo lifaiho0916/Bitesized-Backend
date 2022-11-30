@@ -33,7 +33,7 @@ export const webhook = async (req: any, res: any) => {
 
                 await Subscriber.findByIdAndUpdate(subscriber._id, {
                     nextInvoiceAt: new Date((invoice.period_end + 8 * 3600) * 1000),
-                    earnings: subscriber.earnings + multiPrices['usd']
+                    earnings: subscriber.earnings + multiPrices[subscriber.currency]
                 }, { new: true })
     
                 const user = subscriber.user
