@@ -1,4 +1,3 @@
-
 import Subscription from "../models/Subscription"
 import User from "../models/User"
 import Setting from "../models/Setting"
@@ -265,8 +264,9 @@ export const subscribePlan = async (req: any, res: any) => {
         const updatedSubscription = await Subscription.findByIdAndUpdate(subscription._id, { subscribers: subscribers }, { new: true }).populate({ path: 'subscribers' }) 
 
         return res.status(200).json({ success: true, payload: { subScription: updatedSubscription } })
-    } catch (err) {
+    } catch (err: any) {
         console.log(err)
+        return res.status(400).json({ msg: err.raw.message })
     }
 }
 
