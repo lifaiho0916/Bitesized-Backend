@@ -31,7 +31,14 @@ const SubscriberSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    earnings: {
+        type: Number,
+        default: 0
+    },
     createdAt: {
+        type: Date,
+    },
+    cancelledAt: {
         type: Date,
     },
     nextInvoiceAt: {

@@ -47,10 +47,6 @@ const SubScriptionSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    earnings: {
-        type: Number,
-        default: 0
-    },
     createdAt: {
         type: Date
     }
