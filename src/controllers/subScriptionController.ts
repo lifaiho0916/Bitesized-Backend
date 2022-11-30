@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+
 import Subscription from "../models/Subscription"
 import User from "../models/User"
 import Setting from "../models/Setting"
@@ -278,7 +278,14 @@ export const subscribePlan = async (req: any, res: any) => {
 export const getSubscribersByUserId = async (req: any, res: any) => {
     try {
         const { userId } = req.body
-        const subscribers = await Subscriber.find({ user: userId })
+        const { sort, page } = req.query
+        let subscribers: any = []
+        const count = await Subscriber.find({ user: userId }).count()
+        if(sort === "0") subscribers = await Subscriber.find({ user: userId }).sort({ createdAt: -1 }).skip(Number(page) * 2).limit(2)
+        else if(sort === "1") subscribers = await Subscriber.find({ user: userId }).sort({ createdAt: 1 }).skip(Number(page) * 2).limit(2)
+        else if(sort === "2") subscribers = await Subscriber.find({ user: userId }).sort({ nextInvoiceAt: 1 }).skip(Number(page) * 2).limit(2)
+        else if(sort === "3") subscribers = await Subscriber.find({ user: userId }).sort({ status: -1}).skip(Number(page) * 2).limit(2)
+        else subscribers = await Subscriber.find({ user: userId}).sort({ status: 1}).skip(Number(page) * 2).limit(2)
 
         let planFuncs: any = []
         subscribers.forEach((subscriber: any) => {
@@ -286,7 +293,6 @@ export const getSubscribersByUserId = async (req: any, res: any) => {
         })
 
         const responses = await Promise.all(planFuncs)
-
         let results: any = []
 
         subscribers.forEach((subscriber: any, index: any) => {
@@ -295,7 +301,7 @@ export const getSubscribersByUserId = async (req: any, res: any) => {
                 plan: responses[index]
             })
         })
-        return res.status(200).json({ success: true, payload: { subscribers: results } })
+        return res.status(200).json({ success: true, payload: { subscribers: results, total: count } })
     } catch (err) {
         console.log(err)
     }
