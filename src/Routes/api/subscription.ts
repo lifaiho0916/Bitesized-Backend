@@ -6,6 +6,7 @@ const router = express.Router()
 import {
     webhook,
     getSubScription,
+    getSubscriptions,
     saveSubScription,
     deleteSubScription,
     setSubScriptionVisible,
@@ -19,6 +20,7 @@ import {
 router.post('/webhook', express.raw({ type: 'application/json' }), webhook)
 router.get('/user-subscribers', auth, getSubscribersByUserId)
 router.get('/owner-subscribers', auth, getSubscribersByOwner)
+router.get('/list', auth, getSubscriptions)
 router.get('/:userId', getSubScription)
 router.post('/', auth, saveSubScription)
 router.delete('/:id', auth, deleteSubScription)
