@@ -305,19 +305,48 @@ export const getSubscribersByUserId = async (req: any, res: any) => {
 export const getSubscribersByOwner = async (req: any, res: any) => {
     try {
         const { userId } = req.body
-        const { type } = req.query
-        const subscription: any = await Subscription.findOne({ user: userId }).populate({
-            path: 'subscribers',
-            populate: { path : 'user', select: { name: 1, avatar: 1, categories: 1 }}
-        })
+        const { type, sort } = req.query
+        const subscription: any = await Subscription.findOne({ user: userId }).populate([
+            {
+                path: 'subscribers',
+                populate: { path : 'user', select: { name: 1, avatar: 1, categories: 1 }}
+            },
+            {
+                path: 'user',
+                select: { name: 1, categories: 1, avatar: 1 }
+            }
+        ])
 
         const filters = subscription.subscribers.filter((subscriber: any) => {
             if(type === 'all') return true
-            else if(type === 'unsubscribed') subscriber.status === false
-            else subscriber.status === true
+            else if(type === 'unsubscribed') return subscriber.status === false
+            else return subscriber.status === true
         })
 
-        return res.status(200).json({ success: true, payload: { subscribers: [] } })
+        let subscribers: any = []
+        filters.forEach((subscriber: any) => {
+            const index = subscribers.findIndex((sub: any) => sub.userId === subscriber.user._id)
+            if(index === -1) {
+                subscribers.push({
+                    userId: subscriber.user._id, 
+                    data: [subscriber],
+                    joinedAt: subscriber.createdAt
+                })
+            } else subscribers[index].data.push(subscriber)
+        })
+
+        subscribers = subscribers.sort((first: any, second: any) => {
+            if(first.joinedAt > second.joinedAt) return Number(sort)
+            else if(first.joinedAt < second.joinedAt) return -Number(sort)
+            return 0
+        })
+
+        const resSubscription = {
+            ...subscription._doc,
+            subscribers: subscribers
+        }
+
+        return res.status(200).json({ success: true, payload: { subscription: resSubscription } })
 
     } catch (err) {
         console.log(err)
