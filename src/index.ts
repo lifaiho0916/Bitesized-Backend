@@ -3,7 +3,7 @@ import mongoose, { ConnectOptions } from "mongoose"
 import cors from "cors"
 import cron from "node-cron"
 import http from "http"
-import SocketServer from "./socket"
+// import SocketServer from "./socket"
 import { Request, Response } from "express"
 import 'dotenv/config'
 
@@ -27,12 +27,12 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 const server = http.createServer(app);
 
-const io = SocketServer(server);
+// const io = SocketServer(server);
 
-app.use((req: Request, res: Response, next) => {
-  req.body.io = io
-  return next()
-});
+// app.use((req: Request, res: Response, next) => {
+//   req.body.io = io
+//   return next()
+// });
 
 //DB connection
 mongoose.connect(`${process.env.MONGO_URL}`,
