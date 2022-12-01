@@ -72,7 +72,7 @@ export const webhook = async (req: any, res: any) => {
     
                 const ownerData: any = await User.findById(owner)
                 await User.findByIdAndUpdate(owner, { earnings: ownerData.earnings + multiPrices['usd'], })
-            }, 1000 * 5)
+            }, 1000 * 3)
             break;
         default: {
         }
@@ -266,7 +266,7 @@ export const subscribePlan = async (req: any, res: any) => {
         return res.status(200).json({ success: true, payload: { subScription: updatedSubscription } })
     } catch (err: any) {
         console.log(err)
-        return res.status(400).json({ msg: err.raw.message })
+        return res.status(400).json({ msg: err })
     }
 }
 
@@ -297,6 +297,28 @@ export const getSubscribersByUserId = async (req: any, res: any) => {
             })
         })
         return res.status(200).json({ success: true, payload: { subscribers: results, total: count } })
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+export const getSubscribersByOwner = async (req: any, res: any) => {
+    try {
+        const { userId } = req.body
+        const { type } = req.query
+        const subscription: any = await Subscription.findOne({ user: userId }).populate({
+            path: 'subscribers',
+            populate: { path : 'user', select: { name: 1, avatar: 1, categories: 1 }}
+        })
+
+        const filters = subscription.subscribers.filter((subscriber: any) => {
+            if(type === 'all') return true
+            else if(type === 'unsubscribed') subscriber.status === false
+            else subscriber.status === true
+        })
+
+        return res.status(200).json({ success: true, payload: { subscribers: [] } })
+
     } catch (err) {
         console.log(err)
     }
