@@ -138,35 +138,70 @@ export const getSubScription = async (req: any, res: any) => {
 
 export const getSubscriptions = async (req: any, res: any) => {
     try {
-        const { sort, search } = req.query
+        const { sort, search, type } = req.query
         const sortValue: any = Number(sort)
 
-        const subscriptions = await Subscription.aggregate([
-            {
-                $lookup: {
-                  from: "users",
-                  as: 'user',
-                  let: { user: "$user" },
-                  pipeline: [
-                    {
-                      $match: {
-                        $expr: { $eq: ["$$user", "$_id"] }
-                      }
-                    },
-                    {
-                      $project: { name: 1 }
+        let subscriptions: any = []
+        if(type === "all") {
+            subscriptions = await Subscription.aggregate([
+                {
+                    $lookup: {
+                      from: "users",
+                      as: 'user',
+                      let: { user: "$user" },
+                      pipeline: [
+                        {
+                          $match: {
+                            $expr: { $eq: ["$$user", "$_id"] }
+                          }
+                        },
+                        {
+                          $project: { name: 1 }
+                        }
+                      ],
                     }
-                  ],
-                }
-            },
-            { $unwind: "$user" },
-            {
-                $match: {
-                    "user.name": { $regex: String(search), $options: "i"}
-                }
-            },
-            { $sort: { createdAt: sortValue } }
-        ])
+                },
+                { $unwind: "$user" },
+                {
+                    $match: {
+                        "user.name": { $regex: String(search), $options: "i"}
+                    }
+                },
+                { $sort: { createdAt: sortValue } }
+            ])
+        } else {
+            const typeValue = type === 'ongoing' ? true : false
+            subscriptions = await Subscription.aggregate([
+                {
+                    $lookup: {
+                      from: "users",
+                      as: 'user',
+                      let: { user: "$user" },
+                      pipeline: [
+                        {
+                          $match: {
+                            $expr: { $eq: ["$$user", "$_id"] }
+                          }
+                        },
+                        {
+                          $project: { name: 1 }
+                        }
+                      ],
+                    }
+                },
+                { $unwind: "$user" },
+                {
+                    $match: {
+                        $and: [
+                          { "user.name": { $regex: String(search), $options: "i"} },
+                          { active: typeValue }
+                        ]
+                    }
+                },
+                { $sort: { createdAt: sortValue } }
+            ])
+        }
+        
 
         return res.status(200).json({ success: true, payload: { subscriptions: subscriptions } })
     } catch (err) {
