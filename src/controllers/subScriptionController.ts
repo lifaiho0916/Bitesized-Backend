@@ -272,12 +272,22 @@ export const editSubScription = async (req: any, res: any) => {
             )
 
             const newSub = {
-                ...subScription,
+                name: subScription.name,
+                price: subScription.price,
+                currency: subScription.currency,
+                benefits: subScription.benefits,
+                description: subScription.description,
                 priceId: price.id,
                 multiPrices: JSON.stringify(currenyOptions(0, currencyRate, usdAmount)),
             }
-            await Subscription.findByIdAndUpdate(id, newSub).populate({ path: 'subscribers' }) 
-        } else await Subscription.findByIdAndUpdate(id, subScription).populate({ path: 'subscribers' }) 
+            await Subscription.findByIdAndUpdate(id, newSub)
+        } else await Subscription.findByIdAndUpdate(id, {
+            name: subScription.name,
+            price: subScription.price,
+            currency: subScription.currency,
+            benefits: subScription.benefits,
+            description: subScription.description
+        })
         return res.status(200).json({ success: true })
     } catch (err) {
         console.log(err)
