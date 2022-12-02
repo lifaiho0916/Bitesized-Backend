@@ -361,7 +361,7 @@ export const getSubscribersByUserId = async (req: any, res: any) => {
         const count = await Subscriber.find({ user: userId }).count()
         if(sort === "0") subscribers = await Subscriber.find({ user: userId }).sort({ createdAt: -1 }).skip(Number(page) * 2).limit(2)
         else if(sort === "1") subscribers = await Subscriber.find({ user: userId }).sort({ createdAt: 1 }).skip(Number(page) * 2).limit(2)
-        else if(sort === "2") subscribers = await Subscriber.find({ user: userId }).sort({ nextInvoiceAt: -1 }).skip(Number(page) * 2).limit(2)
+        else if(sort === "2") subscribers = await Subscriber.find({ user: userId, status: true }).sort({ nextInvoiceAt: -1 }).skip(Number(page) * 2).limit(2)
         else if(sort === "3") subscribers = await Subscriber.find({ user: userId, status: true }).skip(Number(page) * 2).limit(2)
         else subscribers = await Subscriber.find({ user: userId, status: false }).skip(Number(page) * 2).limit(2)
 
