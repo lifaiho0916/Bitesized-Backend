@@ -299,8 +299,8 @@ export const setSubScriptionVisible = async (req: any, res: any) => {
     try {
         const { id } = req.params
         const { visible } = req.body
-        const updatedPlan = await Subscription.findByIdAndUpdate(id, { visible: visible }, { new: true })
-        return res.status(200).json({ success: true, payload: { subScription: updatedPlan } })
+        await Subscription.findByIdAndUpdate(id, { visible: visible })
+        return res.status(200).json({ success: true })
     } catch (err) {
         console.log(err)
     }
@@ -328,7 +328,7 @@ export const subscribePlan = async (req: any, res: any) => {
             productId: subscription.productId,
             currency: currency,
             createdAt: calcTime(),
-            nextInvoiceAt: new Date((stripeSubscription.current_period_end + 8 * 3600) * 1000)
+            nextInvoiceAt: new Date((stripeSubscription.current_period_end + 8 * 3600) * 1000),
         })
         const savedSubscriber: any = await newSubscriber.save()
 
@@ -377,9 +377,8 @@ export const getSubscribersByUserId = async (req: any, res: any) => {
 
 export const getSubscribersByOwner = async (req: any, res: any) => {
     try {
-        const { userId } = req.body
-        const { type, sort } = req.query
-        const subscription: any = await Subscription.findOne({ user: userId }).populate([
+        const { type, sort, user } = req.query
+        const subscription: any = await Subscription.findOne({ user: user }).populate([
             {
                 path: 'subscribers',
                 populate: { path : 'user', select: { name: 1, avatar: 1, categories: 1 }}
@@ -396,6 +395,22 @@ export const getSubscribersByOwner = async (req: any, res: any) => {
             else return subscriber.status === true
         })
 
+        let totalsubscribers: any = []
+        subscription.subscribers.forEach((subscriber: any) => {
+            const index = totalsubscribers.findIndex((sub: any) => sub.userId === subscriber.user._id)
+            if(index === -1) {
+                totalsubscribers.push({
+                    userId: subscriber.user._id, 
+                    data: [subscriber],
+                    joinedAt: subscriber.createdAt,
+                    active: subscriber.status
+                })
+            } else {
+                if(subscriber.status) totalsubscribers[index].active = true
+                totalsubscribers[index].data.push(subscriber)
+            }
+        })
+
         let subscribers: any = []
         filters.forEach((subscriber: any) => {
             const index = subscribers.findIndex((sub: any) => sub.userId === subscriber.user._id)
@@ -403,9 +418,13 @@ export const getSubscribersByOwner = async (req: any, res: any) => {
                 subscribers.push({
                     userId: subscriber.user._id, 
                     data: [subscriber],
-                    joinedAt: subscriber.createdAt
+                    joinedAt: subscriber.createdAt,
+                    active: subscriber.status
                 })
-            } else subscribers[index].data.push(subscriber)
+            } else {
+                if(subscriber.status) subscribers[index].active = true
+                subscribers[index].data.push(subscriber)
+            }
         })
 
         subscribers = subscribers.sort((first: any, second: any) => {
@@ -416,7 +435,8 @@ export const getSubscribersByOwner = async (req: any, res: any) => {
 
         const resSubscription = {
             ...subscription._doc,
-            subscribers: subscribers
+            subscribers: subscribers,
+            totalSubscribers: totalsubscribers
         }
 
         return res.status(200).json({ success: true, payload: { subscription: resSubscription } })
