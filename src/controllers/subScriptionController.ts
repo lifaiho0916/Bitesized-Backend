@@ -194,7 +194,7 @@ export const getSubscriptions = async (req: any, res: any) => {
                     $match: {
                         $and: [
                           { "user.name": { $regex: String(search), $options: "i"} },
-                          { active: typeValue }
+                          { visible: typeValue }
                         ]
                     }
                 },
