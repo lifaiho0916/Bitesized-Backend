@@ -28,6 +28,9 @@ const TransactionSchema = new mongoose.Schema({
         },
         price: {
             type: Number
+        },
+        subscription: {
+            type: Boolean
         }
     },
     subscription: {

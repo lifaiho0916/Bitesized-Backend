@@ -390,7 +390,7 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
 export const unLockBite = async (req: any, res: any) => {
   try {
     const { id } = req.params
-    const { userId, currency, amount, token, saveCheck, holder, cardType } = req.body
+    const { userId, currency, amount, token, saveCheck, holder, cardType, subscribe } = req.body
     const bite: any = await Bite.findById(id)
     const user: any = await User.findById(bite.owner)
     const setting: any = await Setting.findOne()
@@ -400,87 +400,119 @@ export const unLockBite = async (req: any, res: any) => {
 
     if (bite.purchasedUsers.every((purchaseInfo: any) => purchaseInfo.purchasedBy !== userId)) {
       if (currency) {
-        let usdAmount = (amount * 1.034 + 0.3) * (currency === 'jpy' ? 1 : 100)
-        let ratedAmount = usdAmount * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`])
+        if(subscribe) {
+          const time = calcTime()
 
-        if (saveCheck) {
-          const user: any = await User.findById(userId)
-
-          const customer: any = await stripe.customers.create({
-            email: user.email,
-            name: holder,
-            source: token.id
-          })
-
-          const customerId = customer.id
-          const card: any = await stripe.customers.retrieveSource(customerId, customer.default_source)
-          const cardNumber = card.last4
-
-          const newPayment = new Payment({
+          const newTransaction1 = new Transaction({
+            type: 2,
+            bite: {
+              id: bite._id,
+              title: bite.title,
+              currency: bite.currency,
+              price: bite.price,
+              subscription: true,
+            },
             user: userId,
-            stripe: {
-              customerId: customerId,
-              cardType: cardType,
-              cardNumber: cardNumber,
-              cardHolder: holder
-            }
+            createdAt: time
           })
+          newTransaction1.save()
 
-          newPayment.save()
-
-          const charge = await stripe.charges.create({
-            amount: Number(Math.round(ratedAmount)),
-            currency: currency,
-            customer: customerId,
-            description: `Unlock Bite (${bite.title})`,
+          const newTransaction2 = new Transaction({
+            type: 3,
+            bite: {
+              id: bite._id,
+              title: bite.title,
+              currency: bite.currency,
+              price: bite.price,
+              subscription: true,
+            },
+            user: bite.owner,
+            createdAt: time
           })
-
-          if (charge.status !== 'succeeded') {
-            return res.status(200).json({ success: false, payload: charge })
-          }
-
+          newTransaction2.save()
         } else {
-          const charge = await stripe.charges.create({
-            amount: Number(Math.round(ratedAmount)),
-            currency: currency,
-            source: token.id,
-            description: `Unlock Bite (${bite.title})`,
-          })
-          if (charge.status !== 'succeeded') {
-            return res.status(200).json({ success: false, payload: charge })
+          let usdAmount = (amount * 1.034 + 0.3) * (currency === 'jpy' ? 1 : 100)
+          let ratedAmount = usdAmount * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`])
+
+          if (saveCheck) {
+            const user: any = await User.findById(userId)
+
+            const customer: any = await stripe.customers.create({
+              email: user.email,
+              name: holder,
+              source: token.id
+            })
+
+            const customerId = customer.id
+            const card: any = await stripe.customers.retrieveSource(customerId, customer.default_source)
+            const cardNumber = card.last4
+
+            const newPayment = new Payment({
+              user: userId,
+              stripe: {
+                customerId: customerId,
+                cardType: cardType,
+                cardNumber: cardNumber,
+                cardHolder: holder
+              }
+            })
+
+            newPayment.save()
+
+            const charge = await stripe.charges.create({
+              amount: Number(Math.round(ratedAmount)),
+              currency: currency,
+              customer: customerId,
+              description: `Unlock Bite (${bite.title})`,
+            })
+
+            if (charge.status !== 'succeeded') {
+              return res.status(200).json({ success: false, payload: charge })
+            }
+
+          } else {
+            const charge = await stripe.charges.create({
+              amount: Number(Math.round(ratedAmount)),
+              currency: currency,
+              source: token.id,
+              description: `Unlock Bite (${bite.title})`,
+            })
+            if (charge.status !== 'succeeded') {
+              return res.status(200).json({ success: false, payload: charge })
+            }
           }
+
+          const time = calcTime()
+
+          const newTransaction1 = new Transaction({
+            type: 2,
+            bite: {
+              id: bite._id,
+              title: bite.title,
+              currency: bite.currency,
+              price: bite.price
+            },
+            user: userId,
+            currency: currency,
+            localPrice: (amount * 1.034 + 0.3) * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`]),
+            createdAt: time
+          })
+          newTransaction1.save()
+
+          const newTransaction2 = new Transaction({
+            type: 3,
+            bite: {
+              id: bite._id,
+              title: bite.title,
+              currency: bite.currency,
+              price: bite.price
+            },
+            user: bite.owner,
+            createdAt: time
+          })
+          newTransaction2.save()
+          User.findByIdAndUpdate(user._id, { earnings: user.earnings + amount }).exec()
         }
-
-        const time = calcTime()
-
-        const newTransaction1 = new Transaction({
-          type: 2,
-          bite: {
-            id: bite._id,
-            title: bite.title,
-            currency: bite.currency,
-            price: bite.price
-          },
-          user: userId,
-          currency: currency,
-          localPrice: (amount * 1.034 + 0.3) * (currency === 'usd' ? 1.0 : currencyRate[`${currency}`]),
-          createdAt: time
-        })
-        newTransaction1.save()
-
-        const newTransaction2 = new Transaction({
-          type: 3,
-          bite: {
-            id: bite._id,
-            title: bite.title,
-            currency: bite.currency,
-            price: bite.price
-          },
-          user: bite.owner,
-          createdAt: time
-        })
-        newTransaction2.save()
-        User.findByIdAndUpdate(user._id, { earnings: user.earnings + amount }).exec()
       } else {
         const newTransaction = new Transaction({
           type: 1,
@@ -502,12 +534,12 @@ export const unLockBite = async (req: any, res: any) => {
       })
 
       resBite = await Bite.findByIdAndUpdate(id, { purchasedUsers: purchasedUsers }, { new: true }).populate([
-        { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+        { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1 } },
         { path: 'comments.commentedBy', select: { name: 1, avatar: 1, categories: 1, role: 1 } }
       ])
     } else {
       resBite = await Bite.findById(id).populate([
-        { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+        { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1 } },
         { path: 'comments.commentedBy', select: { name: 1, avatar: 1, categories: 1, role: 1 } }
       ])
     }
@@ -594,7 +626,7 @@ export const getBiteById = async (req: any, res: any) => {
   try {
     const { id } = req.params
     const bite: any = await Bite.findById(id).populate([
-      { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1 } },
+      { path: 'owner', select: { name: 1, avatar: 1, personalisedUrl: 1, categories: 1 } },
       { path: 'comments.commentedBy', select: { name: 1, avatar: 1, categories: 1, role: 1 } }
     ])
 
