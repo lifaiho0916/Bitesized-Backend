@@ -367,7 +367,7 @@ export const getSubscribersByUserId = async (req: any, res: any) => {
 
         let planFuncs: any = []
         subscribers.forEach((subscriber: any) => {
-            planFuncs.push(Subscription.findOne({ productId: subscriber.productId }).populate({ path: 'user', select: { name: 1, categories: 1, avatar: 1 } }))
+            planFuncs.push(Subscription.findOne({ productId: subscriber.productId }).populate({ path: 'user', select: { name: 1, categories: 1, avatar: 1, personalisedUrl: 1 } }))
         })
 
         const responses = await Promise.all(planFuncs)
