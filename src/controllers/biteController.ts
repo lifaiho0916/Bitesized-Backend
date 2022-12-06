@@ -600,7 +600,14 @@ export const unLockBite = async (req: any, res: any) => {
         { path: 'comments.commentedBy', select: { name: 1, avatar: 1, categories: 1, role: 1 } }
       ])
     }
-    return res.status(200).json({ success: true, payload: { bite: resBite } })
+
+    const videos = resBite.videos.filter((video: any) => video.visible === true)
+    const result = {
+      ...resBite._doc,
+      videos: videos,
+      time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
+    }
+    return res.status(200).json({ success: true, payload: { bite: result } })
   } catch (err) {
     console.log(err)
   }
@@ -743,8 +750,10 @@ export const getBiteById = async (req: any, res: any) => {
       { path: 'comments.commentedBy', select: { name: 1, avatar: 1, categories: 1, role: 1 } }
     ])
 
+    const videos = bite.videos.filter((video: any) => video.visible === true)
     const resBite = {
       ...bite._doc,
+      videos: videos,
       time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
     }
 
