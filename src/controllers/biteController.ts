@@ -46,6 +46,7 @@ export const EditBite = async (req: any, res: any) => {
 
     await Bite.findByIdAndUpdate(id, {
       title: bite.title,
+      category: bite.category,
       videos: bite.videos
     })
 

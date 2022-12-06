@@ -15,6 +15,9 @@ const BiteSchema = new mongoose.Schema({
     currency: {
         type: String
     },
+    category: {
+        type: Number
+    },
     videos: [{
         _id: false,
         coverUrl: {
