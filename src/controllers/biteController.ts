@@ -608,53 +608,109 @@ export const unLockBite = async (req: any, res: any) => {
 
 export const getBitesList = async (req: any, res: any) => {
   try {
-    const bites = await Bite.aggregate([
-      {
-        $lookup: {
-          from: "users",
-          as: 'owner',
-          let: { owner: "$owner" },
-          pipeline: [
-            {
-              $match: {
-                $expr: { $eq: ["$$owner", "$_id"] }
+    const { categories } = req.query
+    const temp = categories === "" ? [] : String(categories).split(",")
+    const category = temp.map((item: any) => Number(item))
+    let bites: any = []
+    if (category.length === 0) {
+      bites = await Bite.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            as: 'owner',
+            let: { owner: "$owner" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$$owner", "$_id"] }
+                }
+              },
+              {
+                $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
+              }
+            ],
+          }
+        },
+        { $unwind: "$owner" },
+        {
+          $project: {
+            videos: {
+              $filter: {
+                input: "$videos",
+                as: "videos",
+                cond: { $eq: ["$$videos.visible", true] }
               }
             },
-            {
-              $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
-            }
-          ],
-        }
-      },
-      { $unwind: "$owner" },
-      {
-        $project: {
-          videos: {
-            $filter: {
-              input: "$videos",
-              as: "videos",
-              cond: { $eq: ["$$videos.visible", true] }
-            }
-          },
-          currency: 1,
-          owner: 1,
-          price: 1,
-          title: 1,
-          visible: 1,
-          purchasedUsers: 1,
-          date: 1,
-        }
-      },
-      {
-        $match: {
-          $and: [
-            { visible: true },
-            { 'owner.visible': { $eq: true } },
-            { "videos.0": { $exists: true } }
-          ]
-        }
-      },
-    ])
+            currency: 1,
+            owner: 1,
+            price: 1,
+            title: 1,
+            visible: 1,
+            purchasedUsers: 1,
+            date: 1,
+          }
+        },
+        {
+          $match: {
+            $and: [
+              { visible: true },
+              { 'owner.visible': { $eq: true } },
+              { "videos.0": { $exists: true } }
+            ]
+          }
+        },
+      ])
+    } else {
+      bites = await Bite.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            as: 'owner',
+            let: { owner: "$owner" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$$owner", "$_id"] }
+                }
+              },
+              {
+                $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
+              }
+            ],
+          }
+        },
+        { $unwind: "$owner" },
+        {
+          $project: {
+            videos: {
+              $filter: {
+                input: "$videos",
+                as: "videos",
+                cond: { $eq: ["$$videos.visible", true] }
+              }
+            },
+            currency: 1,
+            owner: 1,
+            price: 1,
+            title: 1,
+            category: 1,
+            visible: 1,
+            purchasedUsers: 1,
+            date: 1,
+          }
+        },
+        {
+          $match: {
+            $and: [
+              { "category": { $in: category } },
+              { visible: true },
+              { 'owner.visible': { $eq: true } },
+              { "videos.0": { $exists: true } }
+            ]
+          }
+        },
+      ])
+    }
 
     const resBites: any = []
 
