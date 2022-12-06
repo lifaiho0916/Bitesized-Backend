@@ -113,69 +113,125 @@ export const uploadCover = async (req: any, res: any) => {
 
 export const getAllBites = async (req: any, res: any) => {
   try {
-    const bites: any = await Bite.aggregate([
-      {
-        $lookup: {
-          from: "users",
-          as: 'owner',
-          let: { owner: "$owner" },
-          pipeline: [
-            {
-              $match: {
-                $expr: { $eq: ["$$owner", "$_id"] }
+    const { filter } = req.query
+    let bites: any = []
+    if (Number(filter) < 1) {
+      bites = await Bite.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            as: 'owner',
+            let: { owner: "$owner" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$$owner", "$_id"] }
+                }
+              },
+              {
+                $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
+              }
+            ],
+          }
+        },
+        { $unwind: "$owner" },
+        {
+          $project: {
+            videos: {
+              $filter: {
+                input: "$videos",
+                as: "videos",
+                cond: { $eq: ["$$videos.visible", true] }
               }
             },
-            {
-              $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
-            }
-          ],
+            currency: 1,
+            owner: 1,
+            price: 1,
+            title: 1,
+            visible: 1,
+            purchasedUsers: 1,
+            date: 1,
+          }
+        },
+        {
+          $match: {
+            $and: [
+              { visible: true },
+              { 'owner.visible': { $eq: true } },
+              { "videos.0": { $exists: true } }
+            ]
+          }
+        },
+        { $sort: { createdAt: -1 } }
+      ])
+    } else {
+      bites = await Bite.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            as: 'owner',
+            let: { owner: "$owner" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$$owner", "$_id"] }
+                }
+              },
+              {
+                $project: { avatar: 1, name: 1, personalisedUrl: 1, visible: 1 }
+              }
+            ],
+          }
+        },
+        { $unwind: "$owner" },
+        {
+          $project: {
+            videos: {
+              $filter: {
+                input: "$videos",
+                as: "videos",
+                cond: { $eq: ["$$videos.visible", true] }
+              }
+            },
+            currency: 1,
+            owner: 1,
+            price: 1,
+            title: 1,
+            visible: 1,
+            category: 1,
+            purchasedUsers: 1,
+            date: 1,
+          }
+        },
+        {
+          $match: {
+            $and: [
+              { visible: true },
+              { category: { $eq: Number(filter) - 1 } },
+              { 'owner.visible': { $eq: true } },
+              { "videos.0": { $exists: true } }
+            ]
+          }
         }
-      },
-      { $unwind: "$owner" },
-      {
-        $project: {
-          videos: {
-            $filter: {
-              input: "$videos",
-              as: "videos",
-              cond: { $eq: ["$$videos.visible", true] }
-            }
-          },
-          currency: 1,
-          owner: 1,
-          price: 1,
-          title: 1,
-          visible: 1,
-          purchasedUsers: 1,
-          date: 1,
-        }
-      },
-      {
-        $match: {
-          $and: [
-            { visible: true },
-            { 'owner.visible': { $eq: true } },
-            { "videos.0": { $exists: true } }
-          ]
-        }
-      }
-    ])
-
-    const resBites: any = []
-    const newArr1 = bites.slice()
-    for (let i = newArr1.length - 1; i > 0; i--) {
-      const rand = Math.floor(Math.random() * (i + 1))
-      const temp = newArr1[i]
-      newArr1[i] = newArr1[rand]
-      newArr1[rand] = temp
+      ])
     }
+    let resBites: any = []
+    if (Number(filter) > -1) {
+      const newArr1 = bites.slice()
+      for (let i = newArr1.length - 1; i > 0; i--) {
+        const rand = Math.floor(Math.random() * (i + 1))
+        const temp = newArr1[i]
+        newArr1[i] = newArr1[rand]
+        newArr1[rand] = temp
+      }
 
-    newArr1.forEach((bite: any) => {
-      resBites.push({
-        ...bite,
-        time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
+      newArr1.forEach((bite: any) => {
+        resBites.push({
+          ...bite,
+          time: Math.round((new Date(bite.date).getTime() - new Date(calcTime()).getTime()) / 1000)
+        })
       })
-    })
+    } else resBites = bites
 
     return res.status(200).json({ success: true, payload: { bites: resBites } })
   } catch (err) {
@@ -371,7 +427,7 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
             }
           }
         ])
-      } 
+      }
 
       const resBites: any = []
 
@@ -401,7 +457,7 @@ export const unLockBite = async (req: any, res: any) => {
 
     if (bite.purchasedUsers.every((purchaseInfo: any) => purchaseInfo.purchasedBy !== userId)) {
       if (currency) {
-        if(subscribe) {
+        if (subscribe) {
           const time = calcTime()
 
           const newTransaction1 = new Transaction({
