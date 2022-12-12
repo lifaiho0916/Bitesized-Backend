@@ -18,6 +18,7 @@ import transaction from "./Routes/api/transaction"
 import payment from "./Routes/api/payment"
 import setting from "./Routes/api/setting"
 import subScription from "./Routes/api/subscription"
+import search from "./Routes/api/search"
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -52,6 +53,7 @@ app.use("/api/transaction", transaction)
 app.use("/api/payment", payment)
 app.use("/api/setting", setting)
 app.use("/api/subscription", subScription)
+app.use("/api/search", search)
 
 app.use(express.static("public"))
 server.listen(PORT, async () => {
