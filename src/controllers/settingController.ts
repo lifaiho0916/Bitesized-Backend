@@ -34,6 +34,7 @@ export const saveTermsAndPrivacy = async (req: any, res: any) => {
 export const getSearchResult = async (req: any, res: any) => {
     try {
         const { search } = req.query
+        if(search === "") return res.status(200).json({ success: true, payload: { result: [] }})
         const bites = await Bite.find({ title: { $regex: search, $options: "i" } })
         const users = await User.find({ name: { $regex: search, $options: "i" } })
         const bitesByComments = await Bite.find({ "comments.text": { $regex: search, $options: "i" } })
