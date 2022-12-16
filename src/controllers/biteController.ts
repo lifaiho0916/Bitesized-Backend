@@ -325,7 +325,7 @@ export const getBitesByPersonalisedUrl = async (req: any, res: any) => {
   try {
     const { url } = req.params
     const { userId, tab } = req.query
-    const user: any = await User.findOne({ personalisedUrl: url })
+    const user: any = await User.findOne({ personalisedUrl: { $regex: url, $options: "i" }})
 
     if (user) {
       let bites: any = []

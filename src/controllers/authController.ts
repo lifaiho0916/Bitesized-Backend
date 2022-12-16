@@ -51,7 +51,7 @@ export const getOwnersOfBites = async (req: any, res: any) => {
 export const getUserByPersonalisedUrl = async (req: any, res: any) => {
   try {
     const { url } = req.params
-    const user = await User.findOne({ personalisedUrl: url })
+    const user = await User.findOne({ personalisedUrl: { $regex: url, $options: "i" } })
       .select({ name: 1, avatar: 1, personalisedUrl: 1, categories: 1, role: 1, bioText: 1 })
 
     if (user) return res.status(200).json({ success: true, payload: { users: [user] } })
